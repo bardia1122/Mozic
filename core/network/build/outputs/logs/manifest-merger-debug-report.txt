@@ -1,0 +1,16 @@
+-- Merging decision tree log ---
+manifest
+ADDED from D:\Mozic\core\network\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest11413736952969953300.xml:2:13-83
+INJECTED from D:\Mozic\core\network\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest11413736952969953300.xml:2:13-83
+	package
+		INJECTED from D:\Mozic\core\network\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest11413736952969953300.xml
+	xmlns:android
+		ADDED from D:\Mozic\core\network\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest11413736952969953300.xml:2:23-81
+uses-sdk
+INJECTED from D:\Mozic\core\network\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest11413736952969953300.xml reason: use-sdk injection requested
+INJECTED from D:\Mozic\core\network\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest11413736952969953300.xml
+INJECTED from D:\Mozic\core\network\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest11413736952969953300.xml
+	android:targetSdkVersion
+		INJECTED from D:\Mozic\core\network\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest11413736952969953300.xml
+	android:minSdkVersion
+		INJECTED from D:\Mozic\core\network\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest11413736952969953300.xml
