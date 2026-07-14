@@ -1,9 +1,0 @@
-com.example.mozic.feature.library-pngs-0 D:\Mozic\feature\library\build\generated\res\pngs\debug
-com.example.mozic.feature.library-updated_navigation_xml-1 D:\Mozic\feature\library\build\generated\updated_navigation_xml\debug
-com.example.mozic.feature.library-mergeDebugResources-2 D:\Mozic\feature\library\build\intermediates\incremental\debug\mergeDebugResources\merged.dir
-com.example.mozic.feature.library-mergeDebugResources-3 D:\Mozic\feature\library\build\intermediates\incremental\debug\mergeDebugResources\stripped.dir
-com.example.mozic.feature.library-debug-4 D:\Mozic\feature\library\build\intermediates\merged_res\debug\mergeDebugResources
-com.example.mozic.feature.library-debug-5 D:\Mozic\feature\library\build\intermediates\packaged_res\debug\packageDebugResources
-com.example.mozic.feature.library-debug-6 D:\Mozic\feature\library\src\debug\res
-com.example.mozic.feature.library-main-7 D:\Mozic\feature\library\src\main\res
-gradleHome-0 C:\Users\Lenovo\.gradle

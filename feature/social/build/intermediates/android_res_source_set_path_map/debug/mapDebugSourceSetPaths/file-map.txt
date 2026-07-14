@@ -1,9 +1,0 @@
-com.example.mozic.feature.social-pngs-0 D:\Mozic\feature\social\build\generated\res\pngs\debug
-com.example.mozic.feature.social-updated_navigation_xml-1 D:\Mozic\feature\social\build\generated\updated_navigation_xml\debug
-com.example.mozic.feature.social-mergeDebugResources-2 D:\Mozic\feature\social\build\intermediates\incremental\debug\mergeDebugResources\merged.dir
-com.example.mozic.feature.social-mergeDebugResources-3 D:\Mozic\feature\social\build\intermediates\incremental\debug\mergeDebugResources\stripped.dir
-com.example.mozic.feature.social-debug-4 D:\Mozic\feature\social\build\intermediates\merged_res\debug\mergeDebugResources
-com.example.mozic.feature.social-debug-5 D:\Mozic\feature\social\build\intermediates\packaged_res\debug\packageDebugResources
-com.example.mozic.feature.social-debug-6 D:\Mozic\feature\social\src\debug\res
-com.example.mozic.feature.social-main-7 D:\Mozic\feature\social\src\main\res
-gradleHome-0 C:\Users\Lenovo\.gradle
