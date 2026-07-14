@@ -19,6 +19,13 @@ complexity:
   LongMethod:
     # Composable functions are naturally long; keep a generous threshold.
     threshold: 120
+  LongParameterList:
+    # Domain state/model data classes (e.g. PlayerState) have many fields, but
+    # they carry defaults and are constructed by name — not a call-site smell.
+    # Threshold nudged to 7 for named-argument data/sample-data builders.
+    functionThreshold: 7
+    constructorThreshold: 7
+    ignoreDefaultParameters: true
   TooManyFunctions:
     active: false
 
