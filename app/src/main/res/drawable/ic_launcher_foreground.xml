@@ -1,23 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Mozic mark: beamed eighth notes, centred within the adaptive-icon safe zone. -->
+<!--
+  Mozic mark (from icon/MowzicK-icon.svg): gold musical note.
+  The original artwork is authored in a 1024 space; the outer <group> scales it
+  (0.09) and re-centres it into the 108 adaptive-icon safe zone. Rotated ellipse
+  parts keep their rotation via nested groups.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M34,73 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0 Z" />
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M64,66 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0 Z" />
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M50,73 L50,35 L54,35 L54,73 Z" />
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M80,66 L80,28 L84,28 L84,66 Z" />
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M50,35 L84,27 L84,35 L50,43 Z" />
+    <group
+        android:pivotX="580"
+        android:pivotY="542"
+        android:scaleX="0.09"
+        android:scaleY="0.09"
+        android:translateX="-526"
+        android:translateY="-488">
+
+        <!-- Stem -->
+        <path
+            android:fillColor="#FFEFC2"
+            android:pathData="M497,260 a27,27 0 0 1 27,27 v376 a27,27 0 0 1 -27,27 a27,27 0 0 1 -27,-27 v-376 a27,27 0 0 1 27,-27 z" />
+
+        <!-- Note head (rotated ellipse) -->
+        <group
+            android:pivotX="430"
+            android:pivotY="730"
+            android:rotation="-18">
+            <path
+                android:fillColor="#FFEFC2"
+                android:pathData="M312,730 a118,92 0 1 0 236,0 a118,92 0 1 0 -236,0 z" />
+        </group>
+
+        <!-- Flag -->
+        <path
+            android:fillColor="#FFC738"
+            android:strokeColor="#F2A91C"
+            android:strokeWidth="10"
+            android:strokeLineJoin="round"
+            android:pathData="M524,268 C700,268 812,360 846,520 C862,592 848,656 806,706 C792,722 772,706 778,686 C800,610 792,542 748,486 C706,432 610,398 524,398 Z" />
+
+        <!-- Flag inner highlight -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#F2A91C"
+            android:strokeWidth="8"
+            android:strokeAlpha="0.7"
+            android:strokeLineCap="round"
+            android:pathData="M540,300 C690,306 780,388 806,520" />
+
+        <!-- Stem-top notch -->
+        <path
+            android:fillColor="#241C10"
+            android:pathData="M524,268 C500,268 480,278 470,296 C490,288 508,284 524,288 Z" />
+
+        <!-- Flag tip shadow (rotated ellipse) -->
+        <group
+            android:pivotX="800"
+            android:pivotY="692"
+            android:rotation="35">
+            <path
+                android:fillColor="#241C10"
+                android:pathData="M784,692 a16,22 0 1 0 32,0 a16,22 0 1 0 -32,0 z" />
+        </group>
+    </group>
 </vector>
