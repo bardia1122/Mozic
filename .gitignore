@@ -72,3 +72,4 @@ vcs.xml
 # Baseline profiles
 *.baseline.prof
 /doc
+.idea
