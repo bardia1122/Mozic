@@ -10,6 +10,7 @@
     <string name="nav_search">Search</string>
     <string name="nav_library">Your Library</string>
     <string name="nav_downloads">Downloads</string>
+    <string name="nav_playlists">Playlists</string>
     <string name="nav_profile">Profile</string>
 
     <!-- Common actions -->
@@ -17,18 +18,29 @@
     <string name="action_pause">Pause</string>
     <string name="action_retry">Retry</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_back">Back</string>
+
+    <!-- Top bar -->
+    <string name="cd_notifications">Notifications</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_language">Language</string>
     <string name="settings_theme">Theme</string>
     <string name="settings_logout">Log out</string>
+    <string name="settings_logged_out">Logged out</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_system">System default</string>
+    <string name="language_english">English</string>
+    <string name="language_persian">فارسی</string>
 
     <!-- Common states -->
     <string name="state_loading">Loading…</string>
     <string name="state_empty">Nothing here yet</string>
     <string name="state_error">Something went wrong</string>
+    <string name="placeholder_coming_soon">Coming soon</string>
+
+    <!-- Mini player -->
+    <string name="player_mini_placeholder">Nothing playing</string>
 </resources>
