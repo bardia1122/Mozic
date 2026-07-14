@@ -13,4 +13,62 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Gradle files
+.gradle/
+build/
+**/build/
+
+# Local configuration file
+local.properties
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.iws
+caches/
+libraries/
+
+# Keystore files
+*.jks
+*.keystore
+
+# Google Services (if using Firebase)
+# google-services.json
+
+# Android Profiling
+*.hprof
+
+# Log Files
+*.log
+
+# Kotlin
+.kotlin/
+
+# OS files
+.DS_Store
+
+# Captures
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Freeline
+freeline.py
+freeline/
+freeline_project_description.json
+
+# Version control
+vcs.xml
+
+# Play Feature Delivery
+*.zip
+
+# Baseline profiles
+*.baseline.prof
 /doc

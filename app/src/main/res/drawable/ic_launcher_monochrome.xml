@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Mozic mark: beamed eighth notes, centred within the adaptive-icon safe zone. -->
+<!--
+  Monochrome layer for Android 13+ themed icons. Single opaque tone on a
+  transparent field; the launcher re-tints it to match the system theme.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <path
-        android:fillColor="#FFFFFFFF"
+        android:fillColor="#FF000000"
         android:pathData="M34,73 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0 Z" />
     <path
-        android:fillColor="#FFFFFFFF"
+        android:fillColor="#FF000000"
         android:pathData="M64,66 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0 Z" />
     <path
-        android:fillColor="#FFFFFFFF"
+        android:fillColor="#FF000000"
         android:pathData="M50,73 L50,35 L54,35 L54,73 Z" />
     <path
-        android:fillColor="#FFFFFFFF"
+        android:fillColor="#FF000000"
         android:pathData="M80,66 L80,28 L84,28 L84,66 Z" />
     <path
-        android:fillColor="#FFFFFFFF"
+        android:fillColor="#FF000000"
         android:pathData="M50,35 L84,27 L84,35 L50,43 Z" />
 </vector>

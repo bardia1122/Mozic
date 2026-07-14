@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bottom navigation -->
+    <string name="nav_home">خانه</string>
+    <string name="nav_search">جست‌وجو</string>
+    <string name="nav_library">کتابخانه شما</string>
+    <string name="nav_downloads">دانلودها</string>
+    <string name="nav_profile">نمایه</string>
+
+    <!-- Common actions -->
+    <string name="action_play">پخش</string>
+    <string name="action_pause">مکث</string>
+    <string name="action_retry">تلاش دوباره</string>
+    <string name="action_cancel">لغو</string>
+
+    <!-- Settings -->
+    <string name="settings_title">تنظیمات</string>
+    <string name="settings_language">زبان</string>
+    <string name="settings_theme">پوسته</string>
+    <string name="settings_logout">خروج از حساب</string>
+    <string name="theme_light">روشن</string>
+    <string name="theme_dark">تیره</string>
+    <string name="theme_system">پیش‌فرض سیستم</string>
+
+    <!-- Common states -->
+    <string name="state_loading">در حال بارگذاری…</string>
+    <string name="state_empty">هنوز چیزی اینجا نیست</string>
+    <string name="state_error">مشکلی پیش آمد</string>
+</resources>

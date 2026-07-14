@@ -1,2 +1,24 @@
 R_DEF: Internal format may change without notice
 local
+array com_google_android_gms_fonts_certs
+array com_google_android_gms_fonts_certs_dev
+array com_google_android_gms_fonts_certs_prod
+string action_cancel
+string action_pause
+string action_play
+string action_retry
+string nav_downloads
+string nav_home
+string nav_library
+string nav_profile
+string nav_search
+string settings_language
+string settings_logout
+string settings_theme
+string settings_title
+string state_empty
+string state_error
+string state_loading
+string theme_dark
+string theme_light
+string theme_system
