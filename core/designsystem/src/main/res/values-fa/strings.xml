@@ -38,4 +38,15 @@
 
     <!-- Mini player -->
     <string name="player_mini_placeholder">چیزی در حال پخش نیست</string>
+
+    <!-- Home -->
+    <string name="home_quick_action_liked">پسندیده‌ها</string>
+    <string name="home_quick_action_recent">پخش‌های اخیر</string>
+    <string name="home_quick_action_playlists">پلی‌لیست‌های من</string>
+    <string name="home_quick_action_top_artists">هنرمندان برتر</string>
+    <string name="home_section_most_popular">محبوب‌ترین‌ها</string>
+    <string name="home_section_newest">جدیدترین‌ها</string>
+    <string name="home_section_global_playlists">پلی‌لیست‌های جهانی</string>
+    <string name="home_section_local_playlists">پلی‌لیست‌های محلی</string>
+    <string name="home_playlist_song_count">%d آهنگ</string>
 </resources>

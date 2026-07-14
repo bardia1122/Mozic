@@ -1,0 +1,113 @@
+package com.example.mozic.core.ui.component
+
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import com.example.mozic.core.designsystem.R
+import com.example.mozic.core.designsystem.theme.dimens
+import com.example.mozic.core.domain.model.Playlist
+
+/**
+ * Playlist cover + title, used on Home and the Playlists grid. Falls back to a
+ * theme-derived tint (never a raw color literal) when there's no cover image.
+ */
+@Composable
+fun PlaylistCard(
+    playlist: Playlist,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(targetValue = if (pressed) 0.95f else 1f, label = "playlistCardScale")
+
+    Column(
+        modifier = modifier
+            .width(MaterialTheme.dimens.cardImageSize)
+            .scale(scale)
+            .clickable(interactionSource = interactionSource, indication = null, onClick = onClick),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceXs),
+    ) {
+        val cover = playlist.coverImageUrl
+        if (cover != null) {
+            CoverImage(
+                model = cover,
+                contentDescription = playlist.title,
+                modifier = Modifier
+                    .size(MaterialTheme.dimens.cardImageSize)
+                    .clip(MaterialTheme.shapes.medium),
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .size(MaterialTheme.dimens.cardImageSize)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(playlistTint(playlist.id, MaterialTheme.colorScheme)),
+            )
+        }
+        Text(
+            text = playlist.title,
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = stringResource(R.string.home_playlist_song_count, playlist.songCount),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/** Same footprint as [PlaylistCard], shimmering, for skeleton loading. */
+@Composable
+fun PlaylistCardSkeleton(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.width(MaterialTheme.dimens.cardImageSize),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceXs),
+    ) {
+        ShimmerBox(
+            modifier = Modifier.size(MaterialTheme.dimens.cardImageSize),
+            shape = MaterialTheme.shapes.medium,
+        )
+        ShimmerBox(modifier = Modifier.fillMaxWidth().height(MaterialTheme.dimens.skeletonLineHeight))
+        ShimmerBox(
+            modifier = Modifier
+                .width(MaterialTheme.dimens.cardImageSize * 0.5f)
+                .height(MaterialTheme.dimens.skeletonLineHeight),
+        )
+    }
+}
+
+/** Deterministic pick from the container tones so cover-less playlists still read as distinct. */
+private fun playlistTint(seed: String, colorScheme: ColorScheme): Color {
+    val tones = listOf(
+        colorScheme.primaryContainer,
+        colorScheme.secondaryContainer,
+        colorScheme.tertiaryContainer,
+    )
+    return tones[(seed.hashCode().mod(tones.size))]
+}

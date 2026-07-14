@@ -21,6 +21,14 @@ data class Dimens(
     val spaceMd: Dp = 16.dp,
     val spaceLg: Dp = 24.dp,
     val spaceXl: Dp = 32.dp,
+    /** Cover art side for song/playlist cards in horizontal rows. */
+    val cardImageSize: Dp = 120.dp,
+    /** Height of the Home carousel's big-imagery pages. */
+    val carouselHeight: Dp = 200.dp,
+    /** Pager page-indicator dot diameter. */
+    val indicatorDotSize: Dp = 6.dp,
+    /** Approximate single text-line height for skeleton placeholders. */
+    val skeletonLineHeight: Dp = 14.dp,
 )
 
 val LocalDimens = staticCompositionLocalOf { Dimens() }
