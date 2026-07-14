@@ -25,7 +25,11 @@ fun MozicNavHost(
         startDestination = HomeRoute,
         modifier = modifier,
     ) {
-        homeScreen()
+        homeScreen(
+            onNavigateToPlaylists = {
+                navController.navigateToTopLevelDestination(TopLevelDestination.PLAYLISTS)
+            },
+        )
         searchScreen()
         downloadsScreen()
         playlistsScreen()
