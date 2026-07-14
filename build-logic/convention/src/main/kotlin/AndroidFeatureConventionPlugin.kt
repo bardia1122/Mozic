@@ -16,6 +16,9 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             apply("mozic.android.library")
             apply("mozic.android.library.compose")
             apply("mozic.android.hilt")
+            // Typed nav routes (`@Serializable data object FooRoute`) are the
+            // house style — wired once here so every feature module gets it.
+            apply("org.jetbrains.kotlin.plugin.serialization")
         }
 
         dependencies {
@@ -30,6 +33,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             add("implementation", libs.findLibrary("androidx-hilt-navigation-compose").get())
             add("implementation", libs.findLibrary("androidx-paging-compose").get())
             add("implementation", libs.findLibrary("androidx-compose-material-icons-extended").get())
+            add("implementation", libs.findLibrary("kotlinx-serialization-json").get())
 
             add("testImplementation", libs.findLibrary("junit").get())
             add("testImplementation", libs.findLibrary("kotlinx-coroutines-test").get())

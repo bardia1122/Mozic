@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Mozic" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- AppCompatActivity requires a Theme.AppCompat descendant; DayNight avoids
+         a flash of the wrong theme before Compose applies MozicTheme. -->
+    <style name="Theme.Mozic" parent="Theme.AppCompat.DayNight.NoActionBar" />
 </resources>

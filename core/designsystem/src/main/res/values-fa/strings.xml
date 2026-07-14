@@ -5,6 +5,7 @@
     <string name="nav_search">جست‌وجو</string>
     <string name="nav_library">کتابخانه شما</string>
     <string name="nav_downloads">دانلودها</string>
+    <string name="nav_playlists">پلی‌لیست‌ها</string>
     <string name="nav_profile">نمایه</string>
 
     <!-- Common actions -->
@@ -12,18 +13,29 @@
     <string name="action_pause">مکث</string>
     <string name="action_retry">تلاش دوباره</string>
     <string name="action_cancel">لغو</string>
+    <string name="action_back">بازگشت</string>
+
+    <!-- Top bar -->
+    <string name="cd_notifications">اعلان‌ها</string>
 
     <!-- Settings -->
     <string name="settings_title">تنظیمات</string>
     <string name="settings_language">زبان</string>
     <string name="settings_theme">پوسته</string>
     <string name="settings_logout">خروج از حساب</string>
+    <string name="settings_logged_out">خارج شدید</string>
     <string name="theme_light">روشن</string>
     <string name="theme_dark">تیره</string>
     <string name="theme_system">پیش‌فرض سیستم</string>
+    <string name="language_english">English</string>
+    <string name="language_persian">فارسی</string>
 
     <!-- Common states -->
     <string name="state_loading">در حال بارگذاری…</string>
     <string name="state_empty">هنوز چیزی اینجا نیست</string>
     <string name="state_error">مشکلی پیش آمد</string>
+    <string name="placeholder_coming_soon">به‌زودی</string>
+
+    <!-- Mini player -->
+    <string name="player_mini_placeholder">چیزی در حال پخش نیست</string>
 </resources>

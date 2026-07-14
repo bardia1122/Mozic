@@ -15,4 +15,5 @@ dependencies {
     implementation(libs.coil.network.okhttp)
     implementation(libs.androidx.paging.compose)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.animation)
 }
