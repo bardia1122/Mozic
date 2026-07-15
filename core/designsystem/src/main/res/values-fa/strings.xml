@@ -49,4 +49,15 @@
     <string name="home_section_global_playlists">پلی‌لیست‌های جهانی</string>
     <string name="home_section_local_playlists">پلی‌لیست‌های محلی</string>
     <string name="home_playlist_song_count">%d آهنگ</string>
+
+    <!-- Search -->
+    <string name="search_field_placeholder">جست‌وجوی آهنگ، هنرمند، پلی‌لیست</string>
+    <string name="cd_clear_search">پاک کردن جست‌وجو</string>
+    <string name="search_filter_all">همه</string>
+    <string name="search_filter_song">آهنگ‌ها</string>
+    <string name="search_filter_artist">هنرمندان</string>
+    <string name="search_filter_playlist">پلی‌لیست‌ها</string>
+    <string name="search_history_title">جست‌وجوهای اخیر</string>
+    <string name="cd_remove_search_history_item">حذف از تاریخچه</string>
+    <string name="search_no_results">نتیجه‌ای یافت نشد</string>
 </resources>

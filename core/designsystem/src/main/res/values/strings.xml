@@ -54,4 +54,15 @@
     <string name="home_section_global_playlists">Global playlists</string>
     <string name="home_section_local_playlists">Local playlists</string>
     <string name="home_playlist_song_count">%d songs</string>
+
+    <!-- Search -->
+    <string name="search_field_placeholder">Search songs, artists, playlists</string>
+    <string name="cd_clear_search">Clear search</string>
+    <string name="search_filter_all">All</string>
+    <string name="search_filter_song">Songs</string>
+    <string name="search_filter_artist">Artists</string>
+    <string name="search_filter_playlist">Playlists</string>
+    <string name="search_history_title">Recent searches</string>
+    <string name="cd_remove_search_history_item">Remove from history</string>
+    <string name="search_no_results">No results found</string>
 </resources>
