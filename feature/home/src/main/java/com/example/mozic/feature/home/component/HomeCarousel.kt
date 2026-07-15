@@ -76,7 +76,7 @@ fun HomeCarousel(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = MaterialTheme.dimens.spaceMd)
+                    .padding(horizontal = MaterialTheme.dimens.screenHorizontalPadding)
                     .graphicsLayer {
                         scaleX = SCALE_TROUGH + (SCALE_PEAK - SCALE_TROUGH) * focusFraction
                         scaleY = scaleX

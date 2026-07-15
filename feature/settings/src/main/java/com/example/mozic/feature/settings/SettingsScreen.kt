@@ -1,6 +1,7 @@
 package com.example.mozic.feature.settings
 
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,11 +34,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.designsystem.theme.dimens
+import com.example.mozic.core.designsystem.theme.mozicColors
 import com.example.mozic.core.domain.model.AppLanguage
 import com.example.mozic.core.domain.model.ThemeSetting
 import com.example.mozic.core.domain.model.UserPreferences
@@ -86,7 +90,10 @@ fun SettingsScreen(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
-                    .padding(MaterialTheme.dimens.spaceMd),
+                    .padding(
+                        horizontal = MaterialTheme.dimens.screenHorizontalPadding,
+                        vertical = MaterialTheme.dimens.spaceMd,
+                    ),
             )
         }
     }
@@ -130,6 +137,7 @@ private fun SettingsContent(
         OutlinedButton(
             onClick = { onEvent(SettingsEvent.Logout) },
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+            border = BorderStroke(1.dp, MaterialTheme.mozicColors.destructiveBorder),
         ) {
             Text(stringResource(R.string.settings_logout))
         }
@@ -146,7 +154,7 @@ private fun SettingsSection(
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.onBackground,
         )
         Spacer(Modifier.height(MaterialTheme.dimens.spaceXs))
         content()
@@ -169,7 +177,11 @@ private fun SettingsRadioRow(
     ) {
         RadioButton(selected = selected, onClick = onClick)
         Spacer(Modifier.width(MaterialTheme.dimens.spaceXs))
-        Text(text = label, style = MaterialTheme.typography.bodyLarge)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = if (selected) FontWeight.Bold else null,
+        )
     }
 }
 

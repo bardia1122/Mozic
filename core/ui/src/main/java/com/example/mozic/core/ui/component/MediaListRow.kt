@@ -1,6 +1,5 @@
 package com.example.mozic.core.ui.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.mozic.core.designsystem.theme.dimens
+import com.example.mozic.core.ui.modifier.artworkPlaceholder
 
 /**
  * Leading thumbnail + title/subtitle, single-column list row. Used for search
@@ -40,7 +40,10 @@ fun MediaListRow(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = MaterialTheme.dimens.spaceMd, vertical = MaterialTheme.dimens.spaceXs),
+            .padding(
+                horizontal = MaterialTheme.dimens.screenHorizontalPadding,
+                vertical = MaterialTheme.dimens.spaceXs,
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceMd),
     ) {
@@ -59,14 +62,14 @@ fun MediaListRow(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .artworkPlaceholder(),
                 )
             }
         }
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -93,7 +96,10 @@ fun MediaListRowSkeleton(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.dimens.spaceMd, vertical = MaterialTheme.dimens.spaceXs),
+            .padding(
+                horizontal = MaterialTheme.dimens.screenHorizontalPadding,
+                vertical = MaterialTheme.dimens.spaceXs,
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceMd),
     ) {

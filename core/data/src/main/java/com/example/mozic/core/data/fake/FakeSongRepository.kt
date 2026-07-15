@@ -10,22 +10,38 @@ import com.example.mozic.core.domain.model.Song
 import com.example.mozic.core.domain.repository.SongRepository
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+
+/** Simulated network latency so `HomeUiState.Loading`'s shimmer is actually visible. */
+private const val FAKE_HOME_LOAD_DELAY_MS = 700L
 
 @Singleton
 class FakeSongRepository @Inject constructor() : SongRepository {
-    override fun homeContent(): Flow<HomeContent> = flowOf(
-        HomeContent(
-            carousel = SampleData.songs.take(5),
-            rows = listOf(
-                HomeRow.Songs("Most popular", HomeSection.MOST_POPULAR, SampleData.songs.take(8)),
-                HomeRow.Songs("Newest", HomeSection.NEWEST, SampleData.songs.takeLast(8)),
-                HomeRow.Playlists("Global playlists", PlaylistCategory.WORLD, playlistsOf(PlaylistCategory.WORLD)),
-                HomeRow.Playlists("Local playlists", PlaylistCategory.LOCAL, playlistsOf(PlaylistCategory.LOCAL)),
+    override fun homeContent(): Flow<HomeContent> = flow {
+        delay(FAKE_HOME_LOAD_DELAY_MS)
+        emit(
+            HomeContent(
+                carousel = SampleData.songs.take(5),
+                rows = listOf(
+                    HomeRow.Songs("Most popular", HomeSection.MOST_POPULAR, SampleData.songs.take(8)),
+                    HomeRow.Songs("Newest", HomeSection.NEWEST, SampleData.songs.takeLast(8)),
+                    HomeRow.Playlists(
+                        "Global playlists",
+                        PlaylistCategory.WORLD,
+                        playlistsOf(PlaylistCategory.WORLD),
+                    ),
+                    HomeRow.Playlists(
+                        "Local playlists",
+                        PlaylistCategory.LOCAL,
+                        playlistsOf(PlaylistCategory.LOCAL),
+                    ),
+                ),
             ),
-        ),
-    )
+        )
+    }
 
     override fun pagedSection(section: HomeSection): Flow<PagingData<Song>> {
         val list = when (section) {

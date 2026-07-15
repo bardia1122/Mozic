@@ -1,7 +1,6 @@
 package com.example.mozic.core.ui.component
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,16 +19,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.domain.model.Playlist
+import com.example.mozic.core.ui.modifier.artworkPlaceholder
 
 /**
- * Playlist cover + title, used on Home and the Playlists grid. Falls back to a
- * theme-derived tint (never a raw color literal) when there's no cover image.
+ * Playlist cover + title, used on Home and the Playlists grid. Falls back to
+ * the shared [artworkPlaceholder] stripe texture when there's no cover image.
  */
 @Composable
 fun PlaylistCard(
@@ -63,12 +61,12 @@ fun PlaylistCard(
                 modifier = Modifier
                     .size(MaterialTheme.dimens.cardImageSize)
                     .clip(MaterialTheme.shapes.medium)
-                    .background(playlistTint(playlist.id, MaterialTheme.colorScheme)),
+                    .artworkPlaceholder(),
             )
         }
         Text(
             text = playlist.title,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.titleSmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -100,14 +98,4 @@ fun PlaylistCardSkeleton(modifier: Modifier = Modifier) {
                 .height(MaterialTheme.dimens.skeletonLineHeight),
         )
     }
-}
-
-/** Deterministic pick from the container tones so cover-less playlists still read as distinct. */
-private fun playlistTint(seed: String, colorScheme: ColorScheme): Color {
-    val tones = listOf(
-        colorScheme.primaryContainer,
-        colorScheme.secondaryContainer,
-        colorScheme.tertiaryContainer,
-    )
-    return tones[(seed.hashCode().mod(tones.size))]
 }

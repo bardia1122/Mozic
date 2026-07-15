@@ -35,13 +35,13 @@ fun HomeSectionRowSkeleton(modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         ShimmerBox(
             modifier = Modifier
-                .padding(horizontal = MaterialTheme.dimens.spaceMd)
+                .padding(horizontal = MaterialTheme.dimens.screenHorizontalPadding)
                 .fillMaxWidth(SKELETON_TITLE_WIDTH_FRACTION)
                 .height(MaterialTheme.dimens.skeletonLineHeight),
         )
         LazyRow(
             modifier = Modifier.padding(top = MaterialTheme.dimens.spaceXs),
-            contentPadding = PaddingValues(horizontal = MaterialTheme.dimens.spaceMd),
+            contentPadding = PaddingValues(horizontal = MaterialTheme.dimens.screenHorizontalPadding),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceMd),
         ) {
             items(SKELETON_ITEMS_PER_ROW) {

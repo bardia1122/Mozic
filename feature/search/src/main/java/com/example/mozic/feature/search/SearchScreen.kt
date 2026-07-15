@@ -59,7 +59,7 @@ fun SearchScreen(
                 onSearch = { viewModel.onEvent(SearchEvent.Submit) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = MaterialTheme.dimens.spaceMd),
+                    .padding(horizontal = MaterialTheme.dimens.screenHorizontalPadding),
             )
 
             if (uiState.query.isBlank()) {

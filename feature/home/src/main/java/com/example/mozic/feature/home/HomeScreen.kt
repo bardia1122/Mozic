@@ -96,13 +96,13 @@ private fun HomeContent(
                     onSongClick = { song -> onEvent(HomeEvent.SongClick(song, uiState.carousel)) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.dimens.spaceMd),
+                        .padding(horizontal = MaterialTheme.dimens.screenHorizontalPadding),
                 )
 
                 HomeUiState.Loading -> HomeCarouselSkeleton(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.dimens.spaceMd),
+                        .padding(horizontal = MaterialTheme.dimens.screenHorizontalPadding),
                 )
 
                 HomeUiState.Error -> Unit
@@ -112,7 +112,7 @@ private fun HomeContent(
         item {
             QuickActionsRow(
                 onActionClick = { action -> onEvent(HomeEvent.QuickActionClick(action)) },
-                modifier = Modifier.padding(horizontal = MaterialTheme.dimens.spaceMd),
+                modifier = Modifier.padding(horizontal = MaterialTheme.dimens.screenHorizontalPadding),
             )
         }
 

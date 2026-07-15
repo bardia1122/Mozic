@@ -38,7 +38,7 @@ fun SearchHistoryList(
                 text = stringResource(R.string.search_history_title),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(
-                    horizontal = MaterialTheme.dimens.spaceMd,
+                    horizontal = MaterialTheme.dimens.screenHorizontalPadding,
                     vertical = MaterialTheme.dimens.spaceXs,
                 ),
             )
@@ -57,7 +57,10 @@ private fun LazyListScope.historyItems(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onItemClick(query) }
-                .padding(horizontal = MaterialTheme.dimens.spaceMd, vertical = MaterialTheme.dimens.spaceXs),
+                .padding(
+                    horizontal = MaterialTheme.dimens.screenHorizontalPadding,
+                    vertical = MaterialTheme.dimens.spaceXs,
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceMd),
         ) {

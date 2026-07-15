@@ -52,7 +52,7 @@ fun SongCard(
         )
         Text(
             text = song.title,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.titleSmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )

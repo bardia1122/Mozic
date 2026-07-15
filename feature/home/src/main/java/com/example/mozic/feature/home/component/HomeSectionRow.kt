@@ -23,11 +23,11 @@ fun HomeSectionRow(
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(horizontal = MaterialTheme.dimens.spaceMd),
+            modifier = Modifier.padding(horizontal = MaterialTheme.dimens.screenHorizontalPadding),
         )
         LazyRow(
             modifier = Modifier.padding(top = MaterialTheme.dimens.spaceXs),
-            contentPadding = PaddingValues(horizontal = MaterialTheme.dimens.spaceMd),
+            contentPadding = PaddingValues(horizontal = MaterialTheme.dimens.screenHorizontalPadding),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceMd),
             content = content,
         )
