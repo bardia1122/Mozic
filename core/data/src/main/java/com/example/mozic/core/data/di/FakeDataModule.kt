@@ -5,7 +5,6 @@ import com.example.mozic.core.data.fake.FakeDownloadRepository
 import com.example.mozic.core.data.fake.FakeLibraryRepository
 import com.example.mozic.core.data.fake.FakePlayerController
 import com.example.mozic.core.data.fake.FakePlaylistRepository
-import com.example.mozic.core.data.fake.FakeSearchRepository
 import com.example.mozic.core.data.fake.FakeSocialRepository
 import com.example.mozic.core.data.fake.FakeSongRepository
 import com.example.mozic.core.data.fake.FakeUserPreferencesRepository
@@ -14,7 +13,6 @@ import com.example.mozic.core.domain.repository.ChatRepository
 import com.example.mozic.core.domain.repository.DownloadRepository
 import com.example.mozic.core.domain.repository.LibraryRepository
 import com.example.mozic.core.domain.repository.PlaylistRepository
-import com.example.mozic.core.domain.repository.SearchRepository
 import com.example.mozic.core.domain.repository.SocialRepository
 import com.example.mozic.core.domain.repository.SongRepository
 import com.example.mozic.core.domain.repository.UserPreferencesRepository
@@ -35,9 +33,6 @@ import dagger.hilt.components.SingletonComponent
 interface FakeDataModule {
     @Binds
     fun bindSongRepository(impl: FakeSongRepository): SongRepository
-
-    @Binds
-    fun bindSearchRepository(impl: FakeSearchRepository): SearchRepository
 
     @Binds
     fun bindPlaylistRepository(impl: FakePlaylistRepository): PlaylistRepository

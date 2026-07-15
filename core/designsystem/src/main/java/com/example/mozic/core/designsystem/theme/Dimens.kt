@@ -29,6 +29,8 @@ data class Dimens(
     val indicatorDotSize: Dp = 6.dp,
     /** Approximate single text-line height for skeleton placeholders. */
     val skeletonLineHeight: Dp = 14.dp,
+    /** Leading thumbnail/avatar side for single-column list rows (search results, song lists). */
+    val listRowImageSize: Dp = 48.dp,
 )
 
 val LocalDimens = staticCompositionLocalOf { Dimens() }
