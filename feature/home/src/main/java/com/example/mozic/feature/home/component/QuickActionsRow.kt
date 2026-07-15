@@ -60,7 +60,7 @@ private fun QuickActionButton(
         )
         Text(
             text = stringResource(action.labelRes()),
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.bodySmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )

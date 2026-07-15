@@ -13,9 +13,13 @@ import com.example.mozic.core.domain.model.SearchResult
 import com.example.mozic.core.domain.repository.SearchRepository
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 
 private const val SEARCH_PAGE_SIZE = 20
+
+/** Simulated network latency so the results list's shimmer skeleton is actually visible. */
+private const val FAKE_SEARCH_LOAD_DELAY_MS = 500L
 
 /**
  * History is real (Room, via [SearchHistoryDao]). Match results still come
@@ -82,6 +86,7 @@ private class SearchResultsPagingSource(
     override fun getRefreshKey(state: PagingState<Int, SearchResult>): Int? = null
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, SearchResult> {
+        delay(FAKE_SEARCH_LOAD_DELAY_MS)
         val startIndex = params.key ?: 0
         val endIndex = (startIndex + params.loadSize).coerceAtMost(results.size)
         val page = if (startIndex < results.size) results.subList(startIndex, endIndex) else emptyList()

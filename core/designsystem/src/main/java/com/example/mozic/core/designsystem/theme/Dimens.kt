@@ -21,6 +21,8 @@ data class Dimens(
     val spaceMd: Dp = 16.dp,
     val spaceLg: Dp = 24.dp,
     val spaceXl: Dp = 32.dp,
+    /** Screen left/right margin (DESIGN.md §3) — distinct from the 4px base scale above. */
+    val screenHorizontalPadding: Dp = 20.dp,
     /** Cover art side for song/playlist cards in horizontal rows. */
     val cardImageSize: Dp = 120.dp,
     /** Height of the Home carousel's big-imagery pages. */

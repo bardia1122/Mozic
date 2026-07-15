@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import com.example.mozic.core.designsystem.theme.mozicColors
 
 private const val SHIMMER_TRAVEL_PX = 1000f
 private const val SHIMMER_WIDTH_PX = 400f
@@ -20,7 +21,7 @@ private const val SHIMMER_DURATION_MS = 1200
 
 /**
  * Theme-derived skeleton shimmer: a soft highlight sweeping across
- * `surfaceVariant`. Every loading placeholder in the app uses this one
+ * `surfaceElevated`. Every loading placeholder in the app uses this one
  * modifier so skeletons look consistent across screens.
  */
 fun Modifier.shimmer(): Modifier = composed {
@@ -35,7 +36,7 @@ fun Modifier.shimmer(): Modifier = composed {
         label = "shimmerTranslateX",
     )
     val base = MaterialTheme.colorScheme.surfaceVariant
-    val highlight = MaterialTheme.colorScheme.surface
+    val highlight = MaterialTheme.mozicColors.shimmerHighlight
     background(
         brush = Brush.linearGradient(
             colors = listOf(base, highlight, base),

@@ -27,6 +27,19 @@ fun MozicTheme(
     content: @Composable () -> Unit,
 ) {
     val colorScheme = if (darkTheme) DarkColors else LightColors
+    val extendedColors = if (darkTheme) {
+        MozicExtendedColors(
+            textTertiary = DarkTextTertiary,
+            destructiveBorder = DarkDestructiveBorder,
+            shimmerHighlight = DarkShimmerHighlight,
+        )
+    } else {
+        MozicExtendedColors(
+            textTertiary = LightTextTertiary,
+            destructiveBorder = LightDestructiveBorder,
+            shimmerHighlight = LightShimmerHighlight,
+        )
+    }
 
     val density = LocalDensity.current
     val scaledDensity = Density(
@@ -36,11 +49,12 @@ fun MozicTheme(
 
     CompositionLocalProvider(
         LocalDimens provides Dimens(),
+        LocalMozicColors provides extendedColors,
         LocalDensity provides scaledDensity,
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = MozicTypography,
+            typography = mozicTypography(),
             shapes = MozicShapes,
             content = content,
         )
