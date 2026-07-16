@@ -10,9 +10,12 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -28,7 +31,18 @@ import com.example.mozic.navigation.navigateToTopLevelDestination
 import com.example.mozic.ui.MiniPlayerPlaceholder
 import com.example.mozic.ui.MozicBottomBar
 import com.example.mozic.ui.MozicTopBar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+/**
+ * Comfortably longer than the 220ms fade used by chrome-hiding sub-destination
+ * transitions (e.g. `PlaylistDetailRoute` — see `PlaylistsNavigation.kt`'s
+ * `PLAYLISTS_NAV_TRANSITION_MS`), so [showChrome] never flips until the
+ * outgoing screen has actually finished transitioning off-screen — see the
+ * comment above its declaration. Keep the two in the same ballpark if either
+ * changes.
+ */
+private const val CHROME_VISIBILITY_DELAY_MS = 320L
 
 /**
  * Root app composable. Layout order per spec: content -> mini-player slot ->
@@ -54,13 +68,29 @@ fun MozicApp(
         } == true
     }
 
+    // currentTopLevelDestination flips the instant navigate() is called — well
+    // before the NavHost's own crossfade finishes showing the new destination.
+    // Applying that flip to Scaffold's bottomBar/topBar slots immediately grows
+    // or shrinks the content area mid-transition, while the outgoing screen is
+    // still visibly fading out — on a short list, that resize is enough to
+    // trigger LazyColumn/Grid's "don't leave empty space below the last item"
+    // re-anchoring, seen as the list snapping to a different scroll position
+    // for an instant. Delaying the chrome flip until the transition has had
+    // time to finish means the outgoing screen keeps its exact prior size for
+    // its entire exit, and only the already-settled incoming screen is affected.
+    var showChrome by remember { mutableStateOf(currentTopLevelDestination != null) }
+    LaunchedEffect(currentTopLevelDestination != null) {
+        delay(CHROME_VISIBILITY_DELAY_MS)
+        showChrome = currentTopLevelDestination != null
+    }
+
     SharedTransitionLayout {
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
             Scaffold(
                 modifier = modifier,
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 topBar = {
-                    if (currentTopLevelDestination != null) {
+                    if (showChrome) {
                         MozicTopBar(
                             onAvatarClick = {
                                 navController.navigateToTopLevelDestination(TopLevelDestination.PROFILE)
@@ -73,7 +103,7 @@ fun MozicApp(
                     }
                 },
                 bottomBar = {
-                    if (currentTopLevelDestination != null) {
+                    if (showChrome) {
                         Column {
                             miniPlayer()
                             MozicBottomBar(

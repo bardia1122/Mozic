@@ -33,6 +33,8 @@ data class Dimens(
     val skeletonLineHeight: Dp = 14.dp,
     /** Leading thumbnail/avatar side for single-column list rows (search results, song lists). */
     val listRowImageSize: Dp = 48.dp,
+    /** Large square cover on the playlist detail header. */
+    val heroCoverSize: Dp = 160.dp,
 )
 
 val LocalDimens = staticCompositionLocalOf { Dimens() }

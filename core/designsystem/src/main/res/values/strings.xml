@@ -65,4 +65,10 @@
     <string name="search_history_title">Recent searches</string>
     <string name="cd_remove_search_history_item">Remove from history</string>
     <string name="search_no_results">No results found</string>
+
+    <!-- Playlists -->
+    <string name="playlists_section_world">World</string>
+    <string name="playlists_section_local">Local</string>
+    <string name="playlists_play_all">Play All</string>
+    <string name="playlists_shuffle">Shuffle</string>
 </resources>

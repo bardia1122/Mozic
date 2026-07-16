@@ -32,7 +32,7 @@ fun MozicNavHost(
         )
         searchScreen()
         downloadsScreen()
-        playlistsScreen()
+        playlistsScreen(navController)
         profileScreen()
         settingsScreen(onBackClick = { navController.popBackStack() })
     }
