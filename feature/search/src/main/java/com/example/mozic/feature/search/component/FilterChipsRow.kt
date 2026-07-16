@@ -1,5 +1,6 @@
 package com.example.mozic.feature.search.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyRow
@@ -16,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.designsystem.theme.dimens
+import com.example.mozic.core.designsystem.theme.mozicColors
 import com.example.mozic.core.domain.model.SearchFilter
 
 private val ChipShape = RoundedCornerShape(percent = 50)
@@ -38,17 +40,22 @@ fun FilterChipsRow(
                 onClick = { onFilterClick(filter) },
                 label = { Text(stringResource(filter.labelRes())) },
                 shape = ChipShape,
+                modifier = if (active) {
+                    Modifier.background(brush = MaterialTheme.mozicColors.accentGradient, shape = ChipShape)
+                } else {
+                    Modifier
+                },
                 colors = FilterChipDefaults.filterChipColors(
                     containerColor = Color.Transparent,
                     labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedContainerColor = Color.Transparent,
                     selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
                 ),
                 border = FilterChipDefaults.filterChipBorder(
                     enabled = true,
                     selected = active,
                     borderColor = MaterialTheme.colorScheme.outline,
-                    selectedBorderColor = MaterialTheme.colorScheme.primary,
+                    selectedBorderColor = Color.Transparent,
                     borderWidth = 1.dp,
                 ),
             )
