@@ -60,4 +60,10 @@
     <string name="search_history_title">جست‌وجوهای اخیر</string>
     <string name="cd_remove_search_history_item">حذف از تاریخچه</string>
     <string name="search_no_results">نتیجه‌ای یافت نشد</string>
+
+    <!-- Playlists -->
+    <string name="playlists_section_world">جهانی</string>
+    <string name="playlists_section_local">محلی</string>
+    <string name="playlists_play_all">پخش همه</string>
+    <string name="playlists_shuffle">پخش تصادفی</string>
 </resources>
