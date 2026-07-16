@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -32,7 +34,13 @@ import com.example.mozic.core.ui.component.PlaceholderScreen
 import com.example.mozic.core.ui.component.PlaylistCard
 import com.example.mozic.core.ui.component.PlaylistCardSkeleton
 
-private const val SKELETON_ITEMS_PER_SECTION = 4
+// Matches SampleData's current 2-per-category count. A real backend's counts
+// will vary, but for the fakes this avoids the skeleton→content swap shrinking
+// the grid (12 skeleton cards → 6 real ones) and forcing LazyVerticalGrid's
+// built-in "don't leave empty space below the last item" re-anchoring — the
+// same underlying mechanism as the nav-transition scroll glitch fixed in
+// MozicApp.kt, just triggered by the data swap instead of navigation.
+private const val SKELETON_ITEMS_PER_SECTION = 2
 
 @Composable
 fun PlaylistsScreen(
@@ -42,6 +50,7 @@ fun PlaylistsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val gridState = rememberLazyGridState()
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
@@ -57,6 +66,7 @@ fun PlaylistsScreen(
     ) { innerPadding ->
         PlaylistsContent(
             uiState = uiState,
+            gridState = gridState,
             onPlaylistClick = { viewModel.onEvent(PlaylistsEvent.PlaylistClick(it)) },
             modifier = Modifier
                 .padding(innerPadding)
@@ -68,6 +78,7 @@ fun PlaylistsScreen(
 @Composable
 private fun PlaylistsContent(
     uiState: PlaylistsUiState,
+    gridState: LazyGridState,
     onPlaylistClick: (Playlist) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -82,6 +93,7 @@ private fun PlaylistsContent(
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
+        state = gridState,
         modifier = modifier,
         contentPadding = PaddingValues(
             horizontal = MaterialTheme.dimens.screenHorizontalPadding,
@@ -118,7 +130,10 @@ private fun LazyGridScope.playlistSection(
         SectionHeader(titleRes)
     }
     items(playlists, key = { it.id }) { playlist ->
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.fillMaxWidth().animateItem(),
+            contentAlignment = Alignment.Center,
+        ) {
             PlaylistCard(playlist = playlist, onClick = { onPlaylistClick(playlist) })
         }
     }
@@ -129,7 +144,10 @@ private fun LazyGridScope.skeletonSection(titleRes: Int) {
         SectionHeader(titleRes)
     }
     items(SKELETON_ITEMS_PER_SECTION) {
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.fillMaxWidth().animateItem(),
+            contentAlignment = Alignment.Center,
+        ) {
             PlaylistCardSkeleton()
         }
     }

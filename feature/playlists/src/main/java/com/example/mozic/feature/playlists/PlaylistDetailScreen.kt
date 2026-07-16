@@ -53,7 +53,13 @@ fun PlaylistDetailScreen(
     viewModel: PlaylistDetailViewModel = hiltViewModel(),
 ) {
     val pagingItems = viewModel.songs.collectAsLazyPagingItems()
-    val isInitialLoad = pagingItems.loadState.refresh is LoadState.Loading
+    // loadState.refresh flips to NotLoading a beat before itemCount actually
+    // catches up to the full page (Paging's diff application isn't atomic with
+    // the loadState update) — gating on loadState alone briefly showed a
+    // partially-populated list (a handful of real rows, then a jump to the
+    // rest) instead of the skeleton straight through to the real thing.
+    val isInitialLoad = pagingItems.loadState.refresh is LoadState.Loading ||
+        pagingItems.itemCount < viewModel.songCount
     val queueIds = remember(pagingItems.itemCount) {
         pagingItems.itemSnapshotList.items.map { it.id }
     }
