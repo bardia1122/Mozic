@@ -32,12 +32,14 @@ fun MozicTheme(
             textTertiary = DarkTextTertiary,
             destructiveBorder = DarkDestructiveBorder,
             shimmerHighlight = DarkShimmerHighlight,
+            accentGradient = AccentGradient,
         )
     } else {
         MozicExtendedColors(
             textTertiary = LightTextTertiary,
             destructiveBorder = LightDestructiveBorder,
             shimmerHighlight = LightShimmerHighlight,
+            accentGradient = AccentGradient,
         )
     }
 

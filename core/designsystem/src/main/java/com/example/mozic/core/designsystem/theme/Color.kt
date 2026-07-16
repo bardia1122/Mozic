@@ -3,52 +3,71 @@ package com.example.mozic.core.designsystem.theme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 /**
- * Mozic brand palette — per `doc/DESIGN.md` §1. One signature accent (Electric
- * Cyan) on near-black surfaces; token *names* are shared between dark and
- * light, only the values differ. UI code must never reference these raw
- * `Color(...)` values directly — always read `MaterialTheme.colorScheme` (for
- * roles that have a natural Material3 slot) or `MaterialTheme.mozicColors`
- * (for the two that don't, see [MozicExtendedColors]).
+ * Mozic brand palette — per `doc/DESIGN.md` §1. One signature accent
+ * ("Gilded" metallic gold) on near-black surfaces; token *names* are shared
+ * between dark and light, only the values differ. UI code must never
+ * reference these raw `Color(...)` values directly — always read
+ * `MaterialTheme.colorScheme` (for roles that have a natural Material3 slot)
+ * or `MaterialTheme.mozicColors` (for the ones that don't, see
+ * [MozicExtendedColors]).
  */
 
 // Dark set — DESIGN.md §1 table, values as specified.
-val DarkBackground = Color(0xFF0A1113)
-val DarkSurface = Color(0xFF121B1E)
-val DarkSurfaceElevated = Color(0xFF172225)
-val DarkSurfaceContainerHighest = Color(0xFF1D2A2E)
+val DarkBackground = Color(0xFF120E09)
+val DarkSurface = Color(0xFF1B140C)
+val DarkSurfaceElevated = Color(0xFF241C12)
+val DarkSurfaceContainerHighest = Color(0xFF2E2417)
 // Shimmer sweep's highlight step (MozicExtendedColors.shimmerHighlight) —
 // noticeably lighter than DarkSurfaceElevated, since surfaceContainerHighest
 // is itself a near-black and reads as barely-there against a near-black bg.
-val DarkShimmerHighlight = Color(0xFF2A3B42)
-val DarkBorder = Color(0xFF1E2A2E)
-val DarkTextPrimary = Color(0xFFEAF3F5)
-val DarkTextSecondary = Color(0xFF8FA5AA)
-val DarkTextTertiary = Color(0xFF55686D)
-val DarkAccent = Color(0xFF2FE0C4)
-val DarkOnAccent = Color(0xFF06211D)
+val DarkShimmerHighlight = Color(0xFF37352F)
+val DarkBorder = Color(0xFF2B2119)
+val DarkTextPrimary = Color(0xFFF3E9DA)
+val DarkTextSecondary = Color(0xFFB7A490)
+val DarkTextTertiary = Color(0xFF7A6A58)
+val DarkAccent = Color(0xFFC6952E)
+val DarkAccentGradientStart = Color(0xFFF0C878)
+val DarkAccentGradientEnd = Color(0xFF9A6E20)
+val DarkOnAccent = Color(0xFF18120C)
 val DarkDestructive = Color(0xFFFF7A6B)
-val DarkDestructiveBorder = Color(0xFF46282A)
+val DarkDestructiveBorder = Color(0xFF462424)
 
 // Light set — DESIGN.md §1 only gives background/surface/textPrimary/accent
 // explicitly ("out of scope for these mocks; keep the same token contract").
 // The rest are derived here following the same tonal relationships as the
 // dark set (surface raised above background, elevated a further step up,
-// secondary/tertiary text progressively muted, accent deepened for contrast).
-val LightBackground = Color(0xFFF7F5F0)
+// secondary/tertiary text progressively muted), just in the same warm
+// gold/brown hue family instead of the old teal one. Accent (and its
+// gradient/onAccent pair) is identical to dark per the doc — the gold reads
+// fine on a light cream background without deepening.
+val LightBackground = Color(0xFFFBF6EC)
 val LightSurface = Color(0xFFFFFFFF)
-val LightSurfaceElevated = Color(0xFFF1EEE7)
+val LightSurfaceElevated = Color(0xFFF3EAD7)
 val LightShimmerHighlight = Color(0xFFFFFFFF)
-val LightBorder = Color(0xFFE3DED3)
-val LightTextPrimary = Color(0xFF141A1B)
-val LightTextSecondary = Color(0xFF5C6B6E)
-val LightTextTertiary = Color(0xFF93A0A2)
-val LightAccent = Color(0xFF1FB79E)
-val LightOnAccent = Color(0xFFFFFFFF)
+val LightBorder = Color(0xFFE4D9C5)
+val LightTextPrimary = Color(0xFF1B140C)
+val LightTextSecondary = Color(0xFF6B5C4A)
+val LightTextTertiary = Color(0xFF9C8D78)
+val LightAccent = DarkAccent
+val LightAccentGradientStart = DarkAccentGradientStart
+val LightAccentGradientEnd = DarkAccentGradientEnd
+val LightOnAccent = DarkOnAccent
 val LightDestructive = Color(0xFFC43D2E)
 val LightDestructiveBorder = Color(0xFFE8C4BC)
+
+/**
+ * The "gilded" brass-to-gold fill — DESIGN.md §1's `accentGradient`. Used for
+ * primary buttons, the active filter chip, and (once built) the Now Playing
+ * play/pause button and progress fill. Identical in both themes, same as the
+ * flat `accent` token it pairs with.
+ */
+val AccentGradient: Brush = Brush.linearGradient(
+    colors = listOf(DarkAccentGradientStart, DarkAccentGradientEnd),
+)
 
 val DarkColors: ColorScheme = darkColorScheme(
     primary = DarkAccent,

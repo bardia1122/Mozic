@@ -14,7 +14,7 @@ import com.example.mozic.core.designsystem.R
 /**
  * Typography for Mozic — per `doc/DESIGN.md` §2.
  *
- * UI font is Manrope; mono-eyebrow role (timestamps, section eyebrows,
+ * UI font is Poppins; mono-eyebrow role (timestamps, section eyebrows,
  * numeric counters) is IBM Plex Mono. Neither covers Persian glyphs, so the
  * Farsi locale keeps F2's Vazirmatn across every slot instead — resolved at
  * composition time in [mozicTypography] by reading [LocalConfiguration],
@@ -29,7 +29,7 @@ private val fontProvider = GoogleFont.Provider(
 )
 
 private val Vazirmatn = GoogleFont("Vazirmatn")
-private val Manrope = GoogleFont("Manrope")
+private val Poppins = GoogleFont("Poppins")
 private val IBMPlexMono = GoogleFont("IBM Plex Mono")
 
 private val VazirmatnFamily = FontFamily(
@@ -40,12 +40,12 @@ private val VazirmatnFamily = FontFamily(
     Font(googleFont = Vazirmatn, fontProvider = fontProvider, weight = FontWeight.ExtraBold),
 )
 
-private val ManropeFamily = FontFamily(
-    Font(googleFont = Manrope, fontProvider = fontProvider, weight = FontWeight.Normal),
-    Font(googleFont = Manrope, fontProvider = fontProvider, weight = FontWeight.Medium),
-    Font(googleFont = Manrope, fontProvider = fontProvider, weight = FontWeight.SemiBold),
-    Font(googleFont = Manrope, fontProvider = fontProvider, weight = FontWeight.Bold),
-    Font(googleFont = Manrope, fontProvider = fontProvider, weight = FontWeight.ExtraBold),
+private val PoppinsFamily = FontFamily(
+    Font(googleFont = Poppins, fontProvider = fontProvider, weight = FontWeight.Normal),
+    Font(googleFont = Poppins, fontProvider = fontProvider, weight = FontWeight.Medium),
+    Font(googleFont = Poppins, fontProvider = fontProvider, weight = FontWeight.SemiBold),
+    Font(googleFont = Poppins, fontProvider = fontProvider, weight = FontWeight.Bold),
+    Font(googleFont = Poppins, fontProvider = fontProvider, weight = FontWeight.ExtraBold),
 )
 
 private val PlexMonoFamily = FontFamily(
@@ -178,7 +178,7 @@ private fun displayStyles(family: FontFamily) = Typography(
 @Composable
 fun mozicTypography(): Typography {
     val isFarsi = LocalConfiguration.current.locales[0].language == FARSI_LANGUAGE_TAG
-    val uiFamily = if (isFarsi) VazirmatnFamily else ManropeFamily
+    val uiFamily = if (isFarsi) VazirmatnFamily else PoppinsFamily
     val eyebrowFamily = if (isFarsi) VazirmatnFamily else PlexMonoFamily
 
     val base = displayStyles(uiFamily)

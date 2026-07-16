@@ -1,5 +1,6 @@
 package com.example.mozic.feature.playlists
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Shuffle
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,13 +33,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.mozic.core.designsystem.R as DesignSystemR
 import com.example.mozic.core.designsystem.theme.dimens
+import com.example.mozic.core.designsystem.theme.mozicColors
 import com.example.mozic.core.ui.component.CoverImage
 import com.example.mozic.core.ui.component.MediaListRow
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
@@ -171,10 +176,21 @@ private fun PlaylistDetailHeader(
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceSm)) {
-            Button(onClick = { onPlayAll(false) }, enabled = playAllEnabled) {
+            Button(
+                onClick = { onPlayAll(false) },
+                enabled = playAllEnabled,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                modifier = Modifier.background(
+                    brush = MaterialTheme.mozicColors.accentGradient,
+                    shape = ButtonDefaults.shape,
+                ),
+            ) {
                 Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null)
                 Spacer(Modifier.width(MaterialTheme.dimens.spaceXs))
-                Text(stringResource(DesignSystemR.string.playlists_play_all))
+                Text(
+                    text = stringResource(DesignSystemR.string.playlists_play_all),
+                    fontWeight = FontWeight.ExtraBold,
+                )
             }
             OutlinedButton(onClick = { onPlayAll(true) }, enabled = playAllEnabled) {
                 Icon(imageVector = Icons.Outlined.Shuffle, contentDescription = null)
