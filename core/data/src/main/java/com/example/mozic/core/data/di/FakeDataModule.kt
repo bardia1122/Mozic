@@ -2,7 +2,6 @@ package com.example.mozic.core.data.di
 
 import com.example.mozic.core.data.fake.FakeChatRepository
 import com.example.mozic.core.data.fake.FakeDownloadRepository
-import com.example.mozic.core.data.fake.FakeLibraryRepository
 import com.example.mozic.core.data.fake.FakePlayerController
 import com.example.mozic.core.data.fake.FakePlaylistRepository
 import com.example.mozic.core.data.fake.FakeSocialRepository
@@ -11,7 +10,6 @@ import com.example.mozic.core.data.fake.FakeUserPreferencesRepository
 import com.example.mozic.core.domain.player.PlayerController
 import com.example.mozic.core.domain.repository.ChatRepository
 import com.example.mozic.core.domain.repository.DownloadRepository
-import com.example.mozic.core.domain.repository.LibraryRepository
 import com.example.mozic.core.domain.repository.PlaylistRepository
 import com.example.mozic.core.domain.repository.SocialRepository
 import com.example.mozic.core.domain.repository.SongRepository
@@ -36,9 +34,6 @@ interface FakeDataModule {
 
     @Binds
     fun bindPlaylistRepository(impl: FakePlaylistRepository): PlaylistRepository
-
-    @Binds
-    fun bindLibraryRepository(impl: FakeLibraryRepository): LibraryRepository
 
     @Binds
     fun bindDownloadRepository(impl: FakeDownloadRepository): DownloadRepository

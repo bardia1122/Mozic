@@ -41,8 +41,9 @@ class HomeViewModel @Inject constructor(
 
             is HomeEvent.QuickActionClick -> when (event.action) {
                 QuickAction.MY_PLAYLISTS -> _effects.trySend(HomeEffect.NavigateToPlaylists)
-                QuickAction.LIKED, QuickAction.RECENTLY_PLAYED, QuickAction.TOP_ARTISTS ->
-                    _effects.trySend(HomeEffect.ShowComingSoon)
+                QuickAction.LIKED -> _effects.trySend(HomeEffect.NavigateToLiked)
+                QuickAction.RECENTLY_PLAYED -> _effects.trySend(HomeEffect.NavigateToRecentlyPlayed)
+                QuickAction.TOP_ARTISTS -> _effects.trySend(HomeEffect.ShowComingSoon)
             }
         }
     }

@@ -71,4 +71,11 @@
     <string name="playlists_section_local">Local</string>
     <string name="playlists_play_all">Play All</string>
     <string name="playlists_shuffle">Shuffle</string>
+
+    <!-- Library (liked / recently played) -->
+    <string name="library_liked_title">Liked Songs</string>
+    <string name="library_recent_title">Recently Played</string>
+    <string name="library_liked_empty">Songs you like will show up here</string>
+    <string name="library_recent_empty">Songs you play will show up here</string>
+    <string name="cd_remove_song">Remove</string>
 </resources>

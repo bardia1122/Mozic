@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.designsystem.theme.dimens
@@ -30,12 +31,15 @@ fun QuickActionsRow(
     onActionClick: (QuickAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-    ) {
+    Row(modifier = modifier.fillMaxWidth()) {
         QuickAction.entries.forEach { action ->
-            QuickActionButton(action = action, onClick = { onActionClick(action) })
+            // Equal-width slices (not `Arrangement.SpaceEvenly`, which sizes each
+            // button to its own label's natural width): label width isn't stable
+            // across font swaps (Poppins loads async, briefly falling back to the
+            // system font — see Type.kt), so whichever label is widest under
+            // *either* font can end up squeezed once the real font takes over.
+            // A fixed 1/4 share is generous enough for every label under both.
+            QuickActionButton(action = action, onClick = { onActionClick(action) }, modifier = Modifier.weight(1f))
         }
     }
 }
@@ -61,7 +65,14 @@ private fun QuickActionButton(
         Text(
             text = stringResource(action.labelRes()),
             style = MaterialTheme.typography.bodySmall,
-            maxLines = 1,
+            textAlign = TextAlign.Center,
+            // A single-line budget for an 11-char label ("Top artists") in a
+            // 1/4-width slice is too tight to guarantee even under normal font
+            // metrics, let alone a larger system font scale — wrapping to 2
+            // lines (standard for icon+label buttons) removes the truncation
+            // risk entirely instead of chasing exact widths. `overflow` is a
+            // last-resort safety net for extreme accessibility font scales.
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
     }
