@@ -73,4 +73,24 @@
     <string name="library_liked_empty">آهنگ‌هایی که می‌پسندید اینجا نمایش داده می‌شوند</string>
     <string name="library_recent_empty">آهنگ‌هایی که پخش می‌کنید اینجا نمایش داده می‌شوند</string>
     <string name="cd_remove_song">حذف</string>
+
+    <!-- Downloads -->
+    <string name="cd_download">دانلود</string>
+    <string name="cd_remove_download">حذف دانلود</string>
+    <string name="cd_download_failed">دانلود ناموفق بود، برای تلاش دوباره ضربه بزنید</string>
+    <string name="downloads_sort_cd">مرتب‌سازی</string>
+    <string name="downloads_sort_name">نام</string>
+    <string name="downloads_sort_artist">هنرمند</string>
+    <string name="downloads_empty">آهنگ‌های دانلودشده اینجا نمایش داده می‌شوند</string>
+
+    <!-- Profile / Premium -->
+    <string name="profile_avatar_cd">تغییر تصویر نمایه</string>
+    <string name="profile_premium_badge">ویژه</string>
+    <string name="profile_free_plan">طرح رایگان</string>
+    <string name="profile_settings_entry">تنظیمات</string>
+    <string name="profile_purchase_processing">در حال پردازش…</string>
+    <string name="profile_purchase_success">به نسخهٔ ویژه خوش آمدید!</string>
+    <string name="premium_upsell_title">ارتقا به نسخهٔ ویژه</string>
+    <string name="premium_upsell_body">دانلود آهنگ برای پخش آفلاین، ویژگی نسخهٔ ویژه است. برای فعال‌سازی آن از نمایه خود ارتقا دهید.</string>
+    <string name="premium_upsell_cta">ارتقا</string>
 </resources>

@@ -12,6 +12,13 @@ interface DownloadDao {
     @Query("SELECT * FROM downloads WHERE songId = :songId")
     fun downloadState(songId: String): Flow<DownloadEntity?>
 
+    /**
+     * One-shot read for [com.example.mozic.core.data.repository.DownloadRepositoryImpl.remove]
+     * to resolve the file path before deleting the row.
+     */
+    @Query("SELECT * FROM downloads WHERE songId = :songId")
+    suspend fun get(songId: String): DownloadEntity?
+
     @Query("SELECT * FROM downloads")
     fun allDownloads(): Flow<List<DownloadEntity>>
 

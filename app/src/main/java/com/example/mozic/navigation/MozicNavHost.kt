@@ -41,7 +41,7 @@ fun MozicNavHost(
         downloadsScreen()
         playlistsScreen(navController)
         libraryScreen(navController)
-        profileScreen()
+        profileScreen(onNavigateToSettings = navController::navigateToSettings)
         settingsScreen(onBackClick = { navController.popBackStack() })
     }
 }

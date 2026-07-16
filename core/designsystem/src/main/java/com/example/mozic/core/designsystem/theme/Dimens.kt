@@ -35,6 +35,8 @@ data class Dimens(
     val listRowImageSize: Dp = 48.dp,
     /** Large square cover on the playlist detail header. */
     val heroCoverSize: Dp = 160.dp,
+    /** Circular avatar on the Profile screen. */
+    val avatarSize: Dp = 96.dp,
 )
 
 val LocalDimens = staticCompositionLocalOf { Dimens() }

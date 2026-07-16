@@ -4,11 +4,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * Schema for B6's [com.example.mozic.core.domain.repository.DownloadRepository]
- * impl (WorkManager-backed). Added now so the DB doesn't need another version
- * bump when B6 lands; unused until then. [state] mirrors
+ * Backing store for B6's [com.example.mozic.core.domain.repository.DownloadRepository]
+ * impl (WorkManager-backed). [state] mirrors
  * [com.example.mozic.core.domain.model.DownloadState]'s variant name
  * (`NOT_DOWNLOADED` / `QUEUED` / `DOWNLOADING` / `DOWNLOADED` / `FAILED`).
+ * [downloadedAtEpochMs] is only set once [state] reaches `DOWNLOADED` — feeds
+ * the Downloads tab's "sort by date" option.
  */
 @Entity(tableName = "downloads")
 data class DownloadEntity(
@@ -17,4 +18,5 @@ data class DownloadEntity(
     val state: String,
     val progress: Float,
     val failureReason: String? = null,
+    val downloadedAtEpochMs: Long? = null,
 )
