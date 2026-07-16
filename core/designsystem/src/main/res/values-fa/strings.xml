@@ -66,4 +66,11 @@
     <string name="playlists_section_local">محلی</string>
     <string name="playlists_play_all">پخش همه</string>
     <string name="playlists_shuffle">پخش تصادفی</string>
+
+    <!-- Library (liked / recently played) -->
+    <string name="library_liked_title">آهنگ‌های پسندیده</string>
+    <string name="library_recent_title">پخش‌های اخیر</string>
+    <string name="library_liked_empty">آهنگ‌هایی که می‌پسندید اینجا نمایش داده می‌شوند</string>
+    <string name="library_recent_empty">آهنگ‌هایی که پخش می‌کنید اینجا نمایش داده می‌شوند</string>
+    <string name="cd_remove_song">حذف</string>
 </resources>

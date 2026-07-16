@@ -4,8 +4,16 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.mozic.feature.home.HomeScreen
 
-fun NavGraphBuilder.homeScreen(onNavigateToPlaylists: () -> Unit) {
+fun NavGraphBuilder.homeScreen(
+    onNavigateToPlaylists: () -> Unit,
+    onNavigateToLiked: () -> Unit,
+    onNavigateToRecentlyPlayed: () -> Unit,
+) {
     composable<HomeRoute> {
-        HomeScreen(onNavigateToPlaylists = onNavigateToPlaylists)
+        HomeScreen(
+            onNavigateToPlaylists = onNavigateToPlaylists,
+            onNavigateToLiked = onNavigateToLiked,
+            onNavigateToRecentlyPlayed = onNavigateToRecentlyPlayed,
+        )
     }
 }

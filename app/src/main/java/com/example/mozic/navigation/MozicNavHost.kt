@@ -9,6 +9,9 @@ import androidx.navigation.compose.NavHost
 import com.example.mozic.feature.downloads.navigation.downloadsScreen
 import com.example.mozic.feature.home.navigation.HomeRoute
 import com.example.mozic.feature.home.navigation.homeScreen
+import com.example.mozic.feature.library.navigation.LibraryListKind
+import com.example.mozic.feature.library.navigation.libraryScreen
+import com.example.mozic.feature.library.navigation.navigateToLibraryList
 import com.example.mozic.feature.playlists.navigation.playlistsScreen
 import com.example.mozic.feature.profile.navigation.profileScreen
 import com.example.mozic.feature.search.navigation.searchScreen
@@ -29,10 +32,15 @@ fun MozicNavHost(
             onNavigateToPlaylists = {
                 navController.navigateToTopLevelDestination(TopLevelDestination.PLAYLISTS)
             },
+            onNavigateToLiked = { navController.navigateToLibraryList(LibraryListKind.LIKED) },
+            onNavigateToRecentlyPlayed = {
+                navController.navigateToLibraryList(LibraryListKind.RECENTLY_PLAYED)
+            },
         )
         searchScreen()
         downloadsScreen()
         playlistsScreen(navController)
+        libraryScreen(navController)
         profileScreen()
         settingsScreen(onBackClick = { navController.popBackStack() })
     }

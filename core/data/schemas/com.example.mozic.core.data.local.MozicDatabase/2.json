@@ -1,0 +1,125 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "dd7505d0fbae8864605bc28d784a3355",
+    "entities": [
+      {
+        "tableName": "search_history",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`query` TEXT NOT NULL, `searchedAtEpochMs` INTEGER NOT NULL, PRIMARY KEY(`query`))",
+        "fields": [
+          {
+            "fieldPath": "query",
+            "columnName": "query",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "searchedAtEpochMs",
+            "columnName": "searchedAtEpochMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "query"
+          ]
+        }
+      },
+      {
+        "tableName": "liked_songs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`songId` TEXT NOT NULL, `likedAtEpochMs` INTEGER NOT NULL, PRIMARY KEY(`songId`))",
+        "fields": [
+          {
+            "fieldPath": "songId",
+            "columnName": "songId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "likedAtEpochMs",
+            "columnName": "likedAtEpochMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "songId"
+          ]
+        }
+      },
+      {
+        "tableName": "recent_plays",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`songId` TEXT NOT NULL, `playedAtEpochMs` INTEGER NOT NULL, PRIMARY KEY(`songId`))",
+        "fields": [
+          {
+            "fieldPath": "songId",
+            "columnName": "songId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "playedAtEpochMs",
+            "columnName": "playedAtEpochMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "songId"
+          ]
+        }
+      },
+      {
+        "tableName": "downloads",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`songId` TEXT NOT NULL, `filePath` TEXT, `state` TEXT NOT NULL, `progress` REAL NOT NULL, `failureReason` TEXT, PRIMARY KEY(`songId`))",
+        "fields": [
+          {
+            "fieldPath": "songId",
+            "columnName": "songId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "filePath",
+            "columnName": "filePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "progress",
+            "columnName": "progress",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "failureReason",
+            "columnName": "failureReason",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "songId"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dd7505d0fbae8864605bc28d784a3355')"
+    ]
+  }
+}

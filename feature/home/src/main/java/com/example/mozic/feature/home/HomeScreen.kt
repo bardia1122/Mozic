@@ -39,6 +39,8 @@ private const val SKELETON_ROW_COUNT = 3
 @Composable
 fun HomeScreen(
     onNavigateToPlaylists: () -> Unit,
+    onNavigateToLiked: () -> Unit,
+    onNavigateToRecentlyPlayed: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -50,6 +52,8 @@ fun HomeScreen(
         viewModel.effects.collect { effect ->
             when (effect) {
                 HomeEffect.NavigateToPlaylists -> onNavigateToPlaylists()
+                HomeEffect.NavigateToLiked -> onNavigateToLiked()
+                HomeEffect.NavigateToRecentlyPlayed -> onNavigateToRecentlyPlayed()
                 HomeEffect.ShowComingSoon -> snackbarHostState.showSnackbar(comingSoonMessage)
             }
         }

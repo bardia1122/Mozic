@@ -29,6 +29,10 @@ sealed interface HomeEvent {
 sealed interface HomeEffect {
     data object NavigateToPlaylists : HomeEffect
 
-    /** Destinations that don't exist yet (Liked, Recently played, Top artists, playlist detail). */
+    data object NavigateToLiked : HomeEffect
+
+    data object NavigateToRecentlyPlayed : HomeEffect
+
+    /** Destinations that don't exist yet (Top artists, playlist detail). */
     data object ShowComingSoon : HomeEffect
 }
