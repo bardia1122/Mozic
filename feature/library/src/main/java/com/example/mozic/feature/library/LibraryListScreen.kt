@@ -282,11 +282,15 @@ private fun SwipeableLibrarySongRow(
         enableDismissFromStartToEnd = false,
         backgroundContent = { RemoveSongBackdrop() },
     ) {
+        // `MediaListRow` paints no background of its own (fine everywhere
+        // else it's used), so without an opaque one here the red backdrop
+        // shows straight through at rest, not just mid-swipe.
         MediaListRow(
             imageUrl = song.coverImageUrl,
             title = song.title,
             subtitle = song.artistName,
             onClick = onClick,
+            modifier = Modifier.background(MaterialTheme.colorScheme.background),
             trailing = trailing,
         )
     }

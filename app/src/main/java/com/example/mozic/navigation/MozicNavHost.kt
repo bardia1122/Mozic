@@ -12,6 +12,7 @@ import com.example.mozic.feature.home.navigation.homeScreen
 import com.example.mozic.feature.library.navigation.LibraryListKind
 import com.example.mozic.feature.library.navigation.libraryScreen
 import com.example.mozic.feature.library.navigation.navigateToLibraryList
+import com.example.mozic.feature.player.navigation.nowPlayingScreen
 import com.example.mozic.feature.playlists.navigation.playlistsScreen
 import com.example.mozic.feature.profile.navigation.profileScreen
 import com.example.mozic.feature.search.navigation.searchScreen
@@ -41,6 +42,7 @@ fun MozicNavHost(
         downloadsScreen()
         playlistsScreen(navController)
         libraryScreen(navController)
+        nowPlayingScreen(navController)
         profileScreen(onNavigateToSettings = navController::navigateToSettings)
         settingsScreen(onBackClick = { navController.popBackStack() })
     }

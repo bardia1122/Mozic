@@ -36,8 +36,10 @@
     <string name="state_error">مشکلی پیش آمد</string>
     <string name="placeholder_coming_soon">به‌زودی</string>
 
-    <!-- Mini player -->
-    <string name="player_mini_placeholder">چیزی در حال پخش نیست</string>
+    <!-- Player -->
+    <string name="cd_previous">قبلی</string>
+    <string name="cd_next">بعدی</string>
+    <string name="cd_collapse_player">بستن پخش‌کننده</string>
 
     <!-- Home -->
     <string name="home_quick_action_liked">پسندیده‌ها</string>

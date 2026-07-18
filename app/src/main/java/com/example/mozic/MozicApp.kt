@@ -27,11 +27,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
+import com.example.mozic.feature.player.MiniPlayerBar
+import com.example.mozic.feature.player.navigation.navigateToNowPlaying
 import com.example.mozic.navigation.MozicNavHost
 import com.example.mozic.navigation.TopLevelDestination
 import com.example.mozic.navigation.navigateToSettings
 import com.example.mozic.navigation.navigateToTopLevelDestination
-import com.example.mozic.ui.MiniPlayerPlaceholder
 import com.example.mozic.ui.MozicBottomBar
 import com.example.mozic.ui.MozicTopBar
 import kotlinx.coroutines.launch
@@ -55,14 +56,16 @@ private const val CHROME_TRANSITION_MS = 220
 
 /**
  * Root app composable. Layout order per spec: content -> mini-player slot ->
- * bottom bar. [miniPlayer] defaults to a placeholder until Person A supplies
- * `MiniPlayerBar` from `:feature:player`.
+ * bottom bar. [miniPlayer] defaults to `:feature:player`'s real
+ * `MiniPlayerBar`, wired to expand into the Now Playing screen via this
+ * composable's own [navController] (hence the `onExpand` param rather than a
+ * zero-arg default) — override only for tests/previews.
  */
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MozicApp(
     modifier: Modifier = Modifier,
-    miniPlayer: @Composable () -> Unit = { MiniPlayerPlaceholder() },
+    miniPlayer: @Composable (onExpand: () -> Unit) -> Unit = { onExpand -> MiniPlayerBar(onExpand = onExpand) },
 ) {
     val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -117,7 +120,7 @@ fun MozicApp(
                             slideOutVertically(tween(CHROME_TRANSITION_MS)) { fullHeight -> fullHeight },
                     ) {
                         Column {
-                            miniPlayer()
+                            miniPlayer(navController::navigateToNowPlaying)
                             MozicBottomBar(
                                 destinations = TopLevelDestination.entries,
                                 currentDestination = currentDestination,
