@@ -1,19 +1,15 @@
 package com.example.mozic.core.data.di
 
 import com.example.mozic.core.data.fake.FakeChatRepository
-import com.example.mozic.core.data.fake.FakeDownloadRepository
 import com.example.mozic.core.data.fake.FakePlayerController
 import com.example.mozic.core.data.fake.FakePlaylistRepository
 import com.example.mozic.core.data.fake.FakeSocialRepository
 import com.example.mozic.core.data.fake.FakeSongRepository
-import com.example.mozic.core.data.fake.FakeUserPreferencesRepository
 import com.example.mozic.core.domain.player.PlayerController
 import com.example.mozic.core.domain.repository.ChatRepository
-import com.example.mozic.core.domain.repository.DownloadRepository
 import com.example.mozic.core.domain.repository.PlaylistRepository
 import com.example.mozic.core.domain.repository.SocialRepository
 import com.example.mozic.core.domain.repository.SongRepository
-import com.example.mozic.core.domain.repository.UserPreferencesRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -34,12 +30,6 @@ interface FakeDataModule {
 
     @Binds
     fun bindPlaylistRepository(impl: FakePlaylistRepository): PlaylistRepository
-
-    @Binds
-    fun bindDownloadRepository(impl: FakeDownloadRepository): DownloadRepository
-
-    @Binds
-    fun bindUserPreferencesRepository(impl: FakeUserPreferencesRepository): UserPreferencesRepository
 
     @Binds
     fun bindChatRepository(impl: FakeChatRepository): ChatRepository

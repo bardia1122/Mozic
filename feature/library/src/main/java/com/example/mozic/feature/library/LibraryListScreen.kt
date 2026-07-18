@@ -28,13 +28,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +52,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.R as DesignSystemR
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.designsystem.theme.mozicColors
+import com.example.mozic.core.domain.model.DownloadState
 import com.example.mozic.core.domain.model.Song
+import com.example.mozic.core.ui.component.DownloadIconButton
 import com.example.mozic.core.ui.component.MediaListRow
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
 import com.example.mozic.feature.library.navigation.LibraryListKind
@@ -63,9 +69,20 @@ fun LibraryListScreen(
     viewModel: LibraryListViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val upgradeMessage = stringResource(DesignSystemR.string.premium_upsell_body)
+
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                LibraryListEffect.ShowUpgradePrompt -> snackbarHostState.showSnackbar(upgradeMessage)
+            }
+        }
+    }
 
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {},
@@ -98,7 +115,10 @@ private fun LibraryListContent(
     onEvent: (LibraryListEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val songs = (uiState as? LibraryListUiState.Content)?.songs.orEmpty()
+    val content = uiState as? LibraryListUiState.Content
+    val songs = content?.songs.orEmpty()
+    val downloadStates = content?.downloadStates.orEmpty()
+    val isPremium = content?.isPremium ?: false
     val queueIds = songs.map(Song::id)
     val isLoading = uiState is LibraryListUiState.Loading
 
@@ -131,7 +151,15 @@ private fun LibraryListContent(
                     onClick = { onEvent(LibraryListEvent.SongClick(song, queueIds)) },
                     onRemove = { onEvent(LibraryListEvent.RemoveSong(song.id)) },
                     modifier = Modifier.animateItem(),
-                )
+                ) {
+                    DownloadIconButton(
+                        downloadState = downloadStates[song.id] ?: DownloadState.NotDownloaded,
+                        isPremium = isPremium,
+                        onDownloadClick = { onEvent(LibraryListEvent.RequestDownload(song.id)) },
+                        onRemoveClick = { onEvent(LibraryListEvent.RequestRemoveDownload(song.id)) },
+                        onUpgradeRequired = { onEvent(LibraryListEvent.UpgradeRequired) },
+                    )
+                }
             }
         }
     }
@@ -202,7 +230,12 @@ private fun LibraryListHeader(
             Button(
                 onClick = { onPlayAll(false) },
                 enabled = playAllEnabled,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor = MaterialTheme.mozicColors.textTertiary,
+                ),
                 modifier = Modifier.background(
                     brush = MaterialTheme.mozicColors.accentGradient,
                     shape = ButtonDefaults.shape,
@@ -231,6 +264,7 @@ private fun SwipeableLibrarySongRow(
     onClick: () -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
+    trailing: @Composable () -> Unit,
 ) {
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
@@ -253,6 +287,7 @@ private fun SwipeableLibrarySongRow(
             title = song.title,
             subtitle = song.artistName,
             onClick = onClick,
+            trailing = trailing,
         )
     }
 }

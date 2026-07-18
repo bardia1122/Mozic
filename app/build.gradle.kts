@@ -51,6 +51,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
+    // Configuration.Provider only — DownloadWorkerFactory (in :core:data) is
+    // a plain WorkerFactory, no androidx.hilt-work codegen needed here either.
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.animation)

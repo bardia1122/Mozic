@@ -31,6 +31,9 @@ kotlinxSerialization = "1.9.0"
 # --- Images ---
 coil = "3.3.0"
 
+# --- Networking (download worker only; screens never depend on this directly) ---
+okhttp = "4.12.0"
+
 # --- Quality ---
 detekt = "1.23.8"
 ktlint = "13.1.0"
@@ -89,6 +92,9 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # --- Images ---
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
+
+# --- Networking ---
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 
 # --- Test ---
 junit = { group = "junit", name = "junit", version.ref = "junit" }

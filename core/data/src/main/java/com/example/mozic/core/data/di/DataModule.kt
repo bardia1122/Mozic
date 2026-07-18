@@ -1,9 +1,13 @@
 package com.example.mozic.core.data.di
 
+import com.example.mozic.core.data.repository.DownloadRepositoryImpl
 import com.example.mozic.core.data.repository.LibraryRepositoryImpl
 import com.example.mozic.core.data.repository.SearchRepositoryImpl
+import com.example.mozic.core.data.repository.UserPreferencesRepositoryImpl
+import com.example.mozic.core.domain.repository.DownloadRepository
 import com.example.mozic.core.domain.repository.LibraryRepository
 import com.example.mozic.core.domain.repository.SearchRepository
+import com.example.mozic.core.domain.repository.UserPreferencesRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -22,4 +26,10 @@ interface DataModule {
 
     @Binds
     fun bindLibraryRepository(impl: LibraryRepositoryImpl): LibraryRepository
+
+    @Binds
+    fun bindUserPreferencesRepository(impl: UserPreferencesRepositoryImpl): UserPreferencesRepository
+
+    @Binds
+    fun bindDownloadRepository(impl: DownloadRepositoryImpl): DownloadRepository
 }

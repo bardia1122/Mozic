@@ -6,6 +6,8 @@ data class UserPreferences(
     val language: AppLanguage,
     val fontScale: Float,
     val isPremium: Boolean,
+    /** Photo-picker `content://` Uri, persisted as a string. `null` = default avatar. */
+    val avatarUri: String? = null,
 )
 
 enum class ThemeSetting { LIGHT, DARK, SYSTEM }

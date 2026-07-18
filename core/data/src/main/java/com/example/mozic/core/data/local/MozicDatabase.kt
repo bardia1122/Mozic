@@ -13,8 +13,9 @@ import com.example.mozic.core.data.local.entity.SearchHistoryEntity
 
 /**
  * Grows one entity/version at a time as each local-data PR lands (search
- * history from B3; liked/recents/downloads joined in B5 — no migration path
- * yet, pre-release, see `DatabaseModule`'s `fallbackToDestructiveMigration`).
+ * history from B3; liked/recents/downloads joined in B5; B6 added
+ * `DownloadEntity.downloadedAtEpochMs` — no migration path yet, pre-release,
+ * see `DatabaseModule`'s `fallbackToDestructiveMigration`).
  */
 @Database(
     entities = [
@@ -23,7 +24,7 @@ import com.example.mozic.core.data.local.entity.SearchHistoryEntity
         RecentPlayEntity::class,
         DownloadEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 abstract class MozicDatabase : RoomDatabase() {

@@ -78,4 +78,24 @@
     <string name="library_liked_empty">Songs you like will show up here</string>
     <string name="library_recent_empty">Songs you play will show up here</string>
     <string name="cd_remove_song">Remove</string>
+
+    <!-- Downloads -->
+    <string name="cd_download">Download</string>
+    <string name="cd_remove_download">Remove download</string>
+    <string name="cd_download_failed">Download failed, tap to retry</string>
+    <string name="downloads_sort_cd">Sort</string>
+    <string name="downloads_sort_name">Name</string>
+    <string name="downloads_sort_artist">Artist</string>
+    <string name="downloads_empty">Downloaded songs will show up here</string>
+
+    <!-- Profile / Premium -->
+    <string name="profile_avatar_cd">Change avatar</string>
+    <string name="profile_premium_badge">Premium</string>
+    <string name="profile_free_plan">Free plan</string>
+    <string name="profile_settings_entry">Settings</string>
+    <string name="profile_purchase_processing">Processing…</string>
+    <string name="profile_purchase_success">Welcome to Premium!</string>
+    <string name="premium_upsell_title">Go Premium</string>
+    <string name="premium_upsell_body">Downloading songs for offline listening is a Premium feature. Upgrade from your profile to unlock it.</string>
+    <string name="premium_upsell_cta">Upgrade</string>
 </resources>

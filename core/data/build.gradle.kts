@@ -24,9 +24,12 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.paging.runtime)
 
+    // DownloadWorker is a plain CoroutineWorker constructed by hand via
+    // DownloadWorkerFactory (see that class's kdoc) — no androidx.hilt-work
+    // codegen dependency needed.
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.androidx.hilt.work)
-    ksp(libs.androidx.hilt.compiler)
+
+    implementation(libs.okhttp)
 
     implementation(libs.kotlinx.coroutines.core)
 
