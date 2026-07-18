@@ -40,9 +40,11 @@ data class Dimens(
     /** Thin progress line along the mini player's top edge. */
     val miniPlayerProgressHeight: Dp = 2.dp,
     /** Large centered cover on the Now Playing screen. */
-    val nowPlayingCoverSize: Dp = 280.dp,
+    val nowPlayingCoverSize: Dp = 240.dp,
     /** Primary play/pause circle on the Now Playing screen (DESIGN.md §4). */
     val playerControlButtonSize: Dp = 60.dp,
+    /** Canvas height for the Now Playing screen's bar visualizer. */
+    val visualizerHeight: Dp = 56.dp,
 )
 
 val LocalDimens = staticCompositionLocalOf { Dimens() }

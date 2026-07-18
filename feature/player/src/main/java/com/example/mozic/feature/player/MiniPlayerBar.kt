@@ -1,6 +1,12 @@
 package com.example.mozic.feature.player
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -16,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,6 +33,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +52,8 @@ import com.example.mozic.core.ui.animation.LocalMiniPlayerAnimatedVisibilityScop
 import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
 import com.example.mozic.core.ui.component.CoverImage
 
+private const val VISIBILITY_TRANSITION_MS = 220
+
 /**
  * Floats above the bottom nav in `:app`'s `miniPlayer` slot. Renders nothing
  * (zero height) until a song actually starts playing — there is no "nothing
@@ -54,15 +66,30 @@ fun MiniPlayerBar(
     viewModel: PlayerViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val song = state.currentSong ?: return
 
-    MiniPlayerBarContent(
-        song = song,
-        state = state,
-        onExpand = onExpand,
-        onPlayPauseClick = viewModel::togglePlayPause,
+    // `AnimatedVisibility`'s exit transition still needs a song/state to
+    // render while it fades and shrinks away, but `stop()` (the close button)
+    // clears `currentSong` to null the same frame it's tapped — so the last
+    // real values are held here and only overwritten while a song is active.
+    var lastKnown by remember { mutableStateOf<Pair<Song, PlayerState>?>(null) }
+    state.currentSong?.let { song -> lastKnown = song to state }
+
+    AnimatedVisibility(
+        visible = state.currentSong != null,
+        enter = fadeIn(tween(VISIBILITY_TRANSITION_MS)) + expandVertically(tween(VISIBILITY_TRANSITION_MS)),
+        exit = fadeOut(tween(VISIBILITY_TRANSITION_MS)) + shrinkVertically(tween(VISIBILITY_TRANSITION_MS)),
         modifier = modifier,
-    )
+    ) {
+        lastKnown?.let { (song, lastKnownState) ->
+            MiniPlayerBarContent(
+                song = song,
+                state = lastKnownState,
+                onExpand = onExpand,
+                onPlayPauseClick = viewModel::togglePlayPause,
+                onCloseClick = viewModel::stop,
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -72,6 +99,7 @@ private fun MiniPlayerBarContent(
     state: PlayerState,
     onExpand: () -> Unit,
     onPlayPauseClick: () -> Unit,
+    onCloseClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val progress = if (state.durationMs > 0) {
@@ -169,6 +197,12 @@ private fun MiniPlayerBarContent(
                             ),
                         )
                     }
+                }
+                IconButton(onClick = onCloseClick) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = stringResource(DesignSystemR.string.cd_close_mini_player),
+                    )
                 }
             }
         }

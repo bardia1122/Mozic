@@ -22,6 +22,9 @@ interface PlayerController {
 
     fun togglePlayPause()
 
+    /** Stops playback and clears the queue — the mini player disappears once [state] reflects this. */
+    fun stop()
+
     fun next()
 
     fun previous()

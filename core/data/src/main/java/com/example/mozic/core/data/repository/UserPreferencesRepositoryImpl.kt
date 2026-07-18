@@ -21,6 +21,7 @@ private object Keys {
     val FONT_SCALE = floatPreferencesKey("font_scale")
     val IS_PREMIUM = booleanPreferencesKey("is_premium")
     val AVATAR_URI = stringPreferencesKey("avatar_uri")
+    val CROSSFADE_ENABLED = booleanPreferencesKey("crossfade_enabled")
 }
 
 /**
@@ -41,6 +42,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             fontScale = prefs[Keys.FONT_SCALE] ?: 1f,
             isPremium = prefs[Keys.IS_PREMIUM] ?: false,
             avatarUri = prefs[Keys.AVATAR_URI],
+            crossfadeEnabled = prefs[Keys.CROSSFADE_ENABLED] ?: true,
         )
     }
 
@@ -64,5 +66,9 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         dataStore.edit {
             if (uri != null) it[Keys.AVATAR_URI] = uri else it.remove(Keys.AVATAR_URI)
         }
+    }
+
+    override suspend fun setCrossfadeEnabled(enabled: Boolean) {
+        dataStore.edit { it[Keys.CROSSFADE_ENABLED] = enabled }
     }
 }

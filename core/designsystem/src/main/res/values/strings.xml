@@ -27,6 +27,9 @@
     <string name="settings_title">Settings</string>
     <string name="settings_language">Language</string>
     <string name="settings_theme">Theme</string>
+    <string name="settings_playback">Playback</string>
+    <string name="settings_crossfade">Crossfade</string>
+    <string name="settings_crossfade_description">Fade out and in between tracks</string>
     <string name="settings_logout">Log out</string>
     <string name="settings_logged_out">Logged out</string>
     <string name="theme_light">Light</string>
@@ -45,6 +48,13 @@
     <string name="cd_previous">Previous</string>
     <string name="cd_next">Next</string>
     <string name="cd_collapse_player">Collapse player</string>
+    <string name="cd_close_mini_player">Stop and close player</string>
+    <string name="cd_like">Like</string>
+    <string name="cd_unlike">Unlike</string>
+    <string name="cd_sleep_timer">Sleep timer</string>
+    <string name="cd_playback_speed">Playback speed</string>
+    <string name="player_sleep_timer_off">Off</string>
+    <string name="player_sleep_timer_minutes">%d min</string>
 
     <!-- Home -->
     <string name="home_quick_action_liked">Liked</string>

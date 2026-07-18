@@ -18,4 +18,6 @@ interface UserPreferencesRepository {
     suspend fun setPremium(premium: Boolean)
 
     suspend fun setAvatarUri(uri: String?)
+
+    suspend fun setCrossfadeEnabled(enabled: Boolean)
 }

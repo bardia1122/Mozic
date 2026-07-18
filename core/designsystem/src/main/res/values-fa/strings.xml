@@ -22,6 +22,9 @@
     <string name="settings_title">تنظیمات</string>
     <string name="settings_language">زبان</string>
     <string name="settings_theme">پوسته</string>
+    <string name="settings_playback">پخش</string>
+    <string name="settings_crossfade">محو تدریجی</string>
+    <string name="settings_crossfade_description">محو تدریجی صدا بین آهنگ‌ها</string>
     <string name="settings_logout">خروج از حساب</string>
     <string name="settings_logged_out">خارج شدید</string>
     <string name="theme_light">روشن</string>
@@ -40,6 +43,13 @@
     <string name="cd_previous">قبلی</string>
     <string name="cd_next">بعدی</string>
     <string name="cd_collapse_player">بستن پخش‌کننده</string>
+    <string name="cd_close_mini_player">توقف و بستن پخش‌کننده</string>
+    <string name="cd_like">پسندیدن</string>
+    <string name="cd_unlike">لغو پسندیدن</string>
+    <string name="cd_sleep_timer">تایمر خواب</string>
+    <string name="cd_playback_speed">سرعت پخش</string>
+    <string name="player_sleep_timer_off">خاموش</string>
+    <string name="player_sleep_timer_minutes">%d دقیقه</string>
 
     <!-- Home -->
     <string name="home_quick_action_liked">پسندیده‌ها</string>

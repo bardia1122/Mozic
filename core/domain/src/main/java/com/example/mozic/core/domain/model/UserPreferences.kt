@@ -8,6 +8,8 @@ data class UserPreferences(
     val isPremium: Boolean,
     /** Photo-picker `content://` Uri, persisted as a string. `null` = default avatar. */
     val avatarUri: String? = null,
+    /** Volume-ramp crossfade between tracks (A6) — on by default, toggleable in Settings. */
+    val crossfadeEnabled: Boolean = true,
 )
 
 enum class ThemeSetting { LIGHT, DARK, SYSTEM }

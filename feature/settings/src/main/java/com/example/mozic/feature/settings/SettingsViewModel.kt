@@ -34,6 +34,9 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.SetLanguage -> viewModelScope.launch {
                 userPreferencesRepository.setLanguage(event.language)
             }
+            is SettingsEvent.SetCrossfadeEnabled -> viewModelScope.launch {
+                userPreferencesRepository.setCrossfadeEnabled(event.enabled)
+            }
             SettingsEvent.Logout -> viewModelScope.launch {
                 _effects.send(SettingsEffect.LoggedOut)
             }

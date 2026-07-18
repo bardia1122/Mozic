@@ -50,7 +50,8 @@ fun SearchScreen(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(top = MaterialTheme.dimens.spaceMd),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceMd),
         ) {
             SearchField(
