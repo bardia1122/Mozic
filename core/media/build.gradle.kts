@@ -13,7 +13,8 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.android)
 
-    // Media3 / ExoPlayer is added here by Person A in A1 (:core:media).
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.session)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
