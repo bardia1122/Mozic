@@ -166,11 +166,15 @@ private fun SwipeableDownloadRow(
         enableDismissFromStartToEnd = false,
         backgroundContent = { RemoveDownloadBackdrop() },
     ) {
+        // `MediaListRow` paints no background of its own, so without an opaque
+        // one here the red backdrop shows straight through at rest, not just
+        // mid-swipe — same bug/fix as `LibraryListScreen`'s equivalent row.
         MediaListRow(
             imageUrl = song.coverImageUrl,
             title = song.title,
             subtitle = song.artistName,
             onClick = onClick,
+            modifier = Modifier.background(MaterialTheme.colorScheme.background),
         )
     }
 }

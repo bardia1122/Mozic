@@ -2,9 +2,7 @@ package com.example.mozic.core.media
 
 import android.content.ComponentName
 import android.content.Context
-import android.net.Uri
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
@@ -53,6 +51,7 @@ class Media3PlayerController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val songRepository: SongRepository,
     private val libraryRepository: LibraryRepository,
+    private val playbackSourceResolver: PlaybackSourceResolver,
     private val scope: CoroutineScope,
 ) : PlayerController {
 
@@ -130,8 +129,9 @@ class Media3PlayerController @Inject constructor(
         internalState.update {
             it.copy(queue = songs, queueIndex = startIndex, currentSong = songs[startIndex])
         }
+        val mediaItems = songs.map { song -> playbackSourceResolver.resolve(song) }
         val controller = controllerDeferred.await()
-        controller.setMediaItems(songs.map(::toMediaItem), startIndex, /* startPositionMs = */ 0L)
+        controller.setMediaItems(mediaItems, startIndex, /* startPositionMs = */ 0L)
         controller.prepare()
         controller.play()
     }
@@ -173,19 +173,6 @@ class Media3PlayerController @Inject constructor(
     private fun withController(action: (MediaController) -> Unit) {
         scope.launch { action(controllerDeferred.await()) }
     }
-
-    private fun toMediaItem(song: Song): MediaItem =
-        MediaItem.Builder()
-            .setMediaId(song.id)
-            .setUri(song.audioUrl)
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(song.title)
-                    .setArtist(song.artistName)
-                    .setArtworkUri(Uri.parse(song.coverImageUrl))
-                    .build(),
-            )
-            .build()
 
     private suspend fun <T> ListenableFuture<T>.await(): T =
         suspendCancellableCoroutine { cont ->
