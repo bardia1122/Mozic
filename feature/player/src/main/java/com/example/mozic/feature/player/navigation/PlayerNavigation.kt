@@ -23,7 +23,10 @@ fun NavGraphBuilder.nowPlayingScreen(navController: NavHostController) {
         popEnterTransition = { fadeIn(animationSpec = tween(NOW_PLAYING_NAV_TRANSITION_MS)) },
         popExitTransition = { fadeOut(animationSpec = tween(NOW_PLAYING_NAV_TRANSITION_MS)) },
     ) {
-        NowPlayingScreen(onBackClick = { navController.popBackStack() })
+        NowPlayingScreen(
+            onBackClick = { navController.popBackStack() },
+            animatedVisibilityScope = this,
+        )
     }
 }
 

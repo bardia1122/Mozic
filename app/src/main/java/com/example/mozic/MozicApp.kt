@@ -27,6 +27,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mozic.core.designsystem.R
+import com.example.mozic.core.ui.animation.LocalMiniPlayerAnimatedVisibilityScope
 import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
 import com.example.mozic.feature.player.MiniPlayerBar
 import com.example.mozic.feature.player.navigation.navigateToNowPlaying
@@ -128,13 +129,15 @@ fun MozicApp(
                         exit = fadeOut(tween(CHROME_TRANSITION_MS)) +
                             slideOutVertically(tween(CHROME_TRANSITION_MS)) { fullHeight -> fullHeight },
                     ) {
-                        Column {
-                            miniPlayer(navController::navigateToNowPlaying)
-                            MozicBottomBar(
-                                destinations = TopLevelDestination.entries,
-                                currentDestination = currentDestination,
-                                onNavigateToDestination = navController::navigateToTopLevelDestination,
-                            )
+                        CompositionLocalProvider(LocalMiniPlayerAnimatedVisibilityScope provides this) {
+                            Column {
+                                miniPlayer(navController::navigateToNowPlaying)
+                                MozicBottomBar(
+                                    destinations = TopLevelDestination.entries,
+                                    currentDestination = currentDestination,
+                                    onNavigateToDestination = navController::navigateToTopLevelDestination,
+                                )
+                            }
                         }
                     }
                 },
