@@ -1,6 +1,7 @@
 package com.example.mozic
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -13,19 +14,33 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.theme.MozicTheme
 import com.example.mozic.core.domain.model.ThemeSetting
+import com.example.mozic.core.media.PlaybackService
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    /**
+     * Bumped once per "open Now Playing" request from [PlaybackService]'s notification
+     * `PendingIntent` — a plain [androidx.compose.runtime.State] survives recomposition but
+     * lives outside `setContent {}`'s block, so [onNewIntent] (fired when the activity is
+     * already running/in the task, e.g. tapping the notification a second time) can update it
+     * without re-running `onCreate`. `MozicApp` reacts to the count changing, not its value.
+     */
+    private var openNowPlayingSignal by mutableIntStateOf(0)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        handleOpenNowPlayingIntent(intent)
         setContent {
             val appViewModel: AppViewModel = hiltViewModel()
             val uiState by appViewModel.uiState.collectAsStateWithLifecycle()
@@ -41,10 +56,22 @@ class MainActivity : AppCompatActivity() {
                         ThemeSetting.SYSTEM -> isSystemInDarkTheme()
                     }
                     MozicTheme(darkTheme = darkTheme, fontScale = state.preferences.fontScale) {
-                        MozicApp()
+                        MozicApp(openNowPlayingSignal = openNowPlayingSignal)
                     }
                 }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleOpenNowPlayingIntent(intent)
+    }
+
+    private fun handleOpenNowPlayingIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(PlaybackService.EXTRA_OPEN_NOW_PLAYING, false) == true) {
+            openNowPlayingSignal++
         }
     }
 }
