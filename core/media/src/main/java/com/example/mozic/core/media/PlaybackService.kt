@@ -1,5 +1,6 @@
 package com.example.mozic.core.media
 
+import android.app.PendingIntent
 import android.content.Intent
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -31,8 +32,22 @@ class PlaybackService : MediaSessionService() {
             )
             .setHandleAudioBecomingNoisy(true)
             .build()
-        mediaSession = MediaSession.Builder(this, player).build()
+        mediaSession = MediaSession.Builder(this, player)
+            .apply { launchAppPendingIntent()?.let(::setSessionActivity) }
+            .build()
     }
+
+    /**
+     * Launches whatever activity the manifest declares as this app's launcher, resolved by
+     * package rather than a direct [MainActivity][com.example.mozic.MainActivity] reference —
+     * `:core:media` must not depend on `:app` (features/app depend on core, never the reverse).
+     * Tapping the media notification/lockscreen art then opens the app on top of its current
+     * state, same as tapping the launcher icon.
+     */
+    private fun launchAppPendingIntent(): PendingIntent? =
+        packageManager.getLaunchIntentForPackage(packageName)?.let { launchIntent ->
+            PendingIntent.getActivity(this, 0, launchIntent, PendingIntent.FLAG_IMMUTABLE)
+        }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = mediaSession
 
