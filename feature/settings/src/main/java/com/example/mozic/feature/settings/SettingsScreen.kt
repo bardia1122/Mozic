@@ -25,6 +25,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -134,6 +135,15 @@ private fun SettingsContent(
             }
         }
 
+        SettingsSection(title = stringResource(R.string.settings_playback)) {
+            SettingsSwitchRow(
+                label = stringResource(R.string.settings_crossfade),
+                description = stringResource(R.string.settings_crossfade_description),
+                checked = preferences.crossfadeEnabled,
+                onCheckedChange = { onEvent(SettingsEvent.SetCrossfadeEnabled(it)) },
+            )
+        }
+
         OutlinedButton(
             onClick = { onEvent(SettingsEvent.Logout) },
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
@@ -182,6 +192,36 @@ private fun SettingsRadioRow(
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = if (selected) FontWeight.Bold else null,
         )
+    }
+}
+
+@Composable
+private fun SettingsSwitchRow(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(vertical = MaterialTheme.dimens.spaceXxs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = label, style = MaterialTheme.typography.bodyLarge)
+            if (description != null) {
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Spacer(Modifier.width(MaterialTheme.dimens.spaceXs))
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 

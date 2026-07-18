@@ -15,6 +15,8 @@ sealed interface SettingsEvent {
 
     data class SetLanguage(val language: AppLanguage) : SettingsEvent
 
+    data class SetCrossfadeEnabled(val enabled: Boolean) : SettingsEvent
+
     data object Logout : SettingsEvent
 }
 

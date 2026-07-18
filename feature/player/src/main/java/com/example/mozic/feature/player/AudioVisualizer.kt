@@ -1,5 +1,7 @@
 package com.example.mozic.feature.player
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +24,7 @@ private const val VISUALIZER_BAR_COUNT = 32
 private const val VISUALIZER_CYCLES_PER_SECOND = 1.4f
 private const val VISUALIZER_MIN_HEIGHT_FRACTION = 0.08f
 private const val VISUALIZER_RANDOM_SEED = 20260718L
+private const val VISUALIZER_ENVELOPE_TRANSITION_MS = 400
 private val TWO_PI = (2 * PI).toFloat()
 
 /**
@@ -31,8 +34,10 @@ private val TWO_PI = (2 * PI).toFloat()
  * in lockstep. Drawn with Compose Canvas per the spec (Lottie/GIF forbidden).
  *
  * Time is accumulated in a `remember`ed float only while [isPlaying], the same
- * pattern `RotatingCover` uses for its spin — so the bars freeze in place
- * instead of resetting to a flat line on pause.
+ * pattern `RotatingCover` uses for its spin — so the wave shape itself freezes
+ * in place on pause rather than resetting. [playEnvelope] is what actually
+ * animates: it eases the frozen wave shape down toward the flat baseline
+ * instead of snapping to it, so pause reads as a smooth drop, not a jump cut.
  */
 @Composable
 fun AudioVisualizer(isPlaying: Boolean, modifier: Modifier = Modifier, barCount: Int = VISUALIZER_BAR_COUNT) {
@@ -48,6 +53,12 @@ fun AudioVisualizer(isPlaying: Boolean, modifier: Modifier = Modifier, barCount:
         }
     }
 
+    val playEnvelope by animateFloatAsState(
+        targetValue = if (isPlaying) 1f else 0f,
+        animationSpec = tween(VISUALIZER_ENVELOPE_TRANSITION_MS),
+        label = "visualizerPlayEnvelope",
+    )
+
     // Fixed seed: each bar's phase/frequency offset must stay stable across
     // recompositions, only the seed value itself is arbitrary.
     val barSeeds = remember(barCount) {
@@ -59,12 +70,10 @@ fun AudioVisualizer(isPlaying: Boolean, modifier: Modifier = Modifier, barCount:
     Canvas(modifier = modifier.fillMaxWidth()) {
         val barWidth = size.width / (barCount * 2 - 1)
         barSeeds.forEachIndexed { index, (phase, frequencyScale) ->
-            val amplitude = if (isPlaying) {
-                val wave = sin(elapsedSeconds * VISUALIZER_CYCLES_PER_SECOND * frequencyScale * TWO_PI + phase)
-                ((wave + 1f) / 2f).coerceIn(VISUALIZER_MIN_HEIGHT_FRACTION, 1f)
-            } else {
-                VISUALIZER_MIN_HEIGHT_FRACTION
-            }
+            val wave = sin(elapsedSeconds * VISUALIZER_CYCLES_PER_SECOND * frequencyScale * TWO_PI + phase)
+            val waveAmplitude = ((wave + 1f) / 2f).coerceIn(VISUALIZER_MIN_HEIGHT_FRACTION, 1f)
+            val amplitude = VISUALIZER_MIN_HEIGHT_FRACTION +
+                (waveAmplitude - VISUALIZER_MIN_HEIGHT_FRACTION) * playEnvelope
             val barHeight = size.height * amplitude
             drawRoundRect(
                 color = barColor,

@@ -22,6 +22,9 @@
     <string name="settings_title">تنظیمات</string>
     <string name="settings_language">زبان</string>
     <string name="settings_theme">پوسته</string>
+    <string name="settings_playback">پخش</string>
+    <string name="settings_crossfade">محو تدریجی</string>
+    <string name="settings_crossfade_description">محو تدریجی صدا بین آهنگ‌ها</string>
     <string name="settings_logout">خروج از حساب</string>
     <string name="settings_logged_out">خارج شدید</string>
     <string name="theme_light">روشن</string>

@@ -14,6 +14,7 @@ import com.example.mozic.core.domain.model.Song
 import com.example.mozic.core.domain.player.PlayerController
 import com.example.mozic.core.domain.repository.LibraryRepository
 import com.example.mozic.core.domain.repository.SongRepository
+import com.example.mozic.core.domain.repository.UserPreferencesRepository
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -32,6 +33,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -62,6 +65,7 @@ class Media3PlayerController @Inject constructor(
     private val songRepository: SongRepository,
     private val libraryRepository: LibraryRepository,
     private val playbackSourceResolver: PlaybackSourceResolver,
+    private val userPreferencesRepository: UserPreferencesRepository,
     private val scope: CoroutineScope,
 ) : PlayerController {
 
@@ -70,6 +74,10 @@ class Media3PlayerController @Inject constructor(
 
     @Volatile
     private var queueSongsById: Map<String, Song> = emptyMap()
+
+    /** Read on every position tick — cheaper than collecting the settings [Flow] from there directly. */
+    @Volatile
+    private var crossfadeEnabled: Boolean = true
 
     private var sleepJob: Job? = null
     private var fadeInJob: Job? = null
@@ -84,6 +92,12 @@ class Media3PlayerController @Inject constructor(
             val controller = controllerDeferred.await()
             attachListener(controller)
             tickPosition(controller)
+        }
+        scope.launch {
+            userPreferencesRepository.preferences
+                .map { it.crossfadeEnabled }
+                .distinctUntilChanged()
+                .collect { crossfadeEnabled = it }
         }
     }
 
@@ -206,6 +220,11 @@ class Media3PlayerController @Inject constructor(
      * otherwise this would fight the fade-in and mute the next track.
      */
     private fun applyCrossfadeOut(controller: MediaController) {
+        if (!crossfadeEnabled) {
+            // Snaps volume back up immediately if the setting is toggled off mid-fade.
+            controller.volume = 1f
+            return
+        }
         if (fadeInJob?.isActive == true || !controller.isPlaying) return
         val durationMs = controller.duration
         if (durationMs == C.TIME_UNSET || durationMs <= 0) return
@@ -219,6 +238,10 @@ class Media3PlayerController @Inject constructor(
 
     /** Ramps volume back up from silence on every real transition — initial queue, skip, or autoplay-advance. */
     private fun fadeIn(controller: MediaController) {
+        if (!crossfadeEnabled) {
+            controller.volume = 1f
+            return
+        }
         fadeInJob?.cancel()
         fadeInJob = scope.launch {
             controller.volume = 0f
