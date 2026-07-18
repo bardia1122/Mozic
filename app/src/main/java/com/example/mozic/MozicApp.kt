@@ -31,7 +31,9 @@ import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.ui.animation.LocalMiniPlayerAnimatedVisibilityScope
 import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
 import com.example.mozic.feature.player.MiniPlayerBar
+import com.example.mozic.feature.player.navigation.NowPlayingRoute
 import com.example.mozic.feature.player.navigation.navigateToNowPlaying
+import com.example.mozic.feature.settings.navigation.SettingsRoute
 import com.example.mozic.navigation.MozicNavHost
 import com.example.mozic.navigation.TopLevelDestination
 import com.example.mozic.navigation.navigateToSettings
@@ -85,18 +87,23 @@ fun MozicApp(
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val currentTopLevelDestination = TopLevelDestination.entries.firstOrNull { destination ->
-        currentDestination?.hierarchy?.any {
-            it.hasRoute(destination.routeClass)
-        } == true
-    }
 
-    // `currentTopLevelDestination` starts `null` on the very first composition
-    // (the NavHost hasn't attached its graph to `currentBackStackEntryAsState()`
-    // yet), which would otherwise animate chrome in from hidden on cold launch —
-    // `MozicNavHost`'s start destination is always a top-level one (`HomeRoute`),
-    // so treat the not-yet-attached frame as chrome-visible too.
-    val showChrome = currentDestination == null || currentTopLevelDestination != null
+    // Deny-list, not allow-list: only these two are genuinely full-screen
+    // experiences with their own back affordance. Everything else — playlist
+    // detail, liked/recently-played, and any future drill-down screen — is
+    // just deeper content within a tab and should keep the bottom nav and
+    // mini player visible (previously this was an allow-list keyed on
+    // `TopLevelDestination`, which incorrectly hid the mini player on every
+    // non-tab screen, including playlist detail).
+    val isFullScreenDestination = currentDestination?.hierarchy?.any {
+        it.hasRoute(NowPlayingRoute::class) || it.hasRoute(SettingsRoute::class)
+    } == true
+
+    // `currentDestination` starts `null` on the very first composition (the
+    // NavHost hasn't attached its graph to `currentBackStackEntryAsState()`
+    // yet), which would otherwise animate chrome in from hidden on cold
+    // launch — treat the not-yet-attached frame as chrome-visible too.
+    val showChrome = currentDestination == null || !isFullScreenDestination
 
     SharedTransitionLayout {
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
