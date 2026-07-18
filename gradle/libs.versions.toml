@@ -33,6 +33,7 @@ kotlinxSerialization = "1.9.0"
 
 # --- Images ---
 coil = "3.3.0"
+paletteKtx = "1.0.0"
 
 # --- Networking (download worker only; screens never depend on this directly) ---
 okhttp = "4.12.0"
@@ -101,6 +102,7 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # --- Images ---
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
+androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "paletteKtx" }
 
 # --- Networking ---
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }

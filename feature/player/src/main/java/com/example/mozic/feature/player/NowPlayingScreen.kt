@@ -1,5 +1,9 @@
 package com.example.mozic.feature.player
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,14 +33,22 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,20 +59,50 @@ import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.designsystem.theme.mozicColors
 import com.example.mozic.core.domain.model.PlayerState
 import com.example.mozic.core.domain.model.Song
+import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
+import com.example.mozic.core.ui.color.rememberDominantColor
 import com.example.mozic.core.ui.component.CoverImage
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** `tween(600)` per the palette-gradient spec — a song change should feel like a soft cross-fade. */
+private const val PALETTE_ANIMATION_DURATION_MS = 600
+
+/**
+ * Blend the extracted swatch 30% toward the theme background before painting
+ * it — an unblended photo color can be too saturated/dark for onSurface text
+ * to stay readable on top of it, in both themes.
+ */
+private const val PALETTE_BACKGROUND_BLEND = 0.3f
+
+/** One full rotation every 8s — a slow, ambient vinyl spin, not attention-grabbing. */
+private const val DISC_DEGREES_PER_SECOND = 360f / 8f
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun NowPlayingScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
+    animatedVisibilityScope: AnimatedVisibilityScope? = null,
     viewModel: PlayerViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val song = state.currentSong
+
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val dominantColor by rememberDominantColor(model = song?.coverImageUrl, fallback = backgroundColor)
+    val animatedAccent by animateColorAsState(
+        targetValue = lerp(dominantColor, backgroundColor, PALETTE_BACKGROUND_BLEND),
+        animationSpec = tween(PALETTE_ANIMATION_DURATION_MS),
+        label = "nowPlayingPaletteAccent",
+    )
+    // Raw Color values here are the extracted-photo exception, same as
+    // HomeCarousel's caption scrim — this paints over/behind cover art, not
+    // an app surface, so it can't come from the static theme palette.
+    val screenBackground = Brush.verticalGradient(listOf(animatedAccent, backgroundColor))
 
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.background(screenBackground),
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {},
@@ -72,10 +114,10 @@ fun NowPlayingScreen(
                         )
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
         },
     ) { innerPadding ->
-        val song = state.currentSong
         val contentModifier = Modifier
             .padding(innerPadding)
             .fillMaxSize()
@@ -86,10 +128,13 @@ fun NowPlayingScreen(
             NowPlayingContent(
                 song = song,
                 state = state,
-                onPlayPauseClick = viewModel::togglePlayPause,
-                onNext = viewModel::next,
-                onPrevious = viewModel::previous,
-                onSeekFinished = viewModel::seekTo,
+                animatedVisibilityScope = animatedVisibilityScope,
+                actions = NowPlayingActions(
+                    onPlayPauseClick = viewModel::togglePlayPause,
+                    onNext = viewModel::next,
+                    onPrevious = viewModel::previous,
+                    onSeekFinished = viewModel::seekTo,
+                ),
                 modifier = contentModifier,
             )
         }
@@ -107,14 +152,24 @@ private fun NothingPlayingMessage(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Bundles the Now Playing screen's user-action callbacks to keep
+ * [NowPlayingContent] under detekt's parameter-count limit.
+ */
+private data class NowPlayingActions(
+    val onPlayPauseClick: () -> Unit,
+    val onNext: () -> Unit,
+    val onPrevious: () -> Unit,
+    val onSeekFinished: (Long) -> Unit,
+)
+
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun NowPlayingContent(
     song: Song,
     state: PlayerState,
-    onPlayPauseClick: () -> Unit,
-    onNext: () -> Unit,
-    onPrevious: () -> Unit,
-    onSeekFinished: (Long) -> Unit,
+    animatedVisibilityScope: AnimatedVisibilityScope?,
+    actions: NowPlayingActions,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -122,12 +177,13 @@ private fun NowPlayingContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        CoverImage(
-            model = song.coverImageUrl,
+        RotatingCover(
+            songId = song.id,
+            coverUrl = song.coverImageUrl,
             contentDescription = song.title,
-            modifier = Modifier
-                .size(MaterialTheme.dimens.nowPlayingCoverSize)
-                .clip(CircleShape),
+            isPlaying = state.isPlaying,
+            animatedVisibilityScope = animatedVisibilityScope,
+            modifier = Modifier.size(MaterialTheme.dimens.nowPlayingCoverSize),
         )
         Spacer(Modifier.height(MaterialTheme.dimens.spaceXl))
         Text(
@@ -151,7 +207,7 @@ private fun NowPlayingContent(
         PlayerSeekBar(
             positionMs = state.positionMs,
             durationMs = state.durationMs,
-            onSeekFinished = onSeekFinished,
+            onSeekFinished = actions.onSeekFinished,
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -161,7 +217,7 @@ private fun NowPlayingContent(
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceXl),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(onClick = onPrevious) {
+            IconButton(onClick = actions.onPrevious) {
                 Icon(
                     imageVector = Icons.Filled.SkipPrevious,
                     contentDescription = stringResource(DesignSystemR.string.cd_previous),
@@ -173,7 +229,7 @@ private fun NowPlayingContent(
                     .size(MaterialTheme.dimens.playerControlButtonSize)
                     .clip(CircleShape)
                     .background(brush = MaterialTheme.mozicColors.accentGradient)
-                    .clickable(onClick = onPlayPauseClick),
+                    .clickable(onClick = actions.onPlayPauseClick),
                 contentAlignment = Alignment.Center,
             ) {
                 if (state.isBuffering) {
@@ -193,7 +249,7 @@ private fun NowPlayingContent(
                     )
                 }
             }
-            IconButton(onClick = onNext) {
+            IconButton(onClick = actions.onNext) {
                 Icon(
                     imageVector = Icons.Filled.SkipNext,
                     contentDescription = stringResource(DesignSystemR.string.cd_next),
@@ -202,6 +258,63 @@ private fun NowPlayingContent(
             }
         }
     }
+}
+
+/**
+ * The cover, clipped to a disc and spinning while [isPlaying] — angle is
+ * accumulated in a `remember`ed float rather than driven by
+ * `rememberInfiniteTransition`, which always restarts from 0 on
+ * recomposition; accumulating manually is what lets the disc *stop in place*
+ * on pause instead of snapping back. `withFrameNanos` is frame-synced and
+ * time-based, so the spin rate is identical at 60Hz and 120Hz.
+ *
+ * Also the shared-element anchor for the mini-player → full-player
+ * transition (A5): paired with [MiniPlayerBar]'s cover via the same
+ * [playerCoverSharedElementKey], both only wired up when both an enclosing
+ * `SharedTransitionScope` and this destination's own [animatedVisibilityScope]
+ * are available (i.e. real navigation, not a preview).
+ */
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun RotatingCover(
+    songId: String,
+    coverUrl: String,
+    contentDescription: String?,
+    isPlaying: Boolean,
+    animatedVisibilityScope: AnimatedVisibilityScope?,
+    modifier: Modifier = Modifier,
+) {
+    var angleDegrees by remember { mutableFloatStateOf(0f) }
+    LaunchedEffect(isPlaying) {
+        if (!isPlaying) return@LaunchedEffect
+        var lastFrameNanos = withFrameNanos { it }
+        while (true) {
+            withFrameNanos { nowNanos ->
+                val deltaSeconds = (nowNanos - lastFrameNanos) / 1_000_000_000f
+                angleDegrees = (angleDegrees + deltaSeconds * DISC_DEGREES_PER_SECOND) % 360f
+                lastFrameNanos = nowNanos
+            }
+        }
+    }
+
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    var coverModifier = modifier
+    if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+        with(sharedTransitionScope) {
+            coverModifier = coverModifier.sharedElement(
+                rememberSharedContentState(key = playerCoverSharedElementKey(songId)),
+                animatedVisibilityScope = animatedVisibilityScope,
+            )
+        }
+    }
+
+    CoverImage(
+        model = coverUrl,
+        contentDescription = contentDescription,
+        modifier = coverModifier
+            .clip(CircleShape)
+            .graphicsLayer { rotationZ = angleDegrees },
+    )
 }
 
 /**

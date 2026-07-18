@@ -1,5 +1,6 @@
 package com.example.mozic.feature.player
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -36,6 +38,8 @@ import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.designsystem.theme.mozicColors
 import com.example.mozic.core.domain.model.PlayerState
 import com.example.mozic.core.domain.model.Song
+import com.example.mozic.core.ui.animation.LocalMiniPlayerAnimatedVisibilityScope
+import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
 import com.example.mozic.core.ui.component.CoverImage
 
 /**
@@ -61,6 +65,7 @@ fun MiniPlayerBar(
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun MiniPlayerBarContent(
     song: Song,
@@ -74,6 +79,24 @@ private fun MiniPlayerBarContent(
     } else {
         0f
     }
+
+    // Shared-element anchor for the mini-player -> full-player cover morph
+    // (A5) — paired with NowPlayingScreen's `RotatingCover` via the same key.
+    // Only wired when both halves of the pairing (the enclosing
+    // SharedTransitionScope from :app, and this composable's own
+    // AnimatedVisibilityScope, also from :app) are actually present.
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val miniPlayerAnimatedVisibilityScope = LocalMiniPlayerAnimatedVisibilityScope.current
+    var coverModifier: Modifier = Modifier.size(MaterialTheme.dimens.listRowImageSize)
+    if (sharedTransitionScope != null && miniPlayerAnimatedVisibilityScope != null) {
+        with(sharedTransitionScope) {
+            coverModifier = coverModifier.sharedElement(
+                rememberSharedContentState(key = playerCoverSharedElementKey(song.id)),
+                animatedVisibilityScope = miniPlayerAnimatedVisibilityScope,
+            )
+        }
+    }
+    coverModifier = coverModifier.clip(CircleShape)
 
     Surface(
         modifier = modifier
@@ -102,11 +125,7 @@ private fun MiniPlayerBarContent(
                 ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(MaterialTheme.dimens.listRowImageSize)
-                        .clip(MaterialTheme.shapes.small),
-                ) {
+                Box(modifier = coverModifier) {
                     CoverImage(
                         model = song.coverImageUrl,
                         contentDescription = song.title,
