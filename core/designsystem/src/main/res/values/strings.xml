@@ -41,8 +41,10 @@
     <string name="state_error">Something went wrong</string>
     <string name="placeholder_coming_soon">Coming soon</string>
 
-    <!-- Mini player -->
-    <string name="player_mini_placeholder">Nothing playing</string>
+    <!-- Player -->
+    <string name="cd_previous">Previous</string>
+    <string name="cd_next">Next</string>
+    <string name="cd_collapse_player">Collapse player</string>
 
     <!-- Home -->
     <string name="home_quick_action_liked">Liked</string>

@@ -13,6 +13,7 @@ import com.example.mozic.core.common.result.getOrNull
 import com.example.mozic.core.domain.model.PlayerState
 import com.example.mozic.core.domain.model.Song
 import com.example.mozic.core.domain.player.PlayerController
+import com.example.mozic.core.domain.repository.LibraryRepository
 import com.example.mozic.core.domain.repository.SongRepository
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
@@ -51,6 +52,7 @@ private const val SLEEP_TIMER_TICK_MS = 1_000L
 class Media3PlayerController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val songRepository: SongRepository,
+    private val libraryRepository: LibraryRepository,
     private val scope: CoroutineScope,
 ) : PlayerController {
 
@@ -141,6 +143,19 @@ class Media3PlayerController @Inject constructor(
                     internalState.update { current ->
                         PlayerStateMapper.apply(player, current) { id -> queueSongsById[id] }
                     }
+                }
+
+                /**
+                 * Fires on every real playback start — the initial item of a
+                 * new queue, a skip, *and* autoplay-advance to the next queued
+                 * song — never on a bare UI tap-to-play with no resulting
+                 * transition. This is the one seam B5 flagged: only real
+                 * playback transitions should count towards Recently Played,
+                 * not every screen's own click handler.
+                 */
+                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                    val songId = mediaItem?.mediaId ?: return
+                    scope.launch { libraryRepository.recordPlayed(songId) }
                 }
             },
         )
