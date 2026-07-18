@@ -32,6 +32,7 @@ fun SearchField(
         placeholder = {
             Text(
                 text = stringResource(R.string.search_field_placeholder),
+                style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
