@@ -4,10 +4,16 @@ import android.app.PendingIntent
 import android.content.Intent
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Foreground service hosting the single app-wide [ExoPlayer]. [Media3PlayerController] never
@@ -18,11 +24,15 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class PlaybackService : MediaSessionService() {
 
+    @Inject
+    lateinit var streamCache: SimpleCache
+
     private var mediaSession: MediaSession? = null
 
     override fun onCreate() {
         super.onCreate()
         val player = ExoPlayer.Builder(this)
+            .setMediaSourceFactory(DefaultMediaSourceFactory(this).setDataSourceFactory(cacheDataSourceFactory()))
             .setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(C.USAGE_MEDIA)
@@ -36,6 +46,20 @@ class PlaybackService : MediaSessionService() {
             .apply { launchAppPendingIntent()?.let(::setSessionActivity) }
             .build()
     }
+
+    /**
+     * Every [androidx.media3.common.MediaItem] — streamed or a downloaded local file, see A4's
+     * `PlaybackSourceResolver` — resolves through this one factory. [DefaultDataSource] picks the
+     * right underlying source per URI scheme (file/content/http); wrapping it in
+     * [CacheDataSource] means a streamed URL is written through to [streamCache] transparently,
+     * so replay/seek never re-downloads. `FLAG_IGNORE_CACHE_ON_ERROR` falls back to the network
+     * straight through rather than failing playback if the cache itself is ever unreadable.
+     */
+    private fun cacheDataSourceFactory(): CacheDataSource.Factory =
+        CacheDataSource.Factory()
+            .setCache(streamCache)
+            .setUpstreamDataSourceFactory(DefaultDataSource.Factory(this, DefaultHttpDataSource.Factory()))
+            .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
 
     /**
      * Launches whatever activity the manifest declares as this app's launcher, resolved by
