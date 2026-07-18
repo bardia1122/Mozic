@@ -237,7 +237,15 @@ private fun PlanCard(
                 Button(
                     onClick = onUpgradeClick,
                     enabled = !isPurchasing,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        // Disabled here means "processing", not "inactive" — the
+                        // spinner/label should stay fully legible, unlike Play
+                        // All's truly-inert disabled state elsewhere.
+                        disabledContainerColor = Color.Transparent,
+                        disabledContentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
                     modifier = Modifier.background(
                         brush = MaterialTheme.mozicColors.accentGradient,
                         shape = ButtonDefaults.shape,

@@ -179,7 +179,12 @@ private fun PlaylistDetailHeader(
             Button(
                 onClick = { onPlayAll(false) },
                 enabled = playAllEnabled,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor = MaterialTheme.mozicColors.textTertiary,
+                ),
                 modifier = Modifier.background(
                     brush = MaterialTheme.mozicColors.accentGradient,
                     shape = ButtonDefaults.shape,
