@@ -16,6 +16,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -65,12 +66,20 @@ private const val CHROME_TRANSITION_MS = 220
 @Composable
 fun MozicApp(
     modifier: Modifier = Modifier,
+    openNowPlayingSignal: Int = 0,
     miniPlayer: @Composable (onExpand: () -> Unit) -> Unit = { onExpand -> MiniPlayerBar(onExpand = onExpand) },
 ) {
     val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val comingSoonMessage = stringResource(R.string.placeholder_coming_soon)
+
+    // `openNowPlayingSignal` increments once per tap on the media notification (see
+    // MainActivity) — keyed on its value, not Unit, so a second tap while already on Now
+    // Playing still re-fires the navigation call (harmless no-op via launchSingleTop upstream).
+    LaunchedEffect(openNowPlayingSignal) {
+        if (openNowPlayingSignal > 0) navController.navigateToNowPlaying()
+    }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
