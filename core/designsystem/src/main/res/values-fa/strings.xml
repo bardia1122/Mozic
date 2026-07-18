@@ -40,6 +40,13 @@
     <string name="cd_previous">قبلی</string>
     <string name="cd_next">بعدی</string>
     <string name="cd_collapse_player">بستن پخش‌کننده</string>
+    <string name="cd_close_mini_player">توقف و بستن پخش‌کننده</string>
+    <string name="cd_like">پسندیدن</string>
+    <string name="cd_unlike">لغو پسندیدن</string>
+    <string name="cd_sleep_timer">تایمر خواب</string>
+    <string name="cd_playback_speed">سرعت پخش</string>
+    <string name="player_sleep_timer_off">خاموش</string>
+    <string name="player_sleep_timer_minutes">%d دقیقه</string>
 
     <!-- Home -->
     <string name="home_quick_action_liked">پسندیده‌ها</string>

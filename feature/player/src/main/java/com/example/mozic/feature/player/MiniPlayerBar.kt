@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.CircularProgressIndicator
@@ -61,6 +62,7 @@ fun MiniPlayerBar(
         state = state,
         onExpand = onExpand,
         onPlayPauseClick = viewModel::togglePlayPause,
+        onCloseClick = viewModel::stop,
         modifier = modifier,
     )
 }
@@ -72,6 +74,7 @@ private fun MiniPlayerBarContent(
     state: PlayerState,
     onExpand: () -> Unit,
     onPlayPauseClick: () -> Unit,
+    onCloseClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val progress = if (state.durationMs > 0) {
@@ -169,6 +172,12 @@ private fun MiniPlayerBarContent(
                             ),
                         )
                     }
+                }
+                IconButton(onClick = onCloseClick) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = stringResource(DesignSystemR.string.cd_close_mini_player),
+                    )
                 }
             }
         }

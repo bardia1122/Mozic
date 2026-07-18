@@ -16,8 +16,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -31,6 +35,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -62,6 +68,7 @@ import com.example.mozic.core.domain.model.Song
 import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
 import com.example.mozic.core.ui.color.rememberDominantColor
 import com.example.mozic.core.ui.component.CoverImage
+import com.example.mozic.core.ui.component.DownloadIconButton
 import java.util.Locale
 
 /** `tween(600)` per the palette-gradient spec — a song change should feel like a soft cross-fade. */
@@ -86,7 +93,18 @@ fun NowPlayingScreen(
     viewModel: PlayerViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val extras by viewModel.extras.collectAsStateWithLifecycle()
     val song = state.currentSong
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val upgradeMessage = stringResource(DesignSystemR.string.premium_upsell_body)
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                PlayerEffect.ShowUpgradePrompt -> snackbarHostState.showSnackbar(upgradeMessage)
+            }
+        }
+    }
 
     val backgroundColor = MaterialTheme.colorScheme.background
     val dominantColor by rememberDominantColor(model = song?.coverImageUrl, fallback = backgroundColor)
@@ -103,6 +121,7 @@ fun NowPlayingScreen(
     Scaffold(
         modifier = modifier.background(screenBackground),
         containerColor = Color.Transparent,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {},
@@ -113,6 +132,13 @@ fun NowPlayingScreen(
                             contentDescription = stringResource(DesignSystemR.string.cd_collapse_player),
                         )
                     }
+                },
+                actions = {
+                    SleepTimerButton(
+                        isActive = state.sleepTimerRemainingMs != null,
+                        onSetTimer = viewModel::setSleepTimer,
+                    )
+                    PlaybackSpeedButton(speed = state.speed, onSetSpeed = viewModel::setSpeed)
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
@@ -128,12 +154,17 @@ fun NowPlayingScreen(
             NowPlayingContent(
                 song = song,
                 state = state,
+                extras = extras,
                 animatedVisibilityScope = animatedVisibilityScope,
                 actions = NowPlayingActions(
                     onPlayPauseClick = viewModel::togglePlayPause,
                     onNext = viewModel::next,
                     onPrevious = viewModel::previous,
                     onSeekFinished = viewModel::seekTo,
+                    onLikeClick = viewModel::toggleLike,
+                    onDownloadClick = viewModel::requestDownload,
+                    onRemoveDownloadClick = viewModel::removeDownload,
+                    onUpgradeRequired = viewModel::requestUpgrade,
                 ),
                 modifier = contentModifier,
             )
@@ -161,6 +192,10 @@ private data class NowPlayingActions(
     val onNext: () -> Unit,
     val onPrevious: () -> Unit,
     val onSeekFinished: (Long) -> Unit,
+    val onLikeClick: () -> Unit,
+    val onDownloadClick: () -> Unit,
+    val onRemoveDownloadClick: () -> Unit,
+    val onUpgradeRequired: () -> Unit,
 )
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -168,12 +203,15 @@ private data class NowPlayingActions(
 private fun NowPlayingContent(
     song: Song,
     state: PlayerState,
+    extras: PlayerExtrasUiState,
     animatedVisibilityScope: AnimatedVisibilityScope?,
     actions: NowPlayingActions,
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.padding(horizontal = MaterialTheme.dimens.screenHorizontalPadding),
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = MaterialTheme.dimens.screenHorizontalPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -185,7 +223,7 @@ private fun NowPlayingContent(
             animatedVisibilityScope = animatedVisibilityScope,
             modifier = Modifier.size(MaterialTheme.dimens.nowPlayingCoverSize),
         )
-        Spacer(Modifier.height(MaterialTheme.dimens.spaceXl))
+        Spacer(Modifier.height(MaterialTheme.dimens.spaceLg))
         Text(
             text = song.title,
             style = MaterialTheme.typography.headlineSmall,
@@ -202,7 +240,14 @@ private fun NowPlayingContent(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Spacer(Modifier.height(MaterialTheme.dimens.spaceLg))
+        Spacer(Modifier.height(MaterialTheme.dimens.spaceMd))
+
+        AudioVisualizer(
+            isPlaying = state.isPlaying,
+            modifier = Modifier.height(MaterialTheme.dimens.visualizerHeight),
+        )
+
+        Spacer(Modifier.height(MaterialTheme.dimens.spaceMd))
 
         PlayerSeekBar(
             positionMs = state.positionMs,
@@ -213,10 +258,25 @@ private fun NowPlayingContent(
 
         Spacer(Modifier.height(MaterialTheme.dimens.spaceLg))
 
+        val likeTint = if (extras.isLiked) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        }
         Row(
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceXl),
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            IconButton(onClick = actions.onLikeClick) {
+                Icon(
+                    imageVector = if (extras.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = stringResource(
+                        if (extras.isLiked) DesignSystemR.string.cd_unlike else DesignSystemR.string.cd_like,
+                    ),
+                    tint = likeTint,
+                )
+            }
             IconButton(onClick = actions.onPrevious) {
                 Icon(
                     imageVector = Icons.Filled.SkipPrevious,
@@ -256,6 +316,13 @@ private fun NowPlayingContent(
                     modifier = Modifier.size(MaterialTheme.dimens.spaceXl),
                 )
             }
+            DownloadIconButton(
+                downloadState = extras.downloadState,
+                isPremium = extras.isPremium,
+                onDownloadClick = actions.onDownloadClick,
+                onRemoveClick = actions.onRemoveDownloadClick,
+                onUpgradeRequired = actions.onUpgradeRequired,
+            )
         }
     }
 }

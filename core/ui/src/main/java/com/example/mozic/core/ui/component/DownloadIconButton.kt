@@ -19,15 +19,18 @@ import com.example.mozic.core.domain.model.DownloadState
 
 private const val PROGRESS_STROKE_WIDTH_DP = 2
 
+/** A bare 0% ring reads as "nothing happened" — floor it so a tap always shows visible motion right away. */
+private const val MIN_VISIBLE_PROGRESS = 0.01f
+
 /**
  * Per-song download toggle, reused on every song row that offers one
  * (Liked/Recently-played now; playlist detail and search results are out of
  * scope for B6, see `doc/PROGRESS.md`). A tap's meaning depends on
  * [downloadState] and [isPremium]: not-downloaded/failed starts a download
  * (or shows the upgrade prompt for free users), downloaded removes it,
- * queued/downloading is a no-op (nothing to toggle mid-flight — cancel isn't
- * part of the frozen [com.example.mozic.core.domain.repository.DownloadRepository]
- * contract).
+ * queued/downloading cancels — [onRemoveClick] already maps to
+ * [com.example.mozic.core.domain.repository.DownloadRepository.remove], which
+ * cancels the underlying WorkManager job mid-flight.
  */
 @Composable
 fun DownloadIconButton(
@@ -46,19 +49,19 @@ fun DownloadIconButton(
             when (downloadState) {
                 is DownloadState.NotDownloaded, is DownloadState.Failed ->
                     if (isPremium) onDownloadClick() else onUpgradeRequired()
-                is DownloadState.Downloaded -> onRemoveClick()
-                DownloadState.Queued, is DownloadState.Downloading -> Unit
+                is DownloadState.Downloaded, DownloadState.Queued, is DownloadState.Downloading -> onRemoveClick()
             }
         },
     ) {
         when (downloadState) {
             is DownloadState.Downloading -> CircularProgressIndicator(
-                progress = { downloadState.progress },
+                progress = { downloadState.progress.coerceAtLeast(MIN_VISIBLE_PROGRESS) },
                 modifier = Modifier.size(progressSize),
                 strokeWidth = PROGRESS_STROKE_WIDTH_DP.dp,
             )
 
             DownloadState.Queued -> CircularProgressIndicator(
+                progress = { MIN_VISIBLE_PROGRESS },
                 modifier = Modifier.size(progressSize),
                 strokeWidth = PROGRESS_STROKE_WIDTH_DP.dp,
             )

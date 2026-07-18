@@ -45,6 +45,13 @@
     <string name="cd_previous">Previous</string>
     <string name="cd_next">Next</string>
     <string name="cd_collapse_player">Collapse player</string>
+    <string name="cd_close_mini_player">Stop and close player</string>
+    <string name="cd_like">Like</string>
+    <string name="cd_unlike">Unlike</string>
+    <string name="cd_sleep_timer">Sleep timer</string>
+    <string name="cd_playback_speed">Playback speed</string>
+    <string name="player_sleep_timer_off">Off</string>
+    <string name="player_sleep_timer_minutes">%d min</string>
 
     <!-- Home -->
     <string name="home_quick_action_liked">Liked</string>
