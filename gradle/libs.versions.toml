@@ -38,6 +38,9 @@ paletteKtx = "1.0.0"
 # --- Networking (download worker only; screens never depend on this directly) ---
 okhttp = "4.12.0"
 
+# --- Networking (Supabase/PostgREST REST client, :core:network only) ---
+ktor = "3.5.1"
+
 # --- Quality ---
 detekt = "1.23.8"
 ktlint = "13.1.0"
@@ -106,6 +109,11 @@ androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", versi
 
 # --- Networking ---
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
 
 # --- Test ---
 junit = { group = "junit", name = "junit", version.ref = "junit" }

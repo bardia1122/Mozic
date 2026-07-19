@@ -73,3 +73,5 @@ vcs.xml
 *.baseline.prof
 /doc
 .idea
+/music
+/backend/supabase/add_local_songs.py

@@ -6,6 +6,20 @@ plugins {
 
 android {
     namespace = "com.example.mozic.core.network"
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    defaultConfig {
+        // Supabase's "publishable" (anon) key is designed to ship inside client
+        // apps — Row Level Security policies (backend/supabase/schema.sql), not
+        // secrecy, gate what it can read/write. The secret/service_role key
+        // (which bypasses RLS) stays server-side in backend/.env and never
+        // appears here.
+        buildConfigField("String", "SUPABASE_URL", "\"https://ktwzmigxumrpblamerzw.supabase.co\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"sb_publishable_dmw6Mu50sUCob3rlS23ZSg_xyiHiUJL\"")
+    }
 }
 
 dependencies {
@@ -14,8 +28,13 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.androidx.paging.common)
 
-    // Ktor client is added here by Person C in C2 (:core:network).
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
