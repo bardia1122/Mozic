@@ -1,0 +1,92 @@
+### Mozic backend — Supabase HTTP collection
+### Works with IntelliJ's built-in HTTP Client, or the VS Code "REST Client" extension.
+### Run the login request first, copy `access_token` from the response into @token below.
+
+@baseUrl = https://ktwzmigxumrpblamerzw.supabase.co
+@apikey = REPLACE_WITH_PUBLISHABLE_KEY
+@token = REPLACE_ME_AFTER_LOGIN
+
+### Login (demo account — see README.md for the full list; login is by email)
+POST {{baseUrl}}/auth/v1/token?grant_type=password
+apikey: {{apikey}}
+Content-Type: application/json
+
+{
+  "email": "alice@mozic.dev",
+  "password": "password123"
+}
+
+### Songs — newest first (default catalog order)
+GET {{baseUrl}}/rest/v1/songs?select=*&order=created_at.desc&limit=20
+apikey: {{apikey}}
+
+### Songs — most popular, page 2 (Range-header pagination)
+GET {{baseUrl}}/rest/v1/songs?select=*&order=popularity.desc
+apikey: {{apikey}}
+Range: 10-19
+Prefer: count=exact
+
+### Song by id
+GET {{baseUrl}}/rest/v1/songs?id=eq.song-1&select=*
+apikey: {{apikey}}
+
+### Search — everything matching "echo"
+POST {{baseUrl}}/rest/v1/rpc/search_catalog
+apikey: {{apikey}}
+Content-Type: application/json
+
+{
+  "q": "echo"
+}
+
+### Search — songs only
+POST {{baseUrl}}/rest/v1/rpc/search_catalog
+apikey: {{apikey}}
+Content-Type: application/json
+
+{
+  "q": "night",
+  "result_type": "song"
+}
+
+### Playlists — world category
+GET {{baseUrl}}/rest/v1/playlists?category=eq.WORLD&select=*
+apikey: {{apikey}}
+
+### Songs in a playlist (joined via embedding)
+GET {{baseUrl}}/rest/v1/playlist_songs?playlist_id=eq.playlist-1&select=position,songs(*)&order=position
+apikey: {{apikey}}
+
+### Profile by id (public read, no auth required)
+GET {{baseUrl}}/rest/v1/profiles?id=eq.<uuid>&select=*
+apikey: {{apikey}}
+
+### A user's public playlists
+GET {{baseUrl}}/rest/v1/playlists?owner_id=eq.<uuid>&is_public=eq.true&select=*
+apikey: {{apikey}}
+
+### Follow a user (auth required — follower_id must equal the caller)
+POST {{baseUrl}}/rest/v1/follows
+apikey: {{apikey}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "follower_id": "<your-uuid>",
+  "followee_id": "<their-uuid>"
+}
+
+### Unfollow (auth required)
+DELETE {{baseUrl}}/rest/v1/follows?follower_id=eq.<your-uuid>&followee_id=eq.<their-uuid>
+apikey: {{apikey}}
+Authorization: Bearer {{token}}
+
+### Conversations for the logged-in user (auth required — RLS scopes to participant rows)
+GET {{baseUrl}}/rest/v1/conversations?select=*
+apikey: {{apikey}}
+Authorization: Bearer {{token}}
+
+### Messages in a conversation, most recent first (auth required)
+GET {{baseUrl}}/rest/v1/messages?conversation_id=eq.conv-1&select=*&order=sent_at.desc
+apikey: {{apikey}}
+Authorization: Bearer {{token}}

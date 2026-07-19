@@ -1,0 +1,9 @@
+.gradle/
+build/
+data/
+*.db
+*.db-shm
+*.db-wal
+.env
+.env.*
+supabase/.env
