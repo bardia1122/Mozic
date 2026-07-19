@@ -44,6 +44,10 @@ class LibraryRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun unlike(songId: String) {
+        likedSongDao.unlike(songId)
+    }
+
     override suspend fun removeRecent(songId: String) {
         recentPlayDao.remove(songId)
     }
