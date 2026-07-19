@@ -83,7 +83,7 @@ class LibraryListViewModel @Inject constructor(
 
             is LibraryListEvent.RemoveSong -> viewModelScope.launch {
                 when (kind) {
-                    LibraryListKind.LIKED -> libraryRepository.toggleLike(event.songId)
+                    LibraryListKind.LIKED -> libraryRepository.unlike(event.songId)
                     LibraryListKind.RECENTLY_PLAYED -> libraryRepository.removeRecent(event.songId)
                 }
             }

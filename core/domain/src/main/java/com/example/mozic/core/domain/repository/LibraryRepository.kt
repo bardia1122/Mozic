@@ -10,6 +10,8 @@ interface LibraryRepository {
 
     suspend fun toggleLike(songId: String)
 
+    suspend fun unlike(songId: String)
+
     suspend fun removeRecent(songId: String)
 
     suspend fun recordPlayed(songId: String)
