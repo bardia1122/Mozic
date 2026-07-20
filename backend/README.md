@@ -8,22 +8,44 @@ with its auto-generated REST API (PostgREST) and built-in Auth. This is the
 plan's own named fallback for hosting friction ("if hosting friction
 threatens C1's deadline, Supabase for the REST part") — it also just solves
 phone-reachability outright, since Supabase hosts everything, no deploy step
-needed. `backend/` only holds the schema/seed scripts and a placeholder Ktor
-skeleton for **C3**'s future WebSocket chat server (Supabase's Realtime is a
-generic Postgres change-feed, not a fit for this project's custom
-send/ack/read/typing protocol — that still needs a small dedicated service,
-same as the plan anticipated).
+needed. `backend/`'s own Ktor project exists only for **C3**'s WebSocket
+chat server (Supabase's Realtime is a generic Postgres change-feed, not a fit
+for this project's custom send/ack/read/typing protocol — that needs a small
+dedicated service, same as the plan anticipated). See `PROTOCOL.md` for the
+full wire format.
 
 ## What's here
 
 ```
 backend/
   supabase/
-    schema.sql   — tables, RLS policies, grants, the search_catalog() RPC
-    seed.py      — seeds songs/users/playlists/follows/messages via the REST + Auth Admin APIs
-  src/…          — placeholder Ktor skeleton (just /health) for C3
-  .env           — Supabase credentials (gitignored, never commit)
+    schema.sql        — tables, RLS policies, grants, the search_catalog() RPC
+    seed.py            — seeds songs/users/playlists/follows/messages via the REST + Auth Admin APIs
+  src/…                — C3's WebSocket chat server (Ktor + WebSockets), talks to Supabase via
+                         PostgREST/Auth over plain HTTP (ktor-client), no JDBC driver
+  PROTOCOL.md          — the WS wire protocol, frozen contract with C5
+  .env                 — Supabase credentials (gitignored, never commit)
 ```
+
+## C3 — WebSocket chat server
+
+```bash
+cd backend
+./gradlew run                       # reads backend/.env
+curl http://localhost:8080/health   # → "ok"
+```
+
+One endpoint: `wss://<host>/ws?token=<supabase-access-token>&since=<epochMs>`.
+Full frame format, auth handshake, and a runnable test recipe (no Android
+client needed) are in `PROTOCOL.md`. Persistence for chat messages goes
+through the same Supabase Postgres project as C1/C2, via PostgREST calls
+made with the secret/service_role key (bypasses RLS — the `messages` table's
+policy deliberately has no client-side `UPDATE`, this server is the trusted
+intermediary that assumes). Verified live this session (not just compiled):
+typing indicator, send → ack → push, read receipts, song-share payload
+round-trip, reconnect backfill, invalid/missing-token rejection, and a
+spoofed-`senderId` frame being silently dropped and never persisted — all
+against `alice`↔`bob`'s seeded conversation (`conv-1`).
 
 ## Project
 
