@@ -12,6 +12,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
 import javax.inject.Singleton
@@ -36,6 +37,12 @@ object NetworkModule {
         expectSuccess = true
 
         install(ContentNegotiation) { json(json) }
+
+        // C5's chat WS client (ChatWebSocketClient) reuses this same client
+        // rather than a second one — the WS handshake auth is a `?token=`
+        // query param (backend/PROTOCOL.md), not a header, so there's no
+        // conflict with the `apikey` default header below.
+        install(WebSockets)
 
         install(HttpTimeout) {
             requestTimeoutMillis = REQUEST_TIMEOUT_MS

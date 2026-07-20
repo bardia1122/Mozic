@@ -3,8 +3,10 @@ package com.example.mozic.core.data.di
 import android.content.Context
 import androidx.room.Room
 import com.example.mozic.core.data.local.MozicDatabase
+import com.example.mozic.core.data.local.dao.ConversationDao
 import com.example.mozic.core.data.local.dao.DownloadDao
 import com.example.mozic.core.data.local.dao.LikedSongDao
+import com.example.mozic.core.data.local.dao.MessageDao
 import com.example.mozic.core.data.local.dao.RecentPlayDao
 import com.example.mozic.core.data.local.dao.SearchHistoryDao
 import dagger.Module
@@ -40,4 +42,10 @@ object DatabaseModule {
 
     @Provides
     fun provideDownloadDao(database: MozicDatabase): DownloadDao = database.downloadDao()
+
+    @Provides
+    fun provideMessageDao(database: MozicDatabase): MessageDao = database.messageDao()
+
+    @Provides
+    fun provideConversationDao(database: MozicDatabase): ConversationDao = database.conversationDao()
 }

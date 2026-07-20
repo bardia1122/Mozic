@@ -1,8 +1,6 @@
 package com.example.mozic.core.data.di
 
-import com.example.mozic.core.data.fake.FakeChatRepository
 import com.example.mozic.core.data.fake.FakeSocialRepository
-import com.example.mozic.core.domain.repository.ChatRepository
 import com.example.mozic.core.domain.repository.SocialRepository
 import dagger.Binds
 import dagger.Module
@@ -19,16 +17,14 @@ import dagger.hilt.components.SingletonComponent
  * `PlayerController` was the last one still faked here; A1 replaced it with
  * `Media3PlayerController`, bound in `:core:media`'s `MediaModule` instead.
  * `SongRepository`/`PlaylistRepository` moved to `DataModule` in C2 (real
- * catalog) — `FakeSongRepository`/`FakePlaylistRepository` still exist,
- * unbound, for tests. `ChatRepository`/`SocialRepository` stay faked until
- * C4-C6.
+ * catalog); `ChatRepository`/`AuthRepository` moved there in C5 (real WS +
+ * Supabase Auth) — `FakeSongRepository`/`FakePlaylistRepository`/
+ * `FakeChatRepository` all still exist, unbound, for tests. `SocialRepository`
+ * stays faked until C6.
  */
 @Module
 @InstallIn(SingletonComponent::class)
 interface FakeDataModule {
-    @Binds
-    fun bindChatRepository(impl: FakeChatRepository): ChatRepository
-
     @Binds
     fun bindSocialRepository(impl: FakeSocialRepository): SocialRepository
 }

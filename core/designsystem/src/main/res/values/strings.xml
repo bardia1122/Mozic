@@ -135,4 +135,14 @@
     <string name="chat_thread_empty">Say hello 👋</string>
     <string name="chat_delete_conversation">Delete chat</string>
     <string name="chat_mark_unread">Mark as unread</string>
+
+    <!-- Chat login (C5) -->
+    <string name="chat_login_title">Log in to chat</string>
+    <string name="chat_login_subtitle">Sign in with your Mozic account to send messages</string>
+    <string name="chat_login_email">Email</string>
+    <string name="chat_login_password">Password</string>
+    <string name="chat_login_submit">Log in</string>
+    <string name="chat_login_error">Invalid email or password</string>
+    <string name="chat_login_demo_hint">Demo: alice@mozic.dev / password123</string>
+    <string name="chat_log_out">Log out</string>
 </resources>
