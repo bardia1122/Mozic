@@ -105,4 +105,29 @@
     <string name="premium_upsell_title">ارتقا به نسخهٔ ویژه</string>
     <string name="premium_upsell_body">دانلود آهنگ برای پخش آفلاین، ویژگی نسخهٔ ویژه است. برای فعال‌سازی آن از نمایه خود ارتقا دهید.</string>
     <string name="premium_upsell_cta">ارتقا</string>
+
+    <!-- Chat -->
+    <string name="cd_open_chat">چت</string>
+    <string name="chat_title">چت‌ها</string>
+    <string name="chat_conversations_empty_title">هنوز گفتگویی نیست</string>
+    <string name="chat_conversations_empty_subtitle">پیام افرادی که دنبال می‌کنید اینجا نمایش داده می‌شود</string>
+    <string name="chat_message_preview_song">🎵 %s</string>
+    <string name="chat_unread_badge_overflow">9+</string>
+    <string name="chat_time_now">اکنون</string>
+    <string name="chat_time_minutes_ago">%dد</string>
+    <string name="chat_time_hours_ago">%dس</string>
+    <string name="chat_time_days_ago">%dر</string>
+    <string name="chat_day_today">امروز</string>
+    <string name="chat_day_yesterday">دیروز</string>
+    <string name="chat_input_placeholder">پیام</string>
+    <string name="cd_send_message">ارسال</string>
+    <string name="chat_peer_typing">در حال تایپ…</string>
+    <string name="chat_connection_connecting">در حال اتصال…</string>
+    <string name="chat_connection_offline">آفلاین</string>
+    <string name="chat_status_sending_cd">در حال ارسال</string>
+    <string name="chat_status_sent_cd">ارسال شد</string>
+    <string name="chat_status_read_cd">خوانده شد</string>
+    <string name="chat_thread_empty">سلام کنید 👋</string>
+    <string name="chat_delete_conversation">حذف گفت‌وگو</string>
+    <string name="chat_mark_unread">علامت‌گذاری به‌عنوان نخوانده</string>
 </resources>

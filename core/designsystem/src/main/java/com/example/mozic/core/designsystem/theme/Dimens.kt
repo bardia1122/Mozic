@@ -45,6 +45,8 @@ data class Dimens(
     val playerControlButtonSize: Dp = 60.dp,
     /** Canvas height for the Now Playing screen's bar visualizer. */
     val visualizerHeight: Dp = 56.dp,
+    /** Diameter of the small circular unread-count badge on a conversation row. */
+    val unreadBadgeSize: Dp = 20.dp,
 )
 
 val LocalDimens = staticCompositionLocalOf { Dimens() }

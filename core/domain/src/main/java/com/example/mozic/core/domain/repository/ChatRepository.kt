@@ -19,6 +19,14 @@ interface ChatRepository {
 
     suspend fun markConversationRead(conversationId: String)
 
+    /**
+     * Flips the badge back on without touching any message's stored status —
+     * a local "remind me" flag, not a receipt.
+     */
+    suspend fun markConversationUnread(conversationId: String)
+
+    suspend fun deleteConversation(conversationId: String)
+
     fun peerIsTyping(conversationId: String): Flow<Boolean>
 
     suspend fun setTyping(conversationId: String, typing: Boolean)

@@ -6,6 +6,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
+import com.example.mozic.feature.chat.navigation.chatScreens
 import com.example.mozic.feature.downloads.navigation.downloadsScreen
 import com.example.mozic.feature.home.navigation.HomeRoute
 import com.example.mozic.feature.home.navigation.homeScreen
@@ -45,6 +46,7 @@ fun MozicNavHost(
         nowPlayingScreen(navController)
         profileScreen(onNavigateToSettings = navController::navigateToSettings)
         settingsScreen(onBackClick = { navController.popBackStack() })
+        chatScreens(navController)
     }
 }
 

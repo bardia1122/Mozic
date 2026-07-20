@@ -30,6 +30,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.ui.animation.LocalMiniPlayerAnimatedVisibilityScope
 import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
+import com.example.mozic.feature.chat.navigation.ChatThreadRoute
+import com.example.mozic.feature.chat.navigation.navigateToConversationList
 import com.example.mozic.feature.player.MiniPlayerBar
 import com.example.mozic.feature.player.navigation.NowPlayingRoute
 import com.example.mozic.feature.player.navigation.navigateToNowPlaying
@@ -96,7 +98,7 @@ fun MozicApp(
     // `TopLevelDestination`, which incorrectly hid the mini player on every
     // non-tab screen, including playlist detail).
     val isFullScreenDestination = currentDestination?.hierarchy?.any {
-        it.hasRoute(NowPlayingRoute::class) || it.hasRoute(SettingsRoute::class)
+        it.hasRoute(NowPlayingRoute::class) || it.hasRoute(SettingsRoute::class) || it.hasRoute(ChatThreadRoute::class)
     } == true
 
     // `currentDestination` starts `null` on the very first composition (the
@@ -122,6 +124,7 @@ fun MozicApp(
                             onAvatarClick = {
                                 navController.navigateToTopLevelDestination(TopLevelDestination.PROFILE)
                             },
+                            onChatClick = navController::navigateToConversationList,
                             onNotificationsClick = {
                                 coroutineScope.launch { snackbarHostState.showSnackbar(comingSoonMessage) }
                             },
