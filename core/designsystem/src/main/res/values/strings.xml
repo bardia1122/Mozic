@@ -110,4 +110,29 @@
     <string name="premium_upsell_title">Go Premium</string>
     <string name="premium_upsell_body">Downloading songs for offline listening is a Premium feature. Upgrade from your profile to unlock it.</string>
     <string name="premium_upsell_cta">Upgrade</string>
+
+    <!-- Chat -->
+    <string name="cd_open_chat">Chat</string>
+    <string name="chat_title">Chats</string>
+    <string name="chat_conversations_empty_title">No conversations yet</string>
+    <string name="chat_conversations_empty_subtitle">Messages with people you follow will show up here</string>
+    <string name="chat_message_preview_song">🎵 %s</string>
+    <string name="chat_unread_badge_overflow">9+</string>
+    <string name="chat_time_now">Now</string>
+    <string name="chat_time_minutes_ago">%dm</string>
+    <string name="chat_time_hours_ago">%dh</string>
+    <string name="chat_time_days_ago">%dd</string>
+    <string name="chat_day_today">Today</string>
+    <string name="chat_day_yesterday">Yesterday</string>
+    <string name="chat_input_placeholder">Message</string>
+    <string name="cd_send_message">Send</string>
+    <string name="chat_peer_typing">typing…</string>
+    <string name="chat_connection_connecting">Connecting…</string>
+    <string name="chat_connection_offline">Offline</string>
+    <string name="chat_status_sending_cd">Sending</string>
+    <string name="chat_status_sent_cd">Sent</string>
+    <string name="chat_status_read_cd">Read</string>
+    <string name="chat_thread_empty">Say hello 👋</string>
+    <string name="chat_delete_conversation">Delete chat</string>
+    <string name="chat_mark_unread">Mark as unread</string>
 </resources>

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
@@ -28,6 +29,7 @@ import com.example.mozic.core.designsystem.theme.dimens
 @Composable
 fun MozicTopBar(
     onAvatarClick: () -> Unit,
+    onChatClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -52,6 +54,12 @@ fun MozicTopBar(
                 Icon(
                     imageVector = Icons.Filled.AccountCircle,
                     contentDescription = stringResource(DesignSystemR.string.nav_profile),
+                )
+            }
+            IconButton(onClick = onChatClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = stringResource(DesignSystemR.string.cd_open_chat),
                 )
             }
             IconButton(onClick = onNotificationsClick) {

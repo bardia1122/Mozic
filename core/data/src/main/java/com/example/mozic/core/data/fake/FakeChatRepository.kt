@@ -10,6 +10,7 @@ import com.example.mozic.core.domain.repository.ChatRepository
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +18,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+
+/**
+ * How long a fake send sits in [MessageStatus.SENDING] before flipping to
+ * [MessageStatus.SENT] — long enough for the clock icon to actually be
+ * visible in the UI.
+ */
+private const val FAKE_SEND_ACK_DELAY_MS = 500L
 
 /**
  * Fake chat backed by an in-memory message map (the real one is Room-backed).
@@ -30,31 +38,35 @@ class FakeChatRepository @Inject constructor() : ChatRepository {
     )
     private val typingState = MutableStateFlow<Map<String, Boolean>>(emptyMap())
     private val connection = MutableStateFlow(ConnectionState.CONNECTED)
+    private val deletedConversationIds = MutableStateFlow<Set<String>>(emptySet())
 
     override val connectionState: StateFlow<ConnectionState> = connection.asStateFlow()
 
     override fun conversations(): Flow<List<Conversation>> =
-        combine(messagesByConvo, unread) { byConvo, unreadCounts ->
-            SampleData.conversations.map { convo ->
-                convo.copy(
-                    lastMessage = byConvo[convo.id].orEmpty().maxByOrNull { it.sentAtEpochMs },
-                    unreadCount = unreadCounts[convo.id] ?: 0,
-                )
-            }
+        combine(messagesByConvo, unread, deletedConversationIds) { byConvo, unreadCounts, deleted ->
+            SampleData.conversations
+                .filterNot { it.id in deleted }
+                .map { convo ->
+                    convo.copy(
+                        lastMessage = byConvo[convo.id].orEmpty().maxByOrNull { it.sentAtEpochMs },
+                        unreadCount = unreadCounts[convo.id] ?: 0,
+                    )
+                }
         }
 
+    /** Newest-first, matching the `reverseLayout = true` chat `LazyColumn` (and Room's real `PagingSource` order). */
     override fun messages(conversationId: String): Flow<PagingData<Message>> =
         messagesByConvo.map { byConvo ->
-            PagingData.from(byConvo[conversationId].orEmpty().sortedBy { it.sentAtEpochMs })
+            PagingData.from(byConvo[conversationId].orEmpty().sortedByDescending { it.sentAtEpochMs })
         }
 
     override suspend fun sendText(conversationId: String, text: String) {
-        append(conversationId, MessagePayload.Text(text))
+        send(conversationId, MessagePayload.Text(text))
     }
 
     override suspend fun sendSongShare(conversationId: String, songId: String) {
         val song = SampleData.songs.find { it.id == songId } ?: return
-        append(
+        send(
             conversationId,
             MessagePayload.SongShare(
                 songId = song.id,
@@ -73,6 +85,17 @@ class FakeChatRepository @Inject constructor() : ChatRepository {
         }
     }
 
+    override suspend fun markConversationUnread(conversationId: String) {
+        unread.update { counts ->
+            val current = counts[conversationId] ?: 0
+            counts + (conversationId to if (current > 0) current else 1)
+        }
+    }
+
+    override suspend fun deleteConversation(conversationId: String) {
+        deletedConversationIds.update { it + conversationId }
+    }
+
     override fun peerIsTyping(conversationId: String): Flow<Boolean> =
         typingState.map { it[conversationId] ?: false }
 
@@ -80,17 +103,29 @@ class FakeChatRepository @Inject constructor() : ChatRepository {
         typingState.update { it + (conversationId to typing) }
     }
 
-    private fun append(conversationId: String, payload: MessagePayload) {
+    /**
+     * Mirrors the real optimistic-send flow (SENDING appears instantly, then
+     * flips to SENT) so the clock/check UI is actually exercised on fakes.
+     */
+    private suspend fun send(conversationId: String, payload: MessagePayload) {
+        val id = UUID.randomUUID().toString()
         val message = Message(
-            id = UUID.randomUUID().toString(),
+            id = id,
             conversationId = conversationId,
             senderId = SampleData.CURRENT_USER_ID,
             sentAtEpochMs = System.currentTimeMillis(),
-            status = MessageStatus.SENT,
+            status = MessageStatus.SENDING,
             payload = payload,
         )
         messagesByConvo.update { byConvo ->
             byConvo + (conversationId to (byConvo[conversationId].orEmpty() + message))
+        }
+        delay(FAKE_SEND_ACK_DELAY_MS)
+        messagesByConvo.update { byConvo ->
+            val updated = byConvo[conversationId].orEmpty().map {
+                if (it.id == id) it.copy(status = MessageStatus.SENT) else it
+            }
+            byConvo + (conversationId to updated)
         }
     }
 }
