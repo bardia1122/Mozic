@@ -1,9 +1,13 @@
 package com.example.mozic.core.data.di
 
+import com.example.mozic.core.data.repository.AuthRepositoryImpl
 import com.example.mozic.core.data.repository.DownloadRepositoryImpl
 import com.example.mozic.core.data.repository.LibraryRepositoryImpl
+import com.example.mozic.core.data.repository.RealChatRepository
 import com.example.mozic.core.data.repository.SearchRepositoryImpl
 import com.example.mozic.core.data.repository.UserPreferencesRepositoryImpl
+import com.example.mozic.core.domain.repository.AuthRepository
+import com.example.mozic.core.domain.repository.ChatRepository
 import com.example.mozic.core.domain.repository.DownloadRepository
 import com.example.mozic.core.domain.repository.LibraryRepository
 import com.example.mozic.core.domain.repository.PlaylistRepository
@@ -23,6 +27,8 @@ import dagger.hilt.components.SingletonComponent
  * pending. `SongRepository`/`PlaylistRepository` moved here in C2 (real
  * catalog, `:core:network`'s Supabase-backed impls); `FakeSongRepository`/
  * `FakePlaylistRepository` are left unbound but still exist for tests.
+ * `ChatRepository`/`AuthRepository` moved here in C5 (real WS + Supabase
+ * Auth) — `FakeChatRepository` is likewise left unbound, still used by tests.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -44,4 +50,10 @@ interface DataModule {
 
     @Binds
     fun bindPlaylistRepository(impl: NetworkPlaylistRepository): PlaylistRepository
+
+    @Binds
+    fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    fun bindChatRepository(impl: RealChatRepository): ChatRepository
 }

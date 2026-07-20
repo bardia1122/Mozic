@@ -130,4 +130,14 @@
     <string name="chat_thread_empty">سلام کنید 👋</string>
     <string name="chat_delete_conversation">حذف گفت‌وگو</string>
     <string name="chat_mark_unread">علامت‌گذاری به‌عنوان نخوانده</string>
+
+    <!-- Chat login (C5) -->
+    <string name="chat_login_title">ورود برای گفتگو</string>
+    <string name="chat_login_subtitle">برای ارسال پیام با حساب موزیک خود وارد شوید</string>
+    <string name="chat_login_email">ایمیل</string>
+    <string name="chat_login_password">رمز عبور</string>
+    <string name="chat_login_submit">ورود</string>
+    <string name="chat_login_error">ایمیل یا رمز عبور نامعتبر است</string>
+    <string name="chat_login_demo_hint">نمونه: alice@mozic.dev / password123</string>
+    <string name="chat_log_out">خروج</string>
 </resources>
