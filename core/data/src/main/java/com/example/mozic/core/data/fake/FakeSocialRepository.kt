@@ -42,4 +42,8 @@ class FakeSocialRepository @Inject constructor() : SocialRepository {
 
     override fun publicPlaylistsOf(userId: String): Flow<List<Playlist>> =
         flowOf(SampleData.playlists.filter { it.ownerId == userId && it.isPublic })
+
+    override fun userById(userId: String): Flow<User?> = followedIds.map { followed ->
+        SampleData.users.find { it.id == userId }?.copy(isFollowed = userId in followed)
+    }
 }

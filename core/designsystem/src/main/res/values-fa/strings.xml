@@ -140,4 +140,21 @@
     <string name="chat_login_error">ایمیل یا رمز عبور نامعتبر است</string>
     <string name="chat_login_demo_hint">نمونه: alice@mozic.dev / password123</string>
     <string name="chat_log_out">خروج</string>
+
+    <!-- Social (C6) -->
+    <string name="cd_open_social">یافتن افراد</string>
+    <string name="social_search_title">یافتن افراد</string>
+    <string name="social_search_placeholder">جست‌وجو بر اساس نام یا نام کاربری</string>
+    <string name="cd_follow">دنبال کردن</string>
+    <string name="cd_unfollow">لغو دنبال کردن</string>
+    <string name="cd_view_following">دنبال‌شده‌ها</string>
+    <string name="social_following_title">دنبال‌شده‌ها</string>
+    <string name="social_following_empty_title">هنوز کسی را دنبال نمی‌کنید</string>
+    <string name="social_following_empty_subtitle">افرادی که دنبال می‌کنید اینجا نمایش داده می‌شوند</string>
+    <string name="social_no_users_found">کاربری یافت نشد</string>
+    <string name="social_public_playlists_title">پلی‌لیست‌های عمومی</string>
+    <string name="social_public_playlists_empty_title">پلی‌لیست عمومی‌ای نیست</string>
+    <string name="social_public_playlists_empty_subtitle">این کاربر هنوز پلی‌لیست عمومی‌ای به‌اشتراک نگذاشته است</string>
+    <string name="social_action_failed">به‌روزرسانی وضعیت دنبال کردن ناموفق بود، دوباره تلاش کنید</string>
+    <string name="social_login_required">برای دنبال کردن کاربران از طریق چت وارد شوید</string>
 </resources>

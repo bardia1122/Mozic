@@ -36,6 +36,7 @@ import com.example.mozic.feature.player.MiniPlayerBar
 import com.example.mozic.feature.player.navigation.NowPlayingRoute
 import com.example.mozic.feature.player.navigation.navigateToNowPlaying
 import com.example.mozic.feature.settings.navigation.SettingsRoute
+import com.example.mozic.feature.social.navigation.navigateToUserSearch
 import com.example.mozic.navigation.MozicNavHost
 import com.example.mozic.navigation.TopLevelDestination
 import com.example.mozic.navigation.navigateToSettings
@@ -124,6 +125,7 @@ fun MozicApp(
                             onAvatarClick = {
                                 navController.navigateToTopLevelDestination(TopLevelDestination.PROFILE)
                             },
+                            onSocialClick = navController::navigateToUserSearch,
                             onChatClick = navController::navigateToConversationList,
                             onNotificationsClick = {
                                 coroutineScope.launch { snackbarHostState.showSnackbar(comingSoonMessage) }

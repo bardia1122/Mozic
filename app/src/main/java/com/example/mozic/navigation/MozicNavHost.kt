@@ -14,11 +14,13 @@ import com.example.mozic.feature.library.navigation.LibraryListKind
 import com.example.mozic.feature.library.navigation.libraryScreen
 import com.example.mozic.feature.library.navigation.navigateToLibraryList
 import com.example.mozic.feature.player.navigation.nowPlayingScreen
+import com.example.mozic.feature.playlists.navigation.PlaylistDetailRoute
 import com.example.mozic.feature.playlists.navigation.playlistsScreen
 import com.example.mozic.feature.profile.navigation.profileScreen
 import com.example.mozic.feature.search.navigation.searchScreen
 import com.example.mozic.feature.settings.navigation.SettingsRoute
 import com.example.mozic.feature.settings.navigation.settingsScreen
+import com.example.mozic.feature.social.navigation.socialScreens
 
 @Composable
 fun MozicNavHost(
@@ -47,6 +49,19 @@ fun MozicNavHost(
         profileScreen(onNavigateToSettings = navController::navigateToSettings)
         settingsScreen(onBackClick = { navController.popBackStack() })
         chatScreens(navController)
+        socialScreens(
+            navController = navController,
+            onPlaylistClick = { playlist ->
+                navController.navigate(
+                    PlaylistDetailRoute(
+                        playlistId = playlist.id,
+                        title = playlist.title,
+                        coverImageUrl = playlist.coverImageUrl,
+                        songCount = playlist.songCount,
+                    ),
+                )
+            },
+        )
     }
 }
 

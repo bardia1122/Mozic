@@ -6,21 +6,16 @@ import com.example.mozic.core.network.dto.PlaylistSongRowDto
 import com.example.mozic.core.network.dto.SearchCatalogRowDto
 import com.example.mozic.core.network.dto.SongDto
 import com.example.mozic.core.network.paging.RangePage
+import com.example.mozic.core.network.paging.applyRange
+import com.example.mozic.core.network.paging.toRangePage
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.request.parameter
-import io.ktor.client.statement.HttpResponse
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val REST_PATH = "/rest/v1/"
-private const val RANGE_HEADER = "Range"
-private const val PREFER_HEADER = "Prefer"
-private const val COUNT_EXACT = "count=exact"
-private const val CONTENT_RANGE_HEADER = "Content-Range"
 
 /**
  * Thin wrapper over PostgREST's raw HTTP surface (`backend/supabase/schema.sql`
@@ -94,15 +89,4 @@ class SupabaseCatalogApi @Inject constructor(
     }
 
     private fun restUrl(path: String) = "${BuildConfig.SUPABASE_URL}$REST_PATH$path"
-
-    private fun HttpRequestBuilder.applyRange(range: IntRange) {
-        header(PREFER_HEADER, COUNT_EXACT)
-        header(RANGE_HEADER, "${range.first}-${range.last}")
-    }
-
-    private suspend inline fun <reified T> HttpResponse.toRangePage(): RangePage<T> {
-        val items: List<T> = body()
-        val total = headers[CONTENT_RANGE_HEADER]?.substringAfter('/')?.toIntOrNull()
-        return RangePage(items, total)
-    }
 }

@@ -15,4 +15,7 @@ interface SocialRepository {
     suspend fun unfollow(userId: String)
 
     fun publicPlaylistsOf(userId: String): Flow<List<Playlist>>
+
+    /** C6 addition — a single user's profile (with a live [User.isFollowed]), for the profile screen. */
+    fun userById(userId: String): Flow<User?>
 }
