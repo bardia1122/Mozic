@@ -11,11 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.example.mozic.core.designsystem.theme.dimens
 
 private val PillShape = RoundedCornerShape(percent = 50)
-private val BorderWidth = 1.dp
 
 /** Same pill/border-chip treatment as `FilterChipsRow`'s inactive chip. */
 @Composable
@@ -28,7 +26,10 @@ fun DaySeparator(label: String, modifier: Modifier = Modifier) {
     ) {
         Box(
             modifier = Modifier
-                .border(BorderStroke(BorderWidth, MaterialTheme.colorScheme.outline), PillShape)
+                .border(
+                    border = BorderStroke(MaterialTheme.dimens.borderWidthHairline, MaterialTheme.colorScheme.outline),
+                    shape = PillShape,
+                )
                 .padding(
                     horizontal = MaterialTheme.dimens.spaceMd,
                     vertical = MaterialTheme.dimens.spaceXxs,

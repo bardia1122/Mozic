@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -25,7 +27,7 @@ import com.example.mozic.core.domain.model.HomeRow
 import com.example.mozic.core.domain.model.HomeSection
 import com.example.mozic.core.domain.model.PlaylistCategory
 import com.example.mozic.core.domain.model.Song
-import com.example.mozic.core.ui.component.PlaceholderScreen
+import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.PlaylistCard
 import com.example.mozic.core.ui.component.SongCard
 import com.example.mozic.feature.home.component.HomeCarousel
@@ -80,9 +82,12 @@ private fun HomeContent(
     modifier: Modifier = Modifier,
 ) {
     if (uiState is HomeUiState.Error) {
-        PlaceholderScreen(
+        EmptyState(
+            icon = Icons.Filled.WifiOff,
             title = stringResource(DesignSystemR.string.state_error),
-            subtitle = stringResource(DesignSystemR.string.nav_home),
+            subtitle = stringResource(DesignSystemR.string.state_error_subtitle),
+            actionLabel = stringResource(DesignSystemR.string.action_retry),
+            onAction = { onEvent(HomeEvent.Retry) },
             modifier = modifier,
         )
         return

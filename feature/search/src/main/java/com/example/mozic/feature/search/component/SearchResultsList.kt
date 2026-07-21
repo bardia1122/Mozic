@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -19,7 +21,7 @@ import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.domain.model.SearchResult
 import com.example.mozic.core.ui.component.MediaListRow
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
-import com.example.mozic.core.ui.component.PlaceholderScreen
+import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.ShareIconButton
 
 private const val SKELETON_ROW_COUNT = 6
@@ -39,7 +41,8 @@ fun SearchResultsList(
             items(SKELETON_ROW_COUNT) { MediaListRowSkeleton() }
         }
 
-        isEmpty -> PlaceholderScreen(
+        isEmpty -> EmptyState(
+            icon = Icons.Filled.SearchOff,
             title = stringResource(R.string.search_no_results),
             subtitle = stringResource(R.string.state_empty),
             modifier = modifier,

@@ -37,6 +37,7 @@
     <string name="state_loading">در حال بارگذاری…</string>
     <string name="state_empty">هنوز چیزی اینجا نیست</string>
     <string name="state_error">مشکلی پیش آمد</string>
+    <string name="state_error_subtitle">اتصال خود را بررسی کنید و دوباره تلاش کنید</string>
     <string name="placeholder_coming_soon">به‌زودی</string>
 
     <!-- Player -->
@@ -78,6 +79,8 @@
     <string name="playlists_section_local">محلی</string>
     <string name="playlists_play_all">پخش همه</string>
     <string name="playlists_shuffle">پخش تصادفی</string>
+    <string name="playlist_detail_empty_title">هنوز آهنگی نیست</string>
+    <string name="playlist_detail_empty_subtitle">آهنگ‌های اضافه‌شده به این پلی‌لیست اینجا نمایش داده می‌شوند</string>
 
     <!-- Library (liked / recently played) -->
     <string name="library_liked_title">آهنگ‌های پسندیده</string>
@@ -130,6 +133,7 @@
     <string name="chat_status_sent_cd">ارسال شد</string>
     <string name="chat_status_read_cd">خوانده شد</string>
     <string name="chat_thread_empty">سلام کنید 👋</string>
+    <string name="chat_thread_empty_subtitle">برای شروع گفتگو پیام بفرستید</string>
     <string name="chat_delete_conversation">حذف گفت‌وگو</string>
     <string name="chat_mark_unread">علامت‌گذاری به‌عنوان نخوانده</string>
 

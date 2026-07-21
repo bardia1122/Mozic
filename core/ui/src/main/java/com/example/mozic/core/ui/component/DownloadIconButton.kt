@@ -12,12 +12,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.domain.model.DownloadState
-
-private const val PROGRESS_STROKE_WIDTH_DP = 2
 
 /** A bare 0% ring reads as "nothing happened" — floor it so a tap always shows visible motion right away. */
 private const val MIN_VISIBLE_PROGRESS = 0.01f
@@ -57,13 +54,13 @@ fun DownloadIconButton(
             is DownloadState.Downloading -> CircularProgressIndicator(
                 progress = { downloadState.progress.coerceAtLeast(MIN_VISIBLE_PROGRESS) },
                 modifier = Modifier.size(progressSize),
-                strokeWidth = PROGRESS_STROKE_WIDTH_DP.dp,
+                strokeWidth = MaterialTheme.dimens.progressStrokeWidthThin,
             )
 
             DownloadState.Queued -> CircularProgressIndicator(
                 progress = { MIN_VISIBLE_PROGRESS },
                 modifier = Modifier.size(progressSize),
-                strokeWidth = PROGRESS_STROKE_WIDTH_DP.dp,
+                strokeWidth = MaterialTheme.dimens.progressStrokeWidthThin,
             )
 
             is DownloadState.Downloaded -> Icon(

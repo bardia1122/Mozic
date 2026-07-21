@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MarkChatUnread
 import androidx.compose.material3.Button
@@ -47,7 +48,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.R
@@ -57,8 +57,8 @@ import com.example.mozic.core.domain.model.chat.Conversation
 import com.example.mozic.core.domain.model.chat.Message
 import com.example.mozic.core.domain.model.chat.MessagePayload
 import com.example.mozic.core.ui.component.CoverImage
+import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
-import com.example.mozic.core.ui.component.PlaceholderScreen
 import com.example.mozic.feature.chat.component.formatConversationTime
 
 private const val SKELETON_ROW_COUNT = 6
@@ -135,7 +135,8 @@ private fun ConversationListContent(
         )
 
         is ConversationListUiState.Content -> if (uiState.conversations.isEmpty()) {
-            PlaceholderScreen(
+            EmptyState(
+                icon = Icons.Filled.ChatBubbleOutline,
                 title = stringResource(R.string.chat_conversations_empty_title),
                 subtitle = stringResource(R.string.chat_conversations_empty_subtitle),
                 modifier = modifier,
@@ -350,7 +351,7 @@ private fun ChatLoginForm(
             if (state.isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(MaterialTheme.dimens.spaceMd),
-                    strokeWidth = 2.dp,
+                    strokeWidth = MaterialTheme.dimens.progressStrokeWidthThin,
                     color = MaterialTheme.colorScheme.onPrimary,
                 )
             } else {

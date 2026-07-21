@@ -42,6 +42,7 @@
     <string name="state_loading">Loading…</string>
     <string name="state_empty">Nothing here yet</string>
     <string name="state_error">Something went wrong</string>
+    <string name="state_error_subtitle">Check your connection and try again</string>
     <string name="placeholder_coming_soon">Coming soon</string>
 
     <!-- Player -->
@@ -83,6 +84,8 @@
     <string name="playlists_section_local">Local</string>
     <string name="playlists_play_all">Play All</string>
     <string name="playlists_shuffle">Shuffle</string>
+    <string name="playlist_detail_empty_title">No songs yet</string>
+    <string name="playlist_detail_empty_subtitle">Songs added to this playlist will show up here</string>
 
     <!-- Library (liked / recently played) -->
     <string name="library_liked_title">Liked Songs</string>
@@ -135,6 +138,7 @@
     <string name="chat_status_sent_cd">Sent</string>
     <string name="chat_status_read_cd">Read</string>
     <string name="chat_thread_empty">Say hello 👋</string>
+    <string name="chat_thread_empty_subtitle">Send a message to start the conversation</string>
     <string name="chat_delete_conversation">Delete chat</string>
     <string name="chat_mark_unread">Mark as unread</string>
 

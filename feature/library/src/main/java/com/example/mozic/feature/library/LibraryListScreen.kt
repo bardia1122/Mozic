@@ -55,6 +55,7 @@ import com.example.mozic.core.designsystem.theme.mozicColors
 import com.example.mozic.core.domain.model.DownloadState
 import com.example.mozic.core.domain.model.Song
 import com.example.mozic.core.ui.component.DownloadIconButton
+import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.MediaListRow
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
 import com.example.mozic.core.ui.component.ShareIconButton
@@ -143,9 +144,13 @@ private fun LibraryListContent(
             isLoading -> items(SKELETON_ROW_COUNT) { MediaListRowSkeleton() }
 
             songs.isEmpty() -> item {
-                EmptyLibraryMessage(
+                EmptyState(
+                    icon = kind.icon(),
+                    title = stringResource(DesignSystemR.string.state_empty),
                     subtitle = stringResource(kind.emptySubtitleRes()),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = MaterialTheme.dimens.spaceXl),
                 )
             }
 
@@ -169,28 +174,6 @@ private fun LibraryListContent(
                 }
             }
         }
-    }
-}
-
-/**
- * A `LazyColumn` `item {}` has unbounded height along the scroll axis, so
- * (unlike [com.example.mozic.core.ui.component.PlaceholderScreen], built for
- * a whole-screen slot) this stays wrap-content instead of `fillMaxSize()`.
- */
-@Composable
-private fun EmptyLibraryMessage(subtitle: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.padding(vertical = MaterialTheme.dimens.spaceXl),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceXs),
-    ) {
-        Text(text = stringResource(DesignSystemR.string.state_empty), style = MaterialTheme.typography.headlineSmall)
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
     }
 }
 

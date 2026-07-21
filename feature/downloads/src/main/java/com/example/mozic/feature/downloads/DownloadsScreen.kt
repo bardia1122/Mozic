@@ -3,7 +3,6 @@ package com.example.mozic.feature.downloads
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -33,12 +33,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.R as DesignSystemR
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.domain.model.Song
+import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.MediaListRow
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
 import com.example.mozic.core.ui.component.ShareIconButton
@@ -96,7 +96,14 @@ private fun DownloadsContent(
             isLoading -> items(SKELETON_ROW_COUNT) { MediaListRowSkeleton() }
 
             songs.isEmpty() -> item {
-                DownloadsEmptyMessage(modifier = Modifier.fillMaxWidth())
+                EmptyState(
+                    icon = Icons.Filled.Download,
+                    title = stringResource(DesignSystemR.string.state_empty),
+                    subtitle = stringResource(DesignSystemR.string.downloads_empty),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = MaterialTheme.dimens.spaceXl),
+                )
             }
 
             else -> items(songs, key = Song::id) { song ->
@@ -209,22 +216,4 @@ private fun RemoveDownloadBackdrop(modifier: Modifier = Modifier) {
 @Composable
 private fun SelectedSortCheckmark(modifier: Modifier = Modifier) {
     Icon(imageVector = Icons.Filled.Check, contentDescription = null, modifier = modifier)
-}
-
-/** Wrap-content, not `fillMaxSize()` — sits inside a `LazyColumn` `item {}` (unbounded height axis). */
-@Composable
-private fun DownloadsEmptyMessage(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.padding(vertical = MaterialTheme.dimens.spaceXl),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceXs),
-    ) {
-        Text(text = stringResource(DesignSystemR.string.state_empty), style = MaterialTheme.typography.headlineSmall)
-        Text(
-            text = stringResource(DesignSystemR.string.downloads_empty),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-    }
 }

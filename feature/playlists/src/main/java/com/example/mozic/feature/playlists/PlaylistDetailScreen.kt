@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Shuffle
 import androidx.compose.material3.Button
@@ -44,6 +45,7 @@ import com.example.mozic.core.designsystem.R as DesignSystemR
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.designsystem.theme.mozicColors
 import com.example.mozic.core.ui.component.CoverImage
+import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.MediaListRow
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
 import com.example.mozic.core.ui.component.ShareIconButton
@@ -107,6 +109,17 @@ fun PlaylistDetailScreen(
 
             if (isInitialLoad) {
                 items(SKELETON_ROW_COUNT) { MediaListRowSkeleton() }
+            } else if (pagingItems.itemCount == 0) {
+                item {
+                    EmptyState(
+                        icon = Icons.Filled.MusicNote,
+                        title = stringResource(DesignSystemR.string.playlist_detail_empty_title),
+                        subtitle = stringResource(DesignSystemR.string.playlist_detail_empty_subtitle),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = MaterialTheme.dimens.spaceXl),
+                    )
+                }
             } else {
                 items(pagingItems.itemCount) { index ->
                     pagingItems[index]?.let { song ->

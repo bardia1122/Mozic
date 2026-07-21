@@ -47,6 +47,12 @@ data class Dimens(
     val visualizerHeight: Dp = 56.dp,
     /** Diameter of the small circular unread-count badge on a conversation row. */
     val unreadBadgeSize: Dp = 20.dp,
+    /** Icon size for `EmptyState`'s illustration (I2). */
+    val emptyStateIconSize: Dp = 64.dp,
+    /** Shared hairline border width — chips, pill badges, the logout button (I2). */
+    val borderWidthHairline: Dp = 1.dp,
+    /** Shared stroke width for small circular progress indicators (I2). */
+    val progressStrokeWidthThin: Dp = 2.dp,
 )
 
 val LocalDimens = staticCompositionLocalOf { Dimens() }

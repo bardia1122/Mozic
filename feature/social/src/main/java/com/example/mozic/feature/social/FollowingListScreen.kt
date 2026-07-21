@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.PersonOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,8 +26,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.domain.model.User
+import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
-import com.example.mozic.core.ui.component.PlaceholderScreen
 
 private const val SKELETON_ROW_COUNT = 6
 
@@ -79,7 +80,8 @@ fun FollowingListScreen(
             }
 
             is FollowingListUiState.Content -> if (state.users.isEmpty()) {
-                PlaceholderScreen(
+                EmptyState(
+                    icon = Icons.Filled.PersonOff,
                     title = stringResource(R.string.social_following_empty_title),
                     subtitle = stringResource(R.string.social_following_empty_subtitle),
                     modifier = Modifier.padding(innerPadding).fillMaxSize(),

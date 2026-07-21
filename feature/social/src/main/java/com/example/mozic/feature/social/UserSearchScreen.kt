@@ -15,7 +15,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -44,10 +46,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.domain.model.User
+import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.FollowIconButton
 import com.example.mozic.core.ui.component.MediaListRow
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
-import com.example.mozic.core.ui.component.PlaceholderScreen
 
 private const val SKELETON_ROW_COUNT = 6
 
@@ -121,7 +123,8 @@ fun UserSearchScreen(
             )
 
             if (uiState.query.isBlank()) {
-                PlaceholderScreen(
+                EmptyState(
+                    icon = Icons.Filled.PersonSearch,
                     title = stringResource(R.string.social_search_title),
                     subtitle = stringResource(R.string.social_search_placeholder),
                     modifier = Modifier.fillMaxWidth().weight(1f),
@@ -189,7 +192,8 @@ private fun UserResultsList(
             items(SKELETON_ROW_COUNT) { MediaListRowSkeleton(imageShape = CircleShape) }
         }
 
-        isEmpty -> PlaceholderScreen(
+        isEmpty -> EmptyState(
+            icon = Icons.Filled.SearchOff,
             title = stringResource(R.string.social_no_users_found),
             subtitle = stringResource(R.string.state_empty),
             modifier = modifier,
