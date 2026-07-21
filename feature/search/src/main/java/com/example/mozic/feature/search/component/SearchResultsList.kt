@@ -20,6 +20,7 @@ import com.example.mozic.core.domain.model.SearchResult
 import com.example.mozic.core.ui.component.MediaListRow
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
 import com.example.mozic.core.ui.component.PlaceholderScreen
+import com.example.mozic.core.ui.component.ShareIconButton
 
 private const val SKELETON_ROW_COUNT = 6
 
@@ -27,6 +28,7 @@ private const val SKELETON_ROW_COUNT = 6
 fun SearchResultsList(
     pagingItems: LazyPagingItems<SearchResult>,
     onResultClick: (SearchResult) -> Unit,
+    onShareClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val isInitialLoad = pagingItems.loadState.refresh is LoadState.Loading
@@ -46,7 +48,7 @@ fun SearchResultsList(
         else -> LazyColumn(modifier = modifier) {
             items(pagingItems.itemCount) { index ->
                 pagingItems[index]?.let { result ->
-                    SearchResultRow(result = result, onClick = { onResultClick(result) })
+                    SearchResultRow(result = result, onClick = { onResultClick(result) }, onShareClick = onShareClick)
                 }
             }
             if (pagingItems.loadState.append is LoadState.Loading) {
@@ -69,6 +71,7 @@ fun SearchResultsList(
 private fun SearchResultRow(
     result: SearchResult,
     onClick: () -> Unit,
+    onShareClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (result) {
@@ -78,6 +81,7 @@ private fun SearchResultRow(
             subtitle = result.song.artistName,
             onClick = onClick,
             modifier = modifier,
+            trailing = { ShareIconButton(onClick = { onShareClick(result.song.id) }) },
         )
 
         is SearchResult.ArtistResult -> MediaListRow(

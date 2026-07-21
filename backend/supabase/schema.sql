@@ -64,6 +64,43 @@ create trigger on_auth_user_created
     for each row execute function public.handle_new_user();
 
 -- ============================================================
+-- avatars storage — the `avatars` bucket itself is created via the
+-- Storage Management API (public:true), not here; these are the
+-- object-level RLS policies letting a logged-in user upload/replace
+-- only their own avatar. Path convention: {user id}/avatar (no file
+-- extension — the upload's Content-Type header is what an image loader
+-- keys off, not the URL). Public read needs no policy: the bucket's own
+-- "public" flag serves /storage/v1/object/public/... unconditionally.
+--
+-- storage.buckets ALSO has RLS, separate from storage.objects — an insert
+-- into objects needs to read the bucket's own row first (size/mime-type
+-- limits), so without this, every write 403s with a generic RLS message
+-- that gives no hint it's actually the *bucket* read that's failing.
+-- audio/covers never hit this: they're only ever written by the secret-key
+-- seed script, which bypasses RLS entirely — avatars is the first bucket
+-- written to by a real logged-in user from the app itself.
+-- ============================================================
+drop policy if exists "buckets_select_all" on storage.buckets;
+create policy "buckets_select_all" on storage.buckets
+    for select using (true);
+
+drop policy if exists "avatars_insert_own" on storage.objects;
+create policy "avatars_insert_own" on storage.objects
+    for insert to authenticated
+    with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists "avatars_update_own" on storage.objects;
+create policy "avatars_update_own" on storage.objects
+    for update to authenticated
+    using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text)
+    with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists "avatars_delete_own" on storage.objects;
+create policy "avatars_delete_own" on storage.objects
+    for delete to authenticated
+    using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ============================================================
 -- songs — the catalog. Public read-only via the API; writes
 -- only via the secret key (seeding/admin), matching C1's
 -- "catalog is server-managed" model.

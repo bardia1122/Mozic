@@ -27,6 +27,7 @@ import com.example.mozic.feature.search.component.SearchResultsList
 
 @Composable
 fun SearchScreen(
+    onShareClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = hiltViewModel(),
 ) {
@@ -80,6 +81,7 @@ fun SearchScreen(
                 SearchResultsList(
                     pagingItems = pagingItems,
                     onResultClick = viewModel::onResultClick,
+                    onShareClick = onShareClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),

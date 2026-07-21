@@ -17,6 +17,15 @@ interface ChatRepository {
 
     suspend fun sendSongShare(conversationId: String, songId: String)
 
+    /**
+     * Resolves the DM conversation with [peerId] for I1's song-share friend
+     * picker, creating it if none exists yet — C1's seed data pre-created every
+     * conversation, so nothing needed this before. Returns `null` if the
+     * caller isn't authenticated (share entry points gate on login already,
+     * same as C6's follow gate).
+     */
+    suspend fun conversationWith(peerId: String): String?
+
     suspend fun markConversationRead(conversationId: String)
 
     /**

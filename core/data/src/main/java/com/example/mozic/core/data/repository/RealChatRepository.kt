@@ -1,5 +1,6 @@
 package com.example.mozic.core.data.repository
 
+import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -151,6 +152,53 @@ class RealChatRepository @Inject constructor(
         )
     }
 
+    override suspend fun conversationWith(peerId: String): String? {
+        val myUserId = requireUserIdOrNull() ?: return null
+        val auth = authRepository.authState.value as? AuthState.LoggedIn ?: return null
+        val id = resolveConversationId(myUserId, peerId, auth) ?: return null
+
+        val peerProfile = chatApi.profiles(listOf(peerId)).firstOrNull()
+        conversationDao.insertIfAbsent(
+            ConversationEntity(
+                id = id,
+                peerId = peerId,
+                peerUsername = peerProfile?.username.orEmpty(),
+                peerDisplayName = peerProfile?.displayName ?: peerId,
+                peerAvatarUrl = peerProfile?.avatarUrl,
+                peerIsPremium = peerProfile?.isPremium ?: false,
+            ),
+        )
+        return id
+    }
+
+    /**
+     * Local Room might not have synced this conversation yet (e.g. right
+     * after login, before the first [refreshConversations] pass) even though
+     * it already exists server-side — check Supabase directly before
+     * assuming there's nothing and fabricating a fresh id, which
+     * `conversations`' own `unique(user_a, user_b)` constraint would then
+     * reject with a 409 (a real bug this method used to have — a failed
+     * create silently returned the never-created id as if it had succeeded).
+     */
+    private suspend fun resolveConversationId(myUserId: String, peerId: String, auth: AuthState.LoggedIn): String? {
+        conversationDao.findByPeerId(peerId)?.let { existing ->
+            conversationDao.unhide(existing.id)
+            return existing.id
+        }
+
+        val existingRemote = runCatching { chatApi.conversationBetween(auth.accessToken, myUserId, peerId) }
+            .onFailure { Log.w("RealChatRepository", "conversationWith: lookup failed for peer $peerId", it) }
+            .getOrNull()
+        if (existingRemote != null) return existingRemote.id
+
+        val newId = deterministicConversationId(myUserId, peerId)
+        val (userA, userB) = listOf(myUserId, peerId).sorted()
+        val created = runCatching { chatApi.createConversation(auth.accessToken, newId, userA, userB) }
+            .onFailure { Log.w("RealChatRepository", "conversationWith: failed to create conversation $newId", it) }
+            .isSuccess
+        return if (created) newId else null
+    }
+
     override suspend fun markConversationRead(conversationId: String) {
         val myUserId = requireUserIdOrNull() ?: return
         conversationDao.setForcedUnread(conversationId, false)
@@ -173,8 +221,15 @@ class RealChatRepository @Inject constructor(
         webSocketClient.sendTyping(conversationId, typing)
     }
 
+    // TEMPORARY diagnostic logging (Log.d/Log.w below) for the "messages don't
+    // send" investigation — remove once the root cause is confirmed from a
+    // real device's logcat.
     private suspend fun send(conversationId: String, payload: MessagePayload) {
-        val myUserId = requireUserIdOrNull() ?: return
+        val myUserId = requireUserIdOrNull()
+        if (myUserId == null) {
+            Log.w("MozicChatRepo", "send: not logged in, dropping send to $conversationId")
+            return
+        }
         val message = Message(
             id = UUID.randomUUID().toString(),
             conversationId = conversationId,
@@ -183,8 +238,10 @@ class RealChatRepository @Inject constructor(
             status = MessageStatus.SENDING,
             payload = payload,
         )
+        Log.d("MozicChatRepo", "send: persisting ${message.id} to Room, connectionState=${connectionState.value}")
         messageDao.upsert(message.toEntity())
         webSocketClient.sendMessage(message)
+        Log.d("MozicChatRepo", "send: sendMessage(${message.id}) call returned")
     }
 
     /**
@@ -251,4 +308,8 @@ class RealChatRepository @Inject constructor(
     }
 
     private fun requireUserIdOrNull(): String? = (authRepository.authState.value as? AuthState.LoggedIn)?.userId
+
+    /** Sorted so both participants compute the same id regardless of who initiates the share first. */
+    private fun deterministicConversationId(userId: String, peerId: String): String =
+        "conv-" + listOf(userId, peerId).sorted().joinToString("-")
 }

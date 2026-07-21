@@ -32,7 +32,7 @@ private const val PLAYLISTS_NAV_TRANSITION_MS = 220
  * nothing to relayout — combined with `MozicApp` delaying the chrome flip
  * past this duration, the content area's own size never changes mid-fade.
  */
-fun NavGraphBuilder.playlistsScreen(navController: NavHostController) {
+fun NavGraphBuilder.playlistsScreen(navController: NavHostController, onShareClick: (String) -> Unit) {
     composable<PlaylistsRoute>(
         exitTransition = { fadeOut(animationSpec = tween(PLAYLISTS_NAV_TRANSITION_MS)) },
         popEnterTransition = { fadeIn(animationSpec = tween(PLAYLISTS_NAV_TRANSITION_MS)) },
@@ -54,6 +54,6 @@ fun NavGraphBuilder.playlistsScreen(navController: NavHostController) {
         enterTransition = { fadeIn(animationSpec = tween(PLAYLISTS_NAV_TRANSITION_MS)) },
         popExitTransition = { fadeOut(animationSpec = tween(PLAYLISTS_NAV_TRANSITION_MS)) },
     ) {
-        PlaylistDetailScreen(onBackClick = { navController.popBackStack() })
+        PlaylistDetailScreen(onBackClick = { navController.popBackStack() }, onShareClick = onShareClick)
     }
 }

@@ -105,6 +105,8 @@
     <string name="premium_upsell_title">ارتقا به نسخهٔ ویژه</string>
     <string name="premium_upsell_body">دانلود آهنگ برای پخش آفلاین، ویژگی نسخهٔ ویژه است. برای فعال‌سازی آن از نمایه خود ارتقا دهید.</string>
     <string name="premium_upsell_cta">ارتقا</string>
+    <string name="profile_avatar_update_failed">به‌روزرسانی تصویر نمایه ناموفق بود، دوباره تلاش کنید</string>
+    <string name="profile_remove_avatar_cd">حذف تصویر</string>
 
     <!-- Chat -->
     <string name="cd_open_chat">چت</string>
@@ -159,4 +161,11 @@
     <string name="social_login_required">برای دنبال کردن کاربران از طریق چت وارد شوید</string>
     <string name="social_followed">دنبال شد</string>
     <string name="social_unfollowed">لغو دنبال شد</string>
+    <string name="social_message">پیام</string>
+
+    <!-- Song share (I1) -->
+    <string name="cd_share_song">اشتراک‌گذاری آهنگ</string>
+    <string name="chat_share_title">اشتراک‌گذاری با</string>
+    <string name="chat_share_login_required">برای اشتراک‌گذاری آهنگ از طریق چت وارد شوید</string>
+    <string name="chat_share_empty">برای اشتراک‌گذاری آهنگ، افرادی را دنبال کنید</string>
 </resources>

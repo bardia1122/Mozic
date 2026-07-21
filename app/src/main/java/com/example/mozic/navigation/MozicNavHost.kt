@@ -7,12 +7,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import com.example.mozic.feature.chat.navigation.chatScreens
+import com.example.mozic.feature.chat.navigation.navigateToChatThread
+import com.example.mozic.feature.chat.navigation.navigateToShareSong
 import com.example.mozic.feature.downloads.navigation.downloadsScreen
 import com.example.mozic.feature.home.navigation.HomeRoute
 import com.example.mozic.feature.home.navigation.homeScreen
 import com.example.mozic.feature.library.navigation.LibraryListKind
 import com.example.mozic.feature.library.navigation.libraryScreen
 import com.example.mozic.feature.library.navigation.navigateToLibraryList
+import com.example.mozic.feature.player.navigation.navigateToNowPlaying
 import com.example.mozic.feature.player.navigation.nowPlayingScreen
 import com.example.mozic.feature.playlists.navigation.PlaylistDetailRoute
 import com.example.mozic.feature.playlists.navigation.playlistsScreen
@@ -41,14 +44,14 @@ fun MozicNavHost(
                 navController.navigateToLibraryList(LibraryListKind.RECENTLY_PLAYED)
             },
         )
-        searchScreen()
-        downloadsScreen()
-        playlistsScreen(navController)
-        libraryScreen(navController)
-        nowPlayingScreen(navController)
+        searchScreen(onShareClick = navController::navigateToShareSong)
+        downloadsScreen(onShareClick = navController::navigateToShareSong)
+        playlistsScreen(navController, onShareClick = navController::navigateToShareSong)
+        libraryScreen(navController, onShareClick = navController::navigateToShareSong)
+        nowPlayingScreen(navController, onShareClick = navController::navigateToShareSong)
         profileScreen(onNavigateToSettings = navController::navigateToSettings)
         settingsScreen(onBackClick = { navController.popBackStack() })
-        chatScreens(navController)
+        chatScreens(navController, onNavigateToNowPlaying = navController::navigateToNowPlaying)
         socialScreens(
             navController = navController,
             onPlaylistClick = { playlist ->
@@ -61,6 +64,7 @@ fun MozicNavHost(
                     ),
                 )
             },
+            onNavigateToChatThread = navController::navigateToChatThread,
         )
     }
 }

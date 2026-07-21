@@ -16,7 +16,7 @@ import com.example.mozic.feature.player.NowPlayingScreen
  */
 private const val NOW_PLAYING_NAV_TRANSITION_MS = 220
 
-fun NavGraphBuilder.nowPlayingScreen(navController: NavHostController) {
+fun NavGraphBuilder.nowPlayingScreen(navController: NavHostController, onShareClick: (songId: String) -> Unit) {
     composable<NowPlayingRoute>(
         enterTransition = { fadeIn(animationSpec = tween(NOW_PLAYING_NAV_TRANSITION_MS)) },
         exitTransition = { fadeOut(animationSpec = tween(NOW_PLAYING_NAV_TRANSITION_MS)) },
@@ -25,6 +25,7 @@ fun NavGraphBuilder.nowPlayingScreen(navController: NavHostController) {
     ) {
         NowPlayingScreen(
             onBackClick = { navController.popBackStack() },
+            onShareClick = onShareClick,
             animatedVisibilityScope = this,
         )
     }

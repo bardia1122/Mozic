@@ -21,13 +21,33 @@ backend/
   supabase/
     schema.sql        — tables, RLS policies, grants, the search_catalog() RPC
     seed.py            — seeds songs/users/playlists/follows/messages via the REST + Auth Admin APIs
-  src/…                — C3's WebSocket chat server (Ktor + WebSockets), talks to Supabase via
-                         PostgREST/Auth over plain HTTP (ktor-client), no JDBC driver
-  PROTOCOL.md          — the WS wire protocol, frozen contract with C5
-  .env                 — Supabase credentials (gitignored, never commit)
+  src/…                — C3's WebSocket chat server, Kotlin/Ktor original implementation
+  python/…             — the same server, rewritten in Python/FastAPI (see below) — pick one
+  PROTOCOL.md          — the WS wire protocol, frozen contract with C5, identical for both implementations
+  .env                 — Supabase credentials (gitignored, never commit), shared by both implementations
 ```
 
 ## C3 — WebSocket chat server
+
+Two interchangeable implementations of the exact same `PROTOCOL.md` wire
+format — the Android client (`ChatWebSocketClient`) can't tell which one it's
+talking to. Run whichever one; don't run both at once (same port).
+
+**Python/FastAPI** (`backend/python/`) — lighter to start, no JDK/Gradle needed:
+
+```bash
+cd backend/python
+pip install -r requirements.txt     # once, ideally inside a venv
+python main.py                      # reads backend/.env (one level up)
+curl http://localhost:8080/health   # → "ok"
+```
+
+Single uvicorn worker only (the default `python main.py` invocation) — its
+`ConnectionManager` keeps live WS sessions and a small participants cache in
+plain process memory, not shared across workers/processes. `PORT` env var
+overrides the default 8080.
+
+**Kotlin/Ktor** (`backend/src/`) — the original implementation:
 
 ```bash
 cd backend
@@ -41,11 +61,13 @@ client needed) are in `PROTOCOL.md`. Persistence for chat messages goes
 through the same Supabase Postgres project as C1/C2, via PostgREST calls
 made with the secret/service_role key (bypasses RLS — the `messages` table's
 policy deliberately has no client-side `UPDATE`, this server is the trusted
-intermediary that assumes). Verified live this session (not just compiled):
-typing indicator, send → ack → push, read receipts, song-share payload
-round-trip, reconnect backfill, invalid/missing-token rejection, and a
-spoofed-`senderId` frame being silently dropped and never persisted — all
-against `alice`↔`bob`'s seeded conversation (`conv-1`).
+intermediary that assumes). Verified live (not just compiled) against the real
+Supabase project, for **both** implementations: typing indicator, send → ack
+→ push, read receipts (with the persisted row's status actually flipping to
+`READ`), song-share payload round-trip, reconnect backfill (`since=`),
+invalid/missing-token rejection (close code `1008`), and a spoofed-`senderId`
+frame being silently dropped and never persisted — all against `alice`↔`bob`'s
+seeded conversation (`conv-1`).
 
 ## Project
 

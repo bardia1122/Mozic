@@ -38,6 +38,7 @@ import com.example.mozic.feature.chat.component.MessagesList
 @Composable
 fun ChatThreadScreen(
     onBackClick: () -> Unit,
+    onNavigateToNowPlaying: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ChatThreadViewModel = hiltViewModel(),
 ) {
@@ -69,7 +70,10 @@ fun ChatThreadScreen(
             MessagesList(
                 pagingItems = messages,
                 peerId = uiState.peer?.id,
-                onSongShareClick = { songId -> viewModel.onEvent(ChatThreadEvent.SongShareClick(songId)) },
+                onSongShareClick = { songId ->
+                    viewModel.onEvent(ChatThreadEvent.SongShareClick(songId))
+                    onNavigateToNowPlaying()
+                },
                 modifier = Modifier.weight(1f),
             )
             ChatInputBar(

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug-only manifest overlay (merged only into debug builds, never release):
+  the C3/C5 chat WebSocket talks to a local dev backend over plain ws://
+  (CHAT_WS_HOST, a LAN IP with no TLS cert of its own), which Android blocks
+  by default (API 28+) as cleartext traffic. Scoping this to the debug
+  source set means release builds still enforce HTTPS-only, this only
+  relaxes it for local development against `backend/`.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:usesCleartextTraffic="true" />
+</manifest>

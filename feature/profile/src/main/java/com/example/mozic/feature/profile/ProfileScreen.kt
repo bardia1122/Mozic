@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.WorkspacePremium
@@ -40,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -60,11 +62,13 @@ fun ProfileScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val purchaseSuccessMessage = stringResource(R.string.profile_purchase_success)
+    val avatarUpdateFailedMessage = stringResource(R.string.profile_avatar_update_failed)
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 ProfileEffect.PurchaseCompleted -> snackbarHostState.showSnackbar(purchaseSuccessMessage)
+                ProfileEffect.AvatarUpdateFailed -> snackbarHostState.showSnackbar(avatarUpdateFailedMessage)
             }
         }
     }
@@ -98,9 +102,23 @@ private fun ProfileContent(
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     val pickMedia = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-    ) { uri -> if (uri != null) onEvent(ProfileEvent.SetAvatar(uri.toString())) }
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        if (state.isLoggedIn) {
+            // Logged in: the real profiles.avatar_url is the source of truth,
+            // so this needs actual bytes to upload, not just a local content://
+            // reference (which Coil could load directly, but Supabase Storage
+            // can't reach into this app's process to read it).
+            val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+            val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"
+            if (bytes != null) onEvent(ProfileEvent.UploadAvatar(bytes, mimeType))
+        } else {
+            onEvent(ProfileEvent.SetLocalAvatar(uri.toString()))
+        }
+    }
 
     Column(
         modifier = modifier,
@@ -112,7 +130,12 @@ private fun ProfileContent(
             onClick = {
                 pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
+            onRemoveClick = { onEvent(ProfileEvent.RemoveAvatar) },
         )
+
+        if (state.displayName != null) {
+            Text(text = state.displayName, style = MaterialTheme.typography.titleLarge)
+        }
 
         PlanCard(
             isPremium = state.isPremium,
@@ -132,7 +155,12 @@ private fun ProfileContent(
  * platform limitation, not a bug here.
  */
 @Composable
-private fun AvatarPicker(avatarUri: String?, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun AvatarPicker(
+    avatarUri: String?,
+    onClick: () -> Unit,
+    onRemoveClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Box(modifier = modifier) {
         Box(
             modifier = Modifier
@@ -177,6 +205,26 @@ private fun AvatarPicker(avatarUri: String?, onClick: () -> Unit, modifier: Modi
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(MaterialTheme.dimens.spaceMd),
             )
+        }
+        // Only offered once there's actually something to remove — nothing
+        // to clear back to but the same default placeholder icon otherwise.
+        if (avatarUri != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .size(AVATAR_BADGE_SIZE_DP.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .clickable(onClick = onRemoveClick),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = stringResource(R.string.profile_remove_avatar_cd),
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(MaterialTheme.dimens.spaceMd),
+                )
+            }
         }
     }
 }

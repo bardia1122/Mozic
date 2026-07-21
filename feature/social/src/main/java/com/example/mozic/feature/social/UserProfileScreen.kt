@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.PersonRemove
@@ -28,6 +29,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -57,6 +59,7 @@ import com.example.mozic.core.ui.component.PlaylistCard
 fun UserProfileScreen(
     onBackClick: () -> Unit,
     onPlaylistClick: (Playlist) -> Unit,
+    onNavigateToChatThread: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: UserProfileViewModel = hiltViewModel(),
 ) {
@@ -76,6 +79,10 @@ fun UserProfileScreen(
                 SocialActionEffect.LoginRequired -> snackbarHostState.showSnackbar(loginRequiredMessage)
             }
         }
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.navigateToChatEffect.collect { conversationId -> onNavigateToChatThread(conversationId) }
     }
 
     Scaffold(
@@ -116,6 +123,7 @@ fun UserProfileScreen(
             is UserProfileUiState.Content -> UserProfileContent(
                 state = state,
                 onFollowToggle = { viewModel.onFollowToggle(state.user.isFollowed) },
+                onMessageClick = viewModel::onMessageClick,
                 onPlaylistClick = onPlaylistClick,
                 modifier = Modifier.padding(innerPadding).fillMaxSize(),
             )
@@ -127,6 +135,7 @@ fun UserProfileScreen(
 private fun UserProfileContent(
     state: UserProfileUiState.Content,
     onFollowToggle: () -> Unit,
+    onMessageClick: () -> Unit,
     onPlaylistClick: (Playlist) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -141,7 +150,7 @@ private fun UserProfileContent(
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceMd),
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
-            ProfileHeader(user = state.user, onFollowToggle = onFollowToggle)
+            ProfileHeader(user = state.user, onFollowToggle = onFollowToggle, onMessageClick = onMessageClick)
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
@@ -176,7 +185,12 @@ private fun UserProfileContent(
 }
 
 @Composable
-private fun ProfileHeader(user: User, onFollowToggle: () -> Unit, modifier: Modifier = Modifier) {
+private fun ProfileHeader(
+    user: User,
+    onFollowToggle: () -> Unit,
+    onMessageClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier.fillMaxWidth().padding(bottom = MaterialTheme.dimens.spaceMd),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -237,24 +251,39 @@ private fun ProfileHeader(user: User, onFollowToggle: () -> Unit, modifier: Modi
             }
         }
 
-        Button(
-            onClick = onFollowToggle,
-            colors = if (user.isFollowed) {
-                ButtonDefaults.outlinedButtonColors()
-            } else {
-                ButtonDefaults.buttonColors()
-            },
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceSm),
             modifier = Modifier.padding(top = MaterialTheme.dimens.spaceXs),
         ) {
-            Icon(
-                imageVector = if (user.isFollowed) Icons.Filled.PersonRemove else Icons.Filled.PersonAdd,
-                contentDescription = null,
-                modifier = Modifier.size(MaterialTheme.dimens.spaceMd),
-            )
-            Text(
-                text = stringResource(if (user.isFollowed) R.string.cd_unfollow else R.string.cd_follow),
-                modifier = Modifier.padding(start = MaterialTheme.dimens.spaceXs),
-            )
+            Button(
+                onClick = onFollowToggle,
+                colors = if (user.isFollowed) {
+                    ButtonDefaults.outlinedButtonColors()
+                } else {
+                    ButtonDefaults.buttonColors()
+                },
+            ) {
+                Icon(
+                    imageVector = if (user.isFollowed) Icons.Filled.PersonRemove else Icons.Filled.PersonAdd,
+                    contentDescription = null,
+                    modifier = Modifier.size(MaterialTheme.dimens.spaceMd),
+                )
+                Text(
+                    text = stringResource(if (user.isFollowed) R.string.cd_unfollow else R.string.cd_follow),
+                    modifier = Modifier.padding(start = MaterialTheme.dimens.spaceXs),
+                )
+            }
+            OutlinedButton(onClick = onMessageClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = null,
+                    modifier = Modifier.size(MaterialTheme.dimens.spaceMd),
+                )
+                Text(
+                    text = stringResource(R.string.social_message),
+                    modifier = Modifier.padding(start = MaterialTheme.dimens.spaceXs),
+                )
+            }
         }
     }
 }

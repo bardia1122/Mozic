@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.mozic.core.domain.model.NotLoggedInException
+import com.example.mozic.core.domain.repository.ChatRepository
 import com.example.mozic.core.domain.repository.SocialRepository
 import com.example.mozic.feature.social.navigation.UserProfileRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
     private val socialRepository: SocialRepository,
+    private val chatRepository: ChatRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -28,6 +30,10 @@ class UserProfileViewModel @Inject constructor(
 
     private val _effects = Channel<SocialActionEffect>(Channel.BUFFERED)
     val effects: Flow<SocialActionEffect> = _effects.receiveAsFlow()
+
+    /** Separate from [effects] — a conversation id to navigate to, not a follow/unfollow outcome. */
+    private val _navigateToChat = Channel<String>(Channel.BUFFERED)
+    val navigateToChatEffect: Flow<String> = _navigateToChat.receiveAsFlow()
 
     // Both driven by the repository's own followedIds StateFlow (see
     // NetworkSocialRepository's kdoc) — a follow/unfollow tap here updates
@@ -55,6 +61,18 @@ class UserProfileViewModel @Inject constructor(
                 _effects.trySend(SocialActionEffect.LoginRequired)
             } catch (e: Exception) {
                 _effects.trySend(SocialActionEffect.ActionFailed)
+            }
+        }
+    }
+
+    /** Resolves/creates the DM the same way I1's song-share friend picker does, then navigates straight to it. */
+    fun onMessageClick() {
+        viewModelScope.launch {
+            val conversationId = chatRepository.conversationWith(userId)
+            if (conversationId != null) {
+                _navigateToChat.send(conversationId)
+            } else {
+                _effects.trySend(SocialActionEffect.LoginRequired)
             }
         }
     }

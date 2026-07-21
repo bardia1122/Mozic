@@ -11,11 +11,13 @@ import com.example.mozic.core.domain.repository.ChatRepository
 import com.example.mozic.core.domain.repository.DownloadRepository
 import com.example.mozic.core.domain.repository.LibraryRepository
 import com.example.mozic.core.domain.repository.PlaylistRepository
+import com.example.mozic.core.domain.repository.ProfileRepository
 import com.example.mozic.core.domain.repository.SearchRepository
 import com.example.mozic.core.domain.repository.SocialRepository
 import com.example.mozic.core.domain.repository.SongRepository
 import com.example.mozic.core.domain.repository.UserPreferencesRepository
 import com.example.mozic.core.network.repository.NetworkPlaylistRepository
+import com.example.mozic.core.network.repository.NetworkProfileRepository
 import com.example.mozic.core.network.repository.NetworkSocialRepository
 import com.example.mozic.core.network.repository.NetworkSongRepository
 import dagger.Binds
@@ -63,4 +65,7 @@ interface DataModule {
 
     @Binds
     fun bindSocialRepository(impl: NetworkSocialRepository): SocialRepository
+
+    @Binds
+    fun bindProfileRepository(impl: NetworkProfileRepository): ProfileRepository
 }
