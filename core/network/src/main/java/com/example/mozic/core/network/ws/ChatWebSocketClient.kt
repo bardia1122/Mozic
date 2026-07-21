@@ -1,5 +1,6 @@
 package com.example.mozic.core.network.ws
 
+import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.mozic.core.domain.model.AuthState
@@ -49,6 +50,10 @@ import kotlinx.serialization.json.jsonPrimitive
 private const val INITIAL_BACKOFF_MS = 1_000L
 private const val MAX_BACKOFF_MS = 30_000L
 
+// TEMPORARY diagnostic logging for the "messages don't send" investigation —
+// remove once the root cause is confirmed from a real device's logcat.
+private const val TAG = "MozicChatWS"
+
 /**
  * C5's WS client — one connection, owned here, not per-screen. Auto-reconnects
  * with exponential backoff (capped at 30s, reset on a successful connect),
@@ -86,9 +91,11 @@ class ChatWebSocketClient @Inject constructor(
             combine(authRepository.authState, foreground) { auth, isForeground -> auth to isForeground }
                 .distinctUntilChanged()
                 .collectLatest { (auth, isForeground) ->
+                    Log.d(TAG, "auth/foreground changed: auth=${auth::class.simpleName}, foreground=$isForeground")
                     if (auth is AuthState.LoggedIn && isForeground) {
                         runConnectionLoop(auth.accessToken)
                     } else {
+                        Log.d(TAG, "not connecting: needs LoggedIn + foreground")
                         _connectionState.value = ConnectionState.OFFLINE
                     }
                 }
@@ -113,8 +120,17 @@ class ChatWebSocketClient @Inject constructor(
     }
 
     private suspend inline fun <reified T> sendFrame(frame: T) {
-        val current = session ?: return
-        runCatching { current.send(Frame.Text(json.encodeToString(frame))) }
+        val current = session
+        if (current == null) {
+            Log.w(TAG, "sendFrame: no live session, dropping ${T::class.simpleName} " +
+                "(connectionState=${_connectionState.value})")
+            return
+        }
+        val text = json.encodeToString(frame)
+        Log.d(TAG, "sendFrame: sending $text")
+        runCatching { current.send(Frame.Text(text)) }
+            .onFailure { Log.e(TAG, "sendFrame: send() threw", it) }
+            .onSuccess { Log.d(TAG, "sendFrame: send() completed without throwing") }
     }
 
     // Every path through the body suspends (either the long-lived `webSocket`
@@ -128,28 +144,32 @@ class ChatWebSocketClient @Inject constructor(
     private suspend fun runConnectionLoop(token: String) {
         var backoff = INITIAL_BACKOFF_MS
         while (true) {
+            Log.d(TAG, "connecting to ${wsUrl("<redacted>")}")
             try {
                 _connectionState.value = ConnectionState.CONNECTING
                 client.webSocket(wsUrl(token)) {
                     session = this
                     _connectionState.value = ConnectionState.CONNECTED
                     backoff = INITIAL_BACKOFF_MS
+                    Log.d(TAG, "connected")
                     for (frame in incoming) {
                         if (frame is Frame.Text) handleFrame(frame.readText())
                     }
+                    Log.w(TAG, "incoming frame channel closed, connection ending")
                 }
             } catch (e: Exception) {
-                // Fall through to the retry/backoff below — a dropped socket
-                // (network change, server restart, …) is expected, not fatal.
+                Log.e(TAG, "connection attempt failed: ${e::class.simpleName}: ${e.message}", e)
             }
             session = null
             _connectionState.value = ConnectionState.OFFLINE
+            Log.d(TAG, "offline, retrying in ${backoff}ms")
             delay(backoff)
             backoff = (backoff * 2).coerceAtMost(MAX_BACKOFF_MS)
         }
     }
 
     private suspend fun handleFrame(text: String) {
+        Log.d(TAG, "handleFrame: received $text")
         val root = runCatching { json.parseToJsonElement(text).jsonObject }.getOrNull() ?: return
         val frame = when (root["type"]?.jsonPrimitive?.content) {
             "ack" -> json.decodeFromJsonElement<AckFrameDto>(root)

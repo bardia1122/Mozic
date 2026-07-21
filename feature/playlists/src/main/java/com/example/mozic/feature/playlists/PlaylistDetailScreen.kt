@@ -46,6 +46,7 @@ import com.example.mozic.core.designsystem.theme.mozicColors
 import com.example.mozic.core.ui.component.CoverImage
 import com.example.mozic.core.ui.component.MediaListRow
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
+import com.example.mozic.core.ui.component.ShareIconButton
 import com.example.mozic.core.ui.modifier.artworkPlaceholder
 
 private const val SKELETON_ROW_COUNT = 6
@@ -54,6 +55,7 @@ private const val SKELETON_ROW_COUNT = 6
 @Composable
 fun PlaylistDetailScreen(
     onBackClick: () -> Unit,
+    onShareClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlaylistDetailViewModel = hiltViewModel(),
 ) {
@@ -113,6 +115,7 @@ fun PlaylistDetailScreen(
                             title = song.title,
                             subtitle = song.artistName,
                             onClick = { viewModel.onEvent(PlaylistDetailEvent.SongClick(song, queueIds)) },
+                            trailing = { ShareIconButton(onClick = { onShareClick(song.id) }) },
                         )
                     }
                 }

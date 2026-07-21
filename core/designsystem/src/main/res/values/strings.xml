@@ -164,4 +164,11 @@
     <string name="social_login_required">Log in via Chat to follow users</string>
     <string name="social_followed">Followed</string>
     <string name="social_unfollowed">Unfollowed</string>
+    <string name="social_message">Message</string>
+
+    <!-- Song share (I1) -->
+    <string name="cd_share_song">Share song</string>
+    <string name="chat_share_title">Share to</string>
+    <string name="chat_share_login_required">Log in via Chat to share songs</string>
+    <string name="chat_share_empty">Follow people to share songs with them</string>
 </resources>

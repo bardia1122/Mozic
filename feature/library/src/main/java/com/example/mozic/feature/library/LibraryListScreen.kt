@@ -57,6 +57,7 @@ import com.example.mozic.core.domain.model.Song
 import com.example.mozic.core.ui.component.DownloadIconButton
 import com.example.mozic.core.ui.component.MediaListRow
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
+import com.example.mozic.core.ui.component.ShareIconButton
 import com.example.mozic.feature.library.navigation.LibraryListKind
 
 private const val SKELETON_ROW_COUNT = 6
@@ -65,6 +66,7 @@ private const val SKELETON_ROW_COUNT = 6
 @Composable
 fun LibraryListScreen(
     onBackClick: () -> Unit,
+    onShareClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LibraryListViewModel = hiltViewModel(),
 ) {
@@ -101,6 +103,7 @@ fun LibraryListScreen(
             kind = viewModel.kind,
             uiState = uiState,
             onEvent = viewModel::onEvent,
+            onShareClick = onShareClick,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
@@ -113,6 +116,7 @@ private fun LibraryListContent(
     kind: LibraryListKind,
     uiState: LibraryListUiState,
     onEvent: (LibraryListEvent) -> Unit,
+    onShareClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val content = uiState as? LibraryListUiState.Content
@@ -152,13 +156,16 @@ private fun LibraryListContent(
                     onRemove = { onEvent(LibraryListEvent.RemoveSong(song.id)) },
                     modifier = Modifier.animateItem(),
                 ) {
-                    DownloadIconButton(
-                        downloadState = downloadStates[song.id] ?: DownloadState.NotDownloaded,
-                        isPremium = isPremium,
-                        onDownloadClick = { onEvent(LibraryListEvent.RequestDownload(song.id)) },
-                        onRemoveClick = { onEvent(LibraryListEvent.RequestRemoveDownload(song.id)) },
-                        onUpgradeRequired = { onEvent(LibraryListEvent.UpgradeRequired) },
-                    )
+                    Row {
+                        ShareIconButton(onClick = { onShareClick(song.id) })
+                        DownloadIconButton(
+                            downloadState = downloadStates[song.id] ?: DownloadState.NotDownloaded,
+                            isPremium = isPremium,
+                            onDownloadClick = { onEvent(LibraryListEvent.RequestDownload(song.id)) },
+                            onRemoveClick = { onEvent(LibraryListEvent.RequestRemoveDownload(song.id)) },
+                            onUpgradeRequired = { onEvent(LibraryListEvent.UpgradeRequired) },
+                        )
+                    }
                 }
             }
         }

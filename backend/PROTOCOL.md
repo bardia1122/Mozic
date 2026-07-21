@@ -120,9 +120,22 @@ project, not just compiled.
 
 ## Running the server
 
+Two implementations of this exact protocol exist — `backend/src/` (Kotlin/
+Ktor, original) and `backend/python/` (Python/FastAPI, a later rewrite).
+Run whichever one; the wire format is identical either way, so the Android
+client can't tell which it's talking to.
+
 ```bash
+# Python/FastAPI — lighter to start, no JDK/Gradle needed
+cd backend/python
+pip install -r requirements.txt
+python main.py           # reads backend/.env (one level up) for SUPABASE_URL / _PUBLISHABLE_KEY / _SECRET_KEY
+
+# Kotlin/Ktor — the original implementation
 cd backend
-./gradlew run           # reads backend/.env for SUPABASE_URL / _PUBLISHABLE_KEY / _SECRET_KEY
+./gradlew run            # reads backend/.env
+
+# either way:
 curl http://localhost:8080/health   # → "ok"
 ```
 

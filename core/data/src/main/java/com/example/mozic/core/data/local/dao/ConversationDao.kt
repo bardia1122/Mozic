@@ -32,8 +32,16 @@ interface ConversationDao {
         peerIsPremium: Boolean,
     )
 
+    /** I1's friend picker reuses an already-known conversation instead of re-creating one. */
+    @Query("SELECT * FROM conversations WHERE peerId = :peerId LIMIT 1")
+    suspend fun findByPeerId(peerId: String): ConversationEntity?
+
     @Query("UPDATE conversations SET hiddenLocally = 1 WHERE id = :id")
     suspend fun hide(id: String)
+
+    /** A share to someone whose conversation was previously deleted un-hides it, same as a new message would. */
+    @Query("UPDATE conversations SET hiddenLocally = 0 WHERE id = :id")
+    suspend fun unhide(id: String)
 
     @Query("UPDATE conversations SET forcedUnread = :forcedUnread WHERE id = :id")
     suspend fun setForcedUnread(id: String, forcedUnread: Boolean)

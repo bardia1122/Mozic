@@ -20,7 +20,11 @@ private const val SOCIAL_NAV_TRANSITION_MS = 220
  * features (CLAUDE_PERSON_C.md §2) — so [onPlaylistClick] is threaded in from
  * `:app`'s own nav host, which is the one place allowed to link the two.
  */
-fun NavGraphBuilder.socialScreens(navController: NavHostController, onPlaylistClick: (Playlist) -> Unit) {
+fun NavGraphBuilder.socialScreens(
+    navController: NavHostController,
+    onPlaylistClick: (Playlist) -> Unit,
+    onNavigateToChatThread: (String) -> Unit,
+) {
     composable<UserSearchRoute>(
         enterTransition = { fadeIn(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
         popExitTransition = { fadeOut(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
@@ -38,6 +42,7 @@ fun NavGraphBuilder.socialScreens(navController: NavHostController, onPlaylistCl
         UserProfileScreen(
             onBackClick = { navController.popBackStack() },
             onPlaylistClick = onPlaylistClick,
+            onNavigateToChatThread = onNavigateToChatThread,
         )
     }
     composable<FollowingListRoute>(

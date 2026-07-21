@@ -159,4 +159,11 @@
     <string name="social_login_required">برای دنبال کردن کاربران از طریق چت وارد شوید</string>
     <string name="social_followed">دنبال شد</string>
     <string name="social_unfollowed">لغو دنبال شد</string>
+    <string name="social_message">پیام</string>
+
+    <!-- Song share (I1) -->
+    <string name="cd_share_song">اشتراک‌گذاری آهنگ</string>
+    <string name="chat_share_title">اشتراک‌گذاری با</string>
+    <string name="chat_share_login_required">برای اشتراک‌گذاری آهنگ از طریق چت وارد شوید</string>
+    <string name="chat_share_empty">برای اشتراک‌گذاری آهنگ، افرادی را دنبال کنید</string>
 </resources>

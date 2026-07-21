@@ -40,19 +40,35 @@ class FakeChatRepository @Inject constructor() : ChatRepository {
     private val connection = MutableStateFlow(ConnectionState.CONNECTED)
     private val deletedConversationIds = MutableStateFlow<Set<String>>(emptySet())
 
+    /** I1's friend picker can start a DM with anyone followed, not just the two pre-seeded [SampleData] ones. */
+    private val createdConversations = MutableStateFlow<List<Conversation>>(emptyList())
+
     override val connectionState: StateFlow<ConnectionState> = connection.asStateFlow()
 
-    override fun conversations(): Flow<List<Conversation>> =
-        combine(messagesByConvo, unread, deletedConversationIds) { byConvo, unreadCounts, deleted ->
-            SampleData.conversations
-                .filterNot { it.id in deleted }
-                .map { convo ->
-                    convo.copy(
-                        lastMessage = byConvo[convo.id].orEmpty().maxByOrNull { it.sentAtEpochMs },
-                        unreadCount = unreadCounts[convo.id] ?: 0,
-                    )
-                }
-        }
+    override fun conversations(): Flow<List<Conversation>> = combine(
+        messagesByConvo,
+        unread,
+        deletedConversationIds,
+        createdConversations,
+    ) { byConvo, unreadCounts, deleted, created ->
+        (SampleData.conversations + created)
+            .filterNot { it.id in deleted }
+            .map { convo ->
+                convo.copy(
+                    lastMessage = byConvo[convo.id].orEmpty().maxByOrNull { it.sentAtEpochMs },
+                    unreadCount = unreadCounts[convo.id] ?: 0,
+                )
+            }
+    }
+
+    override suspend fun conversationWith(peerId: String): String? {
+        val allConversations = SampleData.conversations + createdConversations.value
+        allConversations.find { it.peer.id == peerId }?.let { return it.id }
+        val peer = SampleData.users.find { it.id == peerId } ?: return null
+        val id = "fake-conv-$peerId"
+        createdConversations.update { it + Conversation(id = id, peer = peer, lastMessage = null, unreadCount = 0) }
+        return id
+    }
 
     /** Newest-first, matching the `reverseLayout = true` chat `LazyColumn` (and Room's real `PagingSource` order). */
     override fun messages(conversationId: String): Flow<PagingData<Message>> =

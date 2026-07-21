@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.CircularProgressIndicator
@@ -69,6 +70,7 @@ import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
 import com.example.mozic.core.ui.color.rememberDominantColor
 import com.example.mozic.core.ui.component.CoverImage
 import com.example.mozic.core.ui.component.DownloadIconButton
+import com.example.mozic.core.ui.component.ShareIconButton
 import java.util.Locale
 
 /** `tween(600)` per the palette-gradient spec — a song change should feel like a soft cross-fade. */
@@ -88,6 +90,7 @@ private const val DISC_DEGREES_PER_SECOND = 360f / 8f
 @Composable
 fun NowPlayingScreen(
     onBackClick: () -> Unit,
+    onShareClick: (songId: String) -> Unit,
     modifier: Modifier = Modifier,
     animatedVisibilityScope: AnimatedVisibilityScope? = null,
     viewModel: PlayerViewModel = hiltViewModel(),
@@ -134,6 +137,9 @@ fun NowPlayingScreen(
                     }
                 },
                 actions = {
+                    if (song != null) {
+                        ShareIconButton(onClick = { onShareClick(song.id) })
+                    }
                     SleepTimerButton(
                         isActive = state.sleepTimerRemainingMs != null,
                         onSetTimer = viewModel::setSleepTimer,

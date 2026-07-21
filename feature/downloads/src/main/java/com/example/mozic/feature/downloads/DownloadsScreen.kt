@@ -41,18 +41,24 @@ import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.domain.model.Song
 import com.example.mozic.core.ui.component.MediaListRow
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
+import com.example.mozic.core.ui.component.ShareIconButton
 
 private const val SKELETON_ROW_COUNT = 4
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DownloadsScreen(modifier: Modifier = Modifier, viewModel: DownloadsViewModel = hiltViewModel()) {
+fun DownloadsScreen(
+    onShareClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: DownloadsViewModel = hiltViewModel(),
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(modifier = modifier) { innerPadding ->
         DownloadsContent(
             uiState = uiState,
             onEvent = viewModel::onEvent,
+            onShareClick = onShareClick,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
@@ -64,6 +70,7 @@ fun DownloadsScreen(modifier: Modifier = Modifier, viewModel: DownloadsViewModel
 private fun DownloadsContent(
     uiState: DownloadsUiState,
     onEvent: (DownloadsEvent) -> Unit,
+    onShareClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val songs = (uiState as? DownloadsUiState.Content)?.songs.orEmpty()
@@ -97,6 +104,7 @@ private fun DownloadsContent(
                     song = song,
                     onClick = { onEvent(DownloadsEvent.SongClick(song, queueIds)) },
                     onRemove = { onEvent(DownloadsEvent.RemoveDownload(song.id)) },
+                    onShareClick = { onShareClick(song.id) },
                     modifier = Modifier.animateItem(),
                 )
             }
@@ -148,6 +156,7 @@ private fun SwipeableDownloadRow(
     song: Song,
     onClick: () -> Unit,
     onRemove: () -> Unit,
+    onShareClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val dismissState = rememberSwipeToDismissBoxState(
@@ -175,6 +184,7 @@ private fun SwipeableDownloadRow(
             subtitle = song.artistName,
             onClick = onClick,
             modifier = Modifier.background(MaterialTheme.colorScheme.background),
+            trailing = { ShareIconButton(onClick = onShareClick) },
         )
     }
 }

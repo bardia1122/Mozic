@@ -16,12 +16,12 @@ import com.example.mozic.feature.library.LibraryListScreen
  */
 private const val LIBRARY_NAV_TRANSITION_MS = 220
 
-fun NavGraphBuilder.libraryScreen(navController: NavHostController) {
+fun NavGraphBuilder.libraryScreen(navController: NavHostController, onShareClick: (String) -> Unit) {
     composable<LibraryListRoute>(
         enterTransition = { fadeIn(animationSpec = tween(LIBRARY_NAV_TRANSITION_MS)) },
         popExitTransition = { fadeOut(animationSpec = tween(LIBRARY_NAV_TRANSITION_MS)) },
     ) {
-        LibraryListScreen(onBackClick = { navController.popBackStack() })
+        LibraryListScreen(onBackClick = { navController.popBackStack() }, onShareClick = onShareClick)
     }
 }
 
