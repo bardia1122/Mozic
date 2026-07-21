@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.designsystem.theme.mozicColors
@@ -56,7 +55,7 @@ fun FilterChipsRow(
                     selected = active,
                     borderColor = MaterialTheme.colorScheme.outline,
                     selectedBorderColor = Color.Transparent,
-                    borderWidth = 1.dp,
+                    borderWidth = MaterialTheme.dimens.borderWidthHairline,
                 ),
             )
         }

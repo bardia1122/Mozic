@@ -36,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -147,7 +146,10 @@ private fun SettingsContent(
         OutlinedButton(
             onClick = { onEvent(SettingsEvent.Logout) },
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-            border = BorderStroke(1.dp, MaterialTheme.mozicColors.destructiveBorder),
+            border = BorderStroke(
+                width = MaterialTheme.dimens.borderWidthHairline,
+                color = MaterialTheme.mozicColors.destructiveBorder,
+            ),
         ) {
             Text(stringResource(R.string.settings_logout))
         }

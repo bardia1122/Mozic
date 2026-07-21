@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -30,7 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.R as DesignSystemR
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.domain.model.Playlist
-import com.example.mozic.core.ui.component.PlaceholderScreen
+import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.PlaylistCard
 import com.example.mozic.core.ui.component.PlaylistCardSkeleton
 
@@ -83,9 +85,10 @@ private fun PlaylistsContent(
     modifier: Modifier = Modifier,
 ) {
     if (uiState is PlaylistsUiState.Error) {
-        PlaceholderScreen(
+        EmptyState(
+            icon = Icons.Filled.WifiOff,
             title = stringResource(DesignSystemR.string.state_error),
-            subtitle = stringResource(DesignSystemR.string.nav_playlists),
+            subtitle = stringResource(DesignSystemR.string.state_error_subtitle),
             modifier = modifier,
         )
         return

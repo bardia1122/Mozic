@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,7 +18,7 @@ import androidx.paging.compose.LazyPagingItems
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.domain.model.chat.Message
-import com.example.mozic.core.ui.component.PlaceholderScreen
+import com.example.mozic.core.ui.component.EmptyState
 
 /**
  * `reverseLayout = true`: list order is newest-first (matches
@@ -36,9 +38,10 @@ fun MessagesList(
     modifier: Modifier = Modifier,
 ) {
     if (pagingItems.itemCount == 0) {
-        PlaceholderScreen(
+        EmptyState(
+            icon = Icons.AutoMirrored.Filled.Chat,
             title = stringResource(R.string.chat_thread_empty),
-            subtitle = "",
+            subtitle = stringResource(R.string.chat_thread_empty_subtitle),
             modifier = modifier,
         )
         return

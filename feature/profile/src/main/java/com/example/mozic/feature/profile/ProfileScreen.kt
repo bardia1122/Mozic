@@ -302,7 +302,7 @@ private fun PlanCard(
                     if (isPurchasing) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(MaterialTheme.dimens.spaceMd),
-                            strokeWidth = 2.dp,
+                            strokeWidth = MaterialTheme.dimens.progressStrokeWidthThin,
                             color = MaterialTheme.colorScheme.onPrimary,
                         )
                         Text(

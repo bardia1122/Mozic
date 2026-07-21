@@ -18,8 +18,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.PersonOff
 import androidx.compose.material.icons.filled.PersonRemove
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.Button
@@ -52,6 +54,7 @@ import com.example.mozic.core.designsystem.theme.mozicColors
 import com.example.mozic.core.domain.model.Playlist
 import com.example.mozic.core.domain.model.User
 import com.example.mozic.core.ui.component.CoverImage
+import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.PlaylistCard
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -113,12 +116,12 @@ fun UserProfileScreen(
                 CircularProgressIndicator()
             }
 
-            UserProfileUiState.NotFound -> Box(
+            UserProfileUiState.NotFound -> EmptyState(
+                icon = Icons.Filled.PersonOff,
+                title = stringResource(R.string.state_error),
+                subtitle = stringResource(R.string.state_error_subtitle),
                 modifier = Modifier.padding(innerPadding).fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(text = stringResource(R.string.state_error), style = MaterialTheme.typography.bodyLarge)
-            }
+            )
 
             is UserProfileUiState.Content -> UserProfileContent(
                 state = state,
@@ -162,17 +165,12 @@ private fun UserProfileContent(
 
         if (state.publicPlaylists.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceXxs)) {
-                    Text(
-                        text = stringResource(R.string.social_public_playlists_empty_title),
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                    Text(
-                        text = stringResource(R.string.social_public_playlists_empty_subtitle),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                EmptyState(
+                    icon = Icons.Filled.LibraryMusic,
+                    title = stringResource(R.string.social_public_playlists_empty_title),
+                    subtitle = stringResource(R.string.social_public_playlists_empty_subtitle),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = MaterialTheme.dimens.spaceLg),
+                )
             }
         } else {
             items(state.publicPlaylists, key = Playlist::id) { playlist ->

@@ -21,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.R
@@ -123,7 +122,7 @@ private fun ShareFriendRow(
             if (isSending) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(MaterialTheme.dimens.spaceMd),
-                    strokeWidth = 2.dp,
+                    strokeWidth = MaterialTheme.dimens.progressStrokeWidthThin,
                 )
             }
         },
