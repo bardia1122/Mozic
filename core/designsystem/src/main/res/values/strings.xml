@@ -145,4 +145,23 @@
     <string name="chat_login_error">Invalid email or password</string>
     <string name="chat_login_demo_hint">Demo: alice@mozic.dev / password123</string>
     <string name="chat_log_out">Log out</string>
+
+    <!-- Social (C6) -->
+    <string name="cd_open_social">Find people</string>
+    <string name="social_search_title">Find people</string>
+    <string name="social_search_placeholder">Search by name or username</string>
+    <string name="cd_follow">Follow</string>
+    <string name="cd_unfollow">Unfollow</string>
+    <string name="cd_view_following">Following</string>
+    <string name="social_following_title">Following</string>
+    <string name="social_following_empty_title">Not following anyone yet</string>
+    <string name="social_following_empty_subtitle">People you follow will show up here</string>
+    <string name="social_no_users_found">No users found</string>
+    <string name="social_public_playlists_title">Public playlists</string>
+    <string name="social_public_playlists_empty_title">No public playlists</string>
+    <string name="social_public_playlists_empty_subtitle">This user hasn\'t shared any public playlists yet</string>
+    <string name="social_action_failed">Couldn\'t update follow status, try again</string>
+    <string name="social_login_required">Log in via Chat to follow users</string>
+    <string name="social_followed">Followed</string>
+    <string name="social_unfollowed">Unfollowed</string>
 </resources>

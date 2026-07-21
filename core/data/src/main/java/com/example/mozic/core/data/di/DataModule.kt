@@ -12,9 +12,11 @@ import com.example.mozic.core.domain.repository.DownloadRepository
 import com.example.mozic.core.domain.repository.LibraryRepository
 import com.example.mozic.core.domain.repository.PlaylistRepository
 import com.example.mozic.core.domain.repository.SearchRepository
+import com.example.mozic.core.domain.repository.SocialRepository
 import com.example.mozic.core.domain.repository.SongRepository
 import com.example.mozic.core.domain.repository.UserPreferencesRepository
 import com.example.mozic.core.network.repository.NetworkPlaylistRepository
+import com.example.mozic.core.network.repository.NetworkSocialRepository
 import com.example.mozic.core.network.repository.NetworkSongRepository
 import dagger.Binds
 import dagger.Module
@@ -29,6 +31,8 @@ import dagger.hilt.components.SingletonComponent
  * `FakePlaylistRepository` are left unbound but still exist for tests.
  * `ChatRepository`/`AuthRepository` moved here in C5 (real WS + Supabase
  * Auth) — `FakeChatRepository` is likewise left unbound, still used by tests.
+ * `SocialRepository` moved here in C6 (real follow graph, `:core:network`'s
+ * `NetworkSocialRepository`) — `FakeSocialRepository` likewise left unbound.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -56,4 +60,7 @@ interface DataModule {
 
     @Binds
     fun bindChatRepository(impl: RealChatRepository): ChatRepository
+
+    @Binds
+    fun bindSocialRepository(impl: NetworkSocialRepository): SocialRepository
 }
