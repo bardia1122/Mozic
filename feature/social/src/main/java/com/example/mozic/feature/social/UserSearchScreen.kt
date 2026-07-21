@@ -62,13 +62,18 @@ fun UserSearchScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val pagingItems = viewModel.results.collectAsLazyPagingItems()
+    val followedIds by viewModel.followedIds.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val followedMessage = stringResource(R.string.social_followed)
+    val unfollowedMessage = stringResource(R.string.social_unfollowed)
     val actionFailedMessage = stringResource(R.string.social_action_failed)
     val loginRequiredMessage = stringResource(R.string.social_login_required)
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
+                SocialActionEffect.Followed -> snackbarHostState.showSnackbar(followedMessage)
+                SocialActionEffect.Unfollowed -> snackbarHostState.showSnackbar(unfollowedMessage)
                 SocialActionEffect.ActionFailed -> snackbarHostState.showSnackbar(actionFailedMessage)
                 SocialActionEffect.LoginRequired -> snackbarHostState.showSnackbar(loginRequiredMessage)
             }
@@ -124,9 +129,10 @@ fun UserSearchScreen(
             } else {
                 UserResultsList(
                     pagingItems = pagingItems,
+                    followedIds = followedIds,
                     onUserClick = { onUserClick(it.id) },
                     onFollowToggle = { user ->
-                        viewModel.onEvent(UserSearchEvent.FollowToggle(user.id, user.isFollowed))
+                        viewModel.onEvent(UserSearchEvent.FollowToggle(user.id, user.id in followedIds))
                     },
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 )
@@ -170,6 +176,7 @@ private fun UserSearchField(query: String, onQueryChange: (String) -> Unit, modi
 @Composable
 private fun UserResultsList(
     pagingItems: LazyPagingItems<User>,
+    followedIds: Set<String>,
     onUserClick: (User) -> Unit,
     onFollowToggle: (User) -> Unit,
     modifier: Modifier = Modifier,
@@ -191,7 +198,12 @@ private fun UserResultsList(
         else -> LazyColumn(modifier = modifier) {
             items(pagingItems.itemCount) { index ->
                 pagingItems[index]?.let { user ->
-                    UserRow(user = user, onClick = { onUserClick(user) }, onFollowToggle = { onFollowToggle(user) })
+                    UserRow(
+                        user = user,
+                        isFollowed = user.id in followedIds,
+                        onClick = { onUserClick(user) },
+                        onFollowToggle = { onFollowToggle(user) },
+                    )
                 }
             }
             if (pagingItems.loadState.append is LoadState.Loading) {
@@ -211,6 +223,7 @@ private fun UserResultsList(
 @Composable
 internal fun UserRow(
     user: User,
+    isFollowed: Boolean,
     onClick: () -> Unit,
     onFollowToggle: () -> Unit,
     modifier: Modifier = Modifier,
@@ -222,6 +235,6 @@ internal fun UserRow(
         onClick = onClick,
         imageShape = CircleShape,
         modifier = modifier,
-        trailing = { FollowIconButton(isFollowed = user.isFollowed, onClick = onFollowToggle) },
+        trailing = { FollowIconButton(isFollowed = isFollowed, onClick = onFollowToggle) },
     )
 }

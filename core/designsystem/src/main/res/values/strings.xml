@@ -162,4 +162,6 @@
     <string name="social_public_playlists_empty_subtitle">This user hasn\'t shared any public playlists yet</string>
     <string name="social_action_failed">Couldn\'t update follow status, try again</string>
     <string name="social_login_required">Log in via Chat to follow users</string>
+    <string name="social_followed">Followed</string>
+    <string name="social_unfollowed">Unfollowed</string>
 </resources>

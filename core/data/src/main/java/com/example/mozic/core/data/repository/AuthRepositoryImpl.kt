@@ -48,7 +48,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + ioDispatcher)
 
-    private val _authState = MutableStateFlow<AuthState>(AuthState.LoggedOut)
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Unknown)
     override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     init {
@@ -77,7 +77,10 @@ class AuthRepositoryImpl @Inject constructor(
         val userId = prefs[AuthKeys.USER_ID]
         val email = prefs[AuthKeys.EMAIL]
         val refreshToken = prefs[AuthKeys.REFRESH_TOKEN]
-        if (accessToken == null || userId == null || email == null) return
+        if (accessToken == null || userId == null || email == null) {
+            _authState.value = AuthState.LoggedOut
+            return
+        }
 
         // Show the last-known session immediately (offline-friendly), then
         // best-effort refresh it in the background for a token less likely

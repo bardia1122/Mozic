@@ -163,8 +163,17 @@ drop policy if exists "follows_delete_own" on public.follows;
 create policy "follows_delete_own" on public.follows
     for delete using (follower_id = auth.uid());
 
+-- The Android client's follow() upsert (`Prefer: resolution=merge-duplicates`)
+-- issues an `INSERT ... ON CONFLICT DO UPDATE`, so both an UPDATE grant and an
+-- UPDATE RLS policy are required even though there's no app-level "edit a
+-- follow" feature — omitting either 403s every re-follow of an
+-- already-followed user with "permission denied for table follows" (42501).
+drop policy if exists "follows_update_own" on public.follows;
+create policy "follows_update_own" on public.follows
+    for update using (follower_id = auth.uid()) with check (follower_id = auth.uid());
+
 grant select on public.follows to anon, authenticated, service_role;
-grant insert, delete on public.follows to authenticated, service_role;
+grant insert, update, delete on public.follows to authenticated, service_role;
 
 create index if not exists follows_follower_idx on public.follows (follower_id);
 create index if not exists follows_followee_idx on public.follows (followee_id);

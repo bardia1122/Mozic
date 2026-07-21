@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.mozic.core.domain.model.AuthState
+import com.example.mozic.core.domain.model.NotLoggedInException
 import com.example.mozic.core.domain.model.Playlist
 import com.example.mozic.core.domain.model.User
 import com.example.mozic.core.domain.repository.AuthRepository
@@ -21,6 +22,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -44,9 +46,13 @@ private const val USER_SEARCH_PAGE_SIZE = 20
  * "one background scope reacting to authState" shape, just without Room: no
  * offline requirement was named for the social graph, unlike chat's Room
  * cache. [following] and [userById] both derive from this same StateFlow, so
- * a follow/unfollow toggle updates both live with zero extra plumbing. The
- * one place this doesn't reach is [searchUsers]'s already-loaded Paging
- * pages — see `UserSearchPagingSource`'s own kdoc for that documented gap.
+ * a follow/unfollow toggle updates both live with zero extra plumbing.
+ * [searchUsers]'s Paging pages can't derive from it the same way — Paging
+ * re-evaluates a `PagingSource` wholesale on invalidation, not per emitted
+ * value, so `UserSearchPagingSource` bakes an [User.isFollowed] snapshot into
+ * each loaded row instead (see its own kdoc) — [followedUserIds] is exposed
+ * separately so a UI can override that snapshot with current state at render
+ * time.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
@@ -65,7 +71,7 @@ class NetworkSocialRepository @Inject constructor(
                 followedIds.value = when (state) {
                     is AuthState.LoggedIn ->
                         runCatching { socialApi.followedIds(state.userId).toSet() }.getOrDefault(emptySet())
-                    AuthState.LoggedOut -> emptySet()
+                    AuthState.LoggedOut, AuthState.Unknown -> emptySet()
                 }
             }
         }
@@ -90,6 +96,8 @@ class NetworkSocialRepository @Inject constructor(
     override fun userById(userId: String): Flow<User?> = followedIds.flatMapLatest { ids ->
         flow { emit(socialApi.profileById(userId)?.toDomain(isFollowed = userId in ids)) }
     }
+
+    override fun followedUserIds(): Flow<Set<String>> = followedIds
 
     // Optimistic toggle + revert-on-failure (PLAN_PERSON_C.md's own C6 wording)
     // — any failure (not logged in, network error) must revert and propagate
@@ -126,7 +134,11 @@ class NetworkSocialRepository @Inject constructor(
 
     private fun currentUserId(): String? = (authRepository.authState.value as? AuthState.LoggedIn)?.userId
 
-    private fun requireLoggedIn(): AuthState.LoggedIn =
-        authRepository.authState.value as? AuthState.LoggedIn
-            ?: error("Must be logged in to follow/unfollow users")
+    // Awaits past AuthState.Unknown (the transient value during cold-start
+    // session restore — see its kdoc) instead of reading .value directly, so
+    // a follow/unfollow tapped right after launch doesn't wrongly see
+    // "logged out" while a valid persisted session is still loading.
+    private suspend fun requireLoggedIn(): AuthState.LoggedIn =
+        authRepository.authState.first { it !is AuthState.Unknown } as? AuthState.LoggedIn
+            ?: throw NotLoggedInException()
 }

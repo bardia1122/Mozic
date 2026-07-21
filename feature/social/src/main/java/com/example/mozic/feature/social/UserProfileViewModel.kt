@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.example.mozic.core.domain.model.NotLoggedInException
 import com.example.mozic.core.domain.repository.SocialRepository
 import com.example.mozic.feature.social.navigation.UserProfileRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,8 +44,14 @@ class UserProfileViewModel @Inject constructor(
     fun onFollowToggle(currentlyFollowed: Boolean) {
         viewModelScope.launch {
             try {
-                if (currentlyFollowed) socialRepository.unfollow(userId) else socialRepository.follow(userId)
-            } catch (e: IllegalStateException) {
+                if (currentlyFollowed) {
+                    socialRepository.unfollow(userId)
+                    _effects.trySend(SocialActionEffect.Unfollowed)
+                } else {
+                    socialRepository.follow(userId)
+                    _effects.trySend(SocialActionEffect.Followed)
+                }
+            } catch (e: NotLoggedInException) {
                 _effects.trySend(SocialActionEffect.LoginRequired)
             } catch (e: Exception) {
                 _effects.trySend(SocialActionEffect.ActionFailed)

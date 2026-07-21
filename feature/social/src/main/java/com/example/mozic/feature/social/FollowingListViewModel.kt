@@ -2,6 +2,7 @@ package com.example.mozic.feature.social
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mozic.core.domain.model.NotLoggedInException
 import com.example.mozic.core.domain.repository.SocialRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -33,7 +34,8 @@ class FollowingListViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 socialRepository.unfollow(userId)
-            } catch (e: IllegalStateException) {
+                _effects.trySend(SocialActionEffect.Unfollowed)
+            } catch (e: NotLoggedInException) {
                 _effects.trySend(SocialActionEffect.LoginRequired)
             } catch (e: Exception) {
                 _effects.trySend(SocialActionEffect.ActionFailed)

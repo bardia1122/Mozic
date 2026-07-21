@@ -29,10 +29,14 @@ class ConversationListViewModel @Inject constructor(
 
     val uiState: StateFlow<ConversationListUiState> = authRepository.authState
         .flatMapLatest { auth ->
-            if (auth is AuthState.LoggedIn) {
-                chatRepository.conversations().map { ConversationListUiState.Content(it) as ConversationListUiState }
-            } else {
-                flowOf(ConversationListUiState.LoggedOut)
+            when (auth) {
+                is AuthState.LoggedIn -> chatRepository.conversations()
+                    .map { ConversationListUiState.Content(it) as ConversationListUiState }
+                AuthState.LoggedOut -> flowOf(ConversationListUiState.LoggedOut)
+                // Cold-start session restore still in flight — stay on Loading
+                // rather than flashing the login form for an already-logged-in
+                // user (same root cause as C6's follow/unfollow race).
+                AuthState.Unknown -> flowOf(ConversationListUiState.Loading)
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ConversationListUiState.Loading)

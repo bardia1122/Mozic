@@ -40,12 +40,16 @@ fun FollowingListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val unfollowedMessage = stringResource(R.string.social_unfollowed)
     val actionFailedMessage = stringResource(R.string.social_action_failed)
     val loginRequiredMessage = stringResource(R.string.social_login_required)
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
+                // This screen only ever unfollows (every row here is already followed).
+                SocialActionEffect.Followed -> Unit
+                SocialActionEffect.Unfollowed -> snackbarHostState.showSnackbar(unfollowedMessage)
                 SocialActionEffect.ActionFailed -> snackbarHostState.showSnackbar(actionFailedMessage)
                 SocialActionEffect.LoginRequired -> snackbarHostState.showSnackbar(loginRequiredMessage)
             }
@@ -85,6 +89,7 @@ fun FollowingListScreen(
                     items(state.users, key = User::id) { user ->
                         UserRow(
                             user = user,
+                            isFollowed = user.isFollowed,
                             onClick = { onUserClick(user.id) },
                             onFollowToggle = { viewModel.onUnfollowClick(user.id) },
                             modifier = Modifier.animateItem(),

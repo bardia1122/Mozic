@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.example.mozic.core.domain.model.NotLoggedInException
 import com.example.mozic.core.domain.model.User
 import com.example.mozic.core.domain.repository.SocialRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,6 +54,12 @@ class UserSearchViewModel @Inject constructor(
         .flatMapLatest { query -> socialRepository.searchUsers(query) }
         .cachedIn(viewModelScope)
 
+    // Each paged User's own isFollowed is a load-time snapshot that never
+    // updates in place (see UserSearchPagingSource's kdoc) — the screen reads
+    // this live set instead to decide each row's actual current state.
+    val followedIds: StateFlow<Set<String>> = socialRepository.followedUserIds()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
     fun onEvent(event: UserSearchEvent) {
         when (event) {
             is UserSearchEvent.QueryChanged -> queryState.value = event.query
@@ -60,8 +67,8 @@ class UserSearchViewModel @Inject constructor(
         }
     }
 
-    // Distinguishes "not logged in" (SocialRepository's own documented
-    // IllegalStateException, see NetworkSocialRepository.requireLoggedIn) from
+    // Distinguishes "not logged in" (SocialRepository's own dedicated
+    // NotLoggedInException, see NetworkSocialRepository.requireLoggedIn) from
     // any other failure (network, RLS) so the UI can show a more useful
     // message than a generic retry prompt for the login case — both branches
     // reduce to "which snackbar", nothing more specific to do with either.
@@ -69,8 +76,14 @@ class UserSearchViewModel @Inject constructor(
     private fun toggleFollow(userId: String, currentlyFollowed: Boolean) {
         viewModelScope.launch {
             try {
-                if (currentlyFollowed) socialRepository.unfollow(userId) else socialRepository.follow(userId)
-            } catch (e: IllegalStateException) {
+                if (currentlyFollowed) {
+                    socialRepository.unfollow(userId)
+                    _effects.trySend(SocialActionEffect.Unfollowed)
+                } else {
+                    socialRepository.follow(userId)
+                    _effects.trySend(SocialActionEffect.Followed)
+                }
+            } catch (e: NotLoggedInException) {
                 _effects.trySend(SocialActionEffect.LoginRequired)
             } catch (e: Exception) {
                 _effects.trySend(SocialActionEffect.ActionFailed)

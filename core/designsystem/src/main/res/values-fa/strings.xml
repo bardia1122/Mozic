@@ -157,4 +157,6 @@
     <string name="social_public_playlists_empty_subtitle">این کاربر هنوز پلی‌لیست عمومی‌ای به‌اشتراک نگذاشته است</string>
     <string name="social_action_failed">به‌روزرسانی وضعیت دنبال کردن ناموفق بود، دوباره تلاش کنید</string>
     <string name="social_login_required">برای دنبال کردن کاربران از طریق چت وارد شوید</string>
+    <string name="social_followed">دنبال شد</string>
+    <string name="social_unfollowed">لغو دنبال شد</string>
 </resources>

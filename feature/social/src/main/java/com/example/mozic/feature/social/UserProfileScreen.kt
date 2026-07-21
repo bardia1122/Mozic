@@ -62,12 +62,16 @@ fun UserProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val followedMessage = stringResource(R.string.social_followed)
+    val unfollowedMessage = stringResource(R.string.social_unfollowed)
     val actionFailedMessage = stringResource(R.string.social_action_failed)
     val loginRequiredMessage = stringResource(R.string.social_login_required)
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
+                SocialActionEffect.Followed -> snackbarHostState.showSnackbar(followedMessage)
+                SocialActionEffect.Unfollowed -> snackbarHostState.showSnackbar(unfollowedMessage)
                 SocialActionEffect.ActionFailed -> snackbarHostState.showSnackbar(actionFailedMessage)
                 SocialActionEffect.LoginRequired -> snackbarHostState.showSnackbar(loginRequiredMessage)
             }
