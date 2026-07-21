@@ -11,6 +11,8 @@ import httpx
 
 from wire import epoch_ms_to_iso, row_to_wire, wire_message_to_row
 
+AVATAR_BUCKET = "avatars"
+
 
 class SupabaseGateway:
     def __init__(self, client: httpx.AsyncClient, base_url: str, publishable_key: str, secret_key: str) -> None:
@@ -99,3 +101,50 @@ class SupabaseGateway:
         )
         response.raise_for_status()
         return [row_to_wire(row) for row in response.json()]
+
+    async def upload_avatar(self, user_id: str, image_bytes: bytes, content_type: str) -> str:
+        """
+        Uploads with the secret key and patches profiles.avatar_url, both server-side.
+
+        Routed through here rather than the Android client calling Supabase
+        Storage directly: on this project, Storage's own RLS-based role
+        resolution for authenticated writes doesn't work (confirmed —
+        the exact same user JWT succeeds against PostgREST but 403s against
+        Storage even with verified-correct policies, a platform-level issue,
+        not a policy bug). This server already validates the same token for
+        the WS handshake and writes with the secret key, which we confirmed
+        works.
+        """
+        path = f"{AVATAR_BUCKET}/{user_id}/avatar"
+        upload_response = await self._client.post(
+            f"{self._base_url}/storage/v1/object/{path}",
+            headers=self._service_headers(**{"x-upsert": "true", "Content-Type": content_type}),
+            content=image_bytes,
+        )
+        upload_response.raise_for_status()
+
+        public_url = f"{self._base_url}/storage/v1/object/public/{path}"
+        patch_response = await self._client.patch(
+            f"{self._base_url}/rest/v1/profiles",
+            headers=self._service_headers(**{"Prefer": "return=minimal", "Content-Type": "application/json"}),
+            params={"id": f"eq.{user_id}"},
+            json={"avatar_url": public_url},
+        )
+        patch_response.raise_for_status()
+        return public_url
+
+    async def remove_avatar(self, user_id: str) -> None:
+        """Clears avatar_url and best-effort deletes the file — a missing/already-gone file is not an error here."""
+        patch_response = await self._client.patch(
+            f"{self._base_url}/rest/v1/profiles",
+            headers=self._service_headers(**{"Prefer": "return=minimal", "Content-Type": "application/json"}),
+            params={"id": f"eq.{user_id}"},
+            content=b'{"avatar_url":null}',
+        )
+        patch_response.raise_for_status()
+
+        path = f"{AVATAR_BUCKET}/{user_id}/avatar"
+        try:
+            await self._client.delete(f"{self._base_url}/storage/v1/object/{path}", headers=self._service_headers())
+        except httpx.HTTPError:
+            pass

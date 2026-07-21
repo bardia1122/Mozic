@@ -16,8 +16,8 @@ from contextlib import asynccontextmanager
 
 import httpx
 import uvicorn
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import PlainTextResponse
+from fastapi import FastAPI, Header, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import PlainTextResponse, Response
 
 import env
 from connection_manager import ConnectionManager
@@ -47,6 +47,38 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/health")
 async def health() -> PlainTextResponse:
     return PlainTextResponse("ok")
+
+
+async def _authenticated_user_id(gateway: SupabaseGateway, authorization: str | None) -> str:
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="missing bearer token")
+    user_id = await gateway.authenticate(authorization.split(" ", 1)[1])
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="invalid token")
+    return user_id
+
+
+@app.post("/avatar")
+async def upload_avatar(request: Request, authorization: str | None = Header(default=None)) -> dict:
+    """
+    Proxies the avatar upload with the secret key instead of the Android app
+    calling Supabase Storage directly — see `SupabaseGateway.upload_avatar`'s
+    docstring for why direct-from-client uploads don't work on this project.
+    """
+    gateway: SupabaseGateway = request.app.state.gateway
+    user_id = await _authenticated_user_id(gateway, authorization)
+    image_bytes = await request.body()
+    content_type = request.headers.get("content-type", "image/jpeg")
+    url = await gateway.upload_avatar(user_id, image_bytes, content_type)
+    return {"avatarUrl": url}
+
+
+@app.delete("/avatar", status_code=204)
+async def delete_avatar(request: Request, authorization: str | None = Header(default=None)) -> Response:
+    gateway: SupabaseGateway = request.app.state.gateway
+    user_id = await _authenticated_user_id(gateway, authorization)
+    await gateway.remove_avatar(user_id)
+    return Response(status_code=204)
 
 
 @app.websocket("/ws")

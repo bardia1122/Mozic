@@ -110,6 +110,8 @@
     <string name="premium_upsell_title">Go Premium</string>
     <string name="premium_upsell_body">Downloading songs for offline listening is a Premium feature. Upgrade from your profile to unlock it.</string>
     <string name="premium_upsell_cta">Upgrade</string>
+    <string name="profile_avatar_update_failed">Couldn\'t update your avatar, try again</string>
+    <string name="profile_remove_avatar_cd">Remove photo</string>
 
     <!-- Chat -->
     <string name="cd_open_chat">Chat</string>

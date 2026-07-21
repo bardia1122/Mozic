@@ -105,6 +105,8 @@
     <string name="premium_upsell_title">ارتقا به نسخهٔ ویژه</string>
     <string name="premium_upsell_body">دانلود آهنگ برای پخش آفلاین، ویژگی نسخهٔ ویژه است. برای فعال‌سازی آن از نمایه خود ارتقا دهید.</string>
     <string name="premium_upsell_cta">ارتقا</string>
+    <string name="profile_avatar_update_failed">به‌روزرسانی تصویر نمایه ناموفق بود، دوباره تلاش کنید</string>
+    <string name="profile_remove_avatar_cd">حذف تصویر</string>
 
     <!-- Chat -->
     <string name="cd_open_chat">چت</string>

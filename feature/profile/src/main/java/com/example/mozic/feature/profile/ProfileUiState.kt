@@ -3,15 +3,37 @@ package com.example.mozic.feature.profile
 sealed interface ProfileUiState {
     data object Loading : ProfileUiState
 
-    data class Content(val avatarUri: String?, val isPremium: Boolean, val isPurchasing: Boolean) : ProfileUiState
+    /**
+     * [displayName]/[isLoggedIn] only ever come from the real `profiles` row
+     * (via [com.example.mozic.core.domain.repository.ProfileRepository]) —
+     * `null`/`false` while logged out, since there's no server identity to
+     * show yet. [avatarUri]/[isPremium] fall back to the local
+     * device-only prefs in that case, unchanged from before login existed.
+     */
+    data class Content(
+        val displayName: String?,
+        val avatarUri: String?,
+        val isPremium: Boolean,
+        val isLoggedIn: Boolean,
+        val isPurchasing: Boolean,
+    ) : ProfileUiState
 }
 
 sealed interface ProfileEvent {
-    data class SetAvatar(val uri: String?) : ProfileEvent
+    /** Logged-out fallback: stored locally only, same as before login existed. */
+    data class SetLocalAvatar(val uri: String?) : ProfileEvent
+
+    /** Logged-in path: uploaded to Supabase Storage and patched into `profiles.avatar_url`. */
+    data class UploadAvatar(val bytes: ByteArray, val mimeType: String) : ProfileEvent
+
+    /** Clears whichever avatar source is currently active (local prefs, or the real `profiles` row). */
+    data object RemoveAvatar : ProfileEvent
 
     data object PurchasePremium : ProfileEvent
 }
 
 sealed interface ProfileEffect {
     data object PurchaseCompleted : ProfileEffect
+
+    data object AvatarUpdateFailed : ProfileEffect
 }

@@ -13,3 +13,14 @@ data class FollowInsertDto(
     @SerialName("follower_id") val followerId: String,
     @SerialName("followee_id") val followeeId: String,
 )
+
+/**
+ * PATCH body for a `profiles` update — both fields nullable and omitted when
+ * null (the shared `Json`'s `explicitNulls = false`), so setting only one of
+ * avatar/premium never touches the other column.
+ */
+@Serializable
+data class ProfileUpdateDto(
+    @SerialName("avatar_url") val avatarUrl: String? = null,
+    @SerialName("is_premium") val isPremium: Boolean? = null,
+)
