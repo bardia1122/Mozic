@@ -86,6 +86,8 @@ private fun HomeContent(
             icon = Icons.Filled.WifiOff,
             title = stringResource(DesignSystemR.string.state_error),
             subtitle = stringResource(DesignSystemR.string.state_error_subtitle),
+            actionLabel = stringResource(DesignSystemR.string.action_retry),
+            onAction = { onEvent(HomeEvent.Retry) },
             modifier = modifier,
         )
         return

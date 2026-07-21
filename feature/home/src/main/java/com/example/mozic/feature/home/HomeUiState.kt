@@ -24,6 +24,8 @@ sealed interface HomeEvent {
     data class PlaylistClick(val playlist: Playlist) : HomeEvent
 
     data class QuickActionClick(val action: QuickAction) : HomeEvent
+
+    data object Retry : HomeEvent
 }
 
 sealed interface HomeEffect {
