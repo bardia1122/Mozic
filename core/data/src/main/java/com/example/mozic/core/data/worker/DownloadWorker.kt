@@ -62,16 +62,16 @@ class DownloadWorker(
     override suspend fun doWork(): Result {
         val songId = inputData.getString(KEY_SONG_ID) ?: return Result.failure()
         val audioUrl = inputData.getString(KEY_AUDIO_URL) ?: return Result.failure()
+        // enqueue() always writes this row (with the song-metadata snapshot) before starting the
+        // work request — no entity here means there's nothing to resolve a Song from regardless.
+        val entity = downloadDao.get(songId) ?: return Result.failure()
 
-        downloadDao.upsert(
-            DownloadEntity(songId = songId, filePath = null, state = STATE_DOWNLOADING, progress = 0f),
-        )
+        downloadDao.upsert(entity.copy(filePath = null, state = STATE_DOWNLOADING, progress = 0f))
 
         return try {
-            val filePath = withContext(ioDispatcher) { stream(songId, audioUrl) }
+            val filePath = withContext(ioDispatcher) { stream(songId, audioUrl, entity) }
             downloadDao.upsert(
-                DownloadEntity(
-                    songId = songId,
+                entity.copy(
                     filePath = filePath,
                     state = STATE_DOWNLOADED,
                     progress = 1f,
@@ -80,20 +80,14 @@ class DownloadWorker(
             )
             Result.success()
         } catch (e: IOException) {
-            onFailure(songId, e)
+            onFailure(entity, e)
         }
     }
 
-    private suspend fun onFailure(songId: String, cause: IOException): Result {
+    private suspend fun onFailure(entity: DownloadEntity, cause: IOException): Result {
         if (runAttemptCount < MAX_RETRIES) return Result.retry()
         downloadDao.upsert(
-            DownloadEntity(
-                songId = songId,
-                filePath = null,
-                state = STATE_FAILED,
-                progress = 0f,
-                failureReason = cause.message,
-            ),
+            entity.copy(filePath = null, state = STATE_FAILED, progress = 0f, failureReason = cause.message),
         )
         return Result.failure()
     }
@@ -102,7 +96,7 @@ class DownloadWorker(
      * Streams to a `.part` file, renamed atomically on success so a killed
      * worker never leaves a half-written file mistaken for a real download.
      */
-    private suspend fun stream(songId: String, audioUrl: String): String {
+    private suspend fun stream(songId: String, audioUrl: String, entity: DownloadEntity): String {
         val targetDir = applicationContext.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
             ?: error("No external files dir available")
         val targetFile = File(targetDir, "$songId.mp3")
@@ -111,7 +105,7 @@ class DownloadWorker(
         val request = Request.Builder().url(audioUrl).build()
         okHttpClient.newCall(request).execute().use { response ->
             val body = requireSuccessfulBody(songId, response)
-            copyToFile(songId, body, partFile)
+            copyToFile(body, partFile, entity)
         }
 
         if (!partFile.renameTo(targetFile)) throw IOException("Could not finalize download for $songId")
@@ -123,7 +117,7 @@ class DownloadWorker(
         return response.body ?: throw IOException("Empty response body for $songId")
     }
 
-    private suspend fun copyToFile(songId: String, body: ResponseBody, partFile: File) {
+    private suspend fun copyToFile(body: ResponseBody, partFile: File, entity: DownloadEntity) {
         val totalBytes = body.contentLength()
         var readBytes = 0L
         var lastReportedPercent = -1
@@ -135,7 +129,7 @@ class DownloadWorker(
                 while (read != -1) {
                     output.write(buffer, 0, read)
                     readBytes += read
-                    lastReportedPercent = reportProgressIfDue(songId, totalBytes, readBytes, lastReportedPercent)
+                    lastReportedPercent = reportProgressIfDue(totalBytes, readBytes, lastReportedPercent, entity)
                     read = input.read(buffer)
                 }
             }
@@ -144,10 +138,10 @@ class DownloadWorker(
 
     /** Returns the percent that was just reported, or [lastReportedPercent] unchanged if it's not yet due. */
     private suspend fun reportProgressIfDue(
-        songId: String,
         totalBytes: Long,
         readBytes: Long,
         lastReportedPercent: Int,
+        entity: DownloadEntity,
     ): Int {
         if (totalBytes <= 0) return lastReportedPercent
         val percent = (readBytes * PERCENT_SCALE / totalBytes).toInt()
@@ -155,12 +149,7 @@ class DownloadWorker(
 
         setProgress(workDataOf(KEY_PROGRESS_PERCENT to percent))
         downloadDao.upsert(
-            DownloadEntity(
-                songId = songId,
-                filePath = null,
-                state = STATE_DOWNLOADING,
-                progress = percent / PERCENT_SCALE.toFloat(),
-            ),
+            entity.copy(filePath = null, state = STATE_DOWNLOADING, progress = percent / PERCENT_SCALE.toFloat()),
         )
         return percent
     }

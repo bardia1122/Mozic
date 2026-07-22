@@ -72,7 +72,19 @@ class DownloadRepositoryImpl @Inject constructor(
 
     override suspend fun enqueue(songId: String) {
         val song = songRepository.song(songId).getOrNull() ?: return
-        downloadDao.upsert(DownloadEntity(songId = songId, filePath = null, state = STATE_QUEUED, progress = 0f))
+        downloadDao.upsert(
+            DownloadEntity(
+                songId = songId,
+                filePath = null,
+                state = STATE_QUEUED,
+                progress = 0f,
+                title = song.title,
+                artistName = song.artistName,
+                coverImageUrl = song.coverImageUrl,
+                audioUrl = song.audioUrl,
+                durationMs = song.durationMs,
+            ),
+        )
 
         val request = OneTimeWorkRequestBuilder<DownloadWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
