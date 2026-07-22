@@ -49,6 +49,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.R as DesignSystemR
@@ -67,6 +68,9 @@ import kotlinx.coroutines.launch
 // same underlying mechanism as the nav-transition scroll glitch fixed in
 // MozicApp.kt, just triggered by the data swap instead of navigation.
 private const val SKELETON_ITEMS_PER_SECTION = 2
+
+/** Clears the floating "Create playlist" FAB — see its use at the grid's `contentPadding`. */
+private val FAB_BOTTOM_CLEARANCE = 96.dp
 
 @Composable
 fun PlaylistsScreen(
@@ -230,8 +234,14 @@ private fun PlaylistsContent(
         state = gridState,
         modifier = modifier,
         contentPadding = PaddingValues(
-            horizontal = MaterialTheme.dimens.screenHorizontalPadding,
-            vertical = MaterialTheme.dimens.spaceMd,
+            start = MaterialTheme.dimens.screenHorizontalPadding,
+            end = MaterialTheme.dimens.screenHorizontalPadding,
+            top = MaterialTheme.dimens.spaceMd,
+            // A floating FAB isn't accounted for by Scaffold's own innerPadding —
+            // it genuinely floats over content — so the last row needs enough
+            // clearance itself: FAB height (~56dp) + Scaffold's own FAB margin
+            // (~16dp) + a little breathing room above it.
+            bottom = FAB_BOTTOM_CLEARANCE,
         ),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceMd),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceMd),
