@@ -14,12 +14,22 @@ import com.example.mozic.feature.chat.ShareSongSheet
  * Same plain-fade rationale as `LibraryNavigation`'s equivalent constant — a
  * slide/size transition into a chrome-hiding sub-destination visibly
  * re-anchors the caller's scroll position mid-transition.
+ *
+ * All three routes below are self-contained on all four edges (enter, exit,
+ * popEnter, popExit) rather than leaning on the caller's own exitTransition
+ * the way `LibraryNavigation` leans on `HomeRoute`'s — `ConversationListRoute`
+ * in particular is reachable from the persistent top bar's chat icon from
+ * *any* tab, most of which don't define a matching exitTransition of their
+ * own, so relying on the source screen left this snapping in with no
+ * animation whenever entered from anywhere but Home.
  */
 private const val CHAT_NAV_TRANSITION_MS = 220
 
 fun NavGraphBuilder.chatScreens(navController: NavHostController, onNavigateToNowPlaying: () -> Unit) {
     composable<ConversationListRoute>(
         enterTransition = { fadeIn(animationSpec = tween(CHAT_NAV_TRANSITION_MS)) },
+        exitTransition = { fadeOut(animationSpec = tween(CHAT_NAV_TRANSITION_MS)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(CHAT_NAV_TRANSITION_MS)) },
         popExitTransition = { fadeOut(animationSpec = tween(CHAT_NAV_TRANSITION_MS)) },
     ) {
         ConversationListScreen(
@@ -29,6 +39,8 @@ fun NavGraphBuilder.chatScreens(navController: NavHostController, onNavigateToNo
     }
     composable<ChatThreadRoute>(
         enterTransition = { fadeIn(animationSpec = tween(CHAT_NAV_TRANSITION_MS)) },
+        exitTransition = { fadeOut(animationSpec = tween(CHAT_NAV_TRANSITION_MS)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(CHAT_NAV_TRANSITION_MS)) },
         popExitTransition = { fadeOut(animationSpec = tween(CHAT_NAV_TRANSITION_MS)) },
     ) {
         ChatThreadScreen(
@@ -38,6 +50,8 @@ fun NavGraphBuilder.chatScreens(navController: NavHostController, onNavigateToNo
     }
     composable<ShareSongRoute>(
         enterTransition = { fadeIn(animationSpec = tween(CHAT_NAV_TRANSITION_MS)) },
+        exitTransition = { fadeOut(animationSpec = tween(CHAT_NAV_TRANSITION_MS)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(CHAT_NAV_TRANSITION_MS)) },
         popExitTransition = { fadeOut(animationSpec = tween(CHAT_NAV_TRANSITION_MS)) },
     ) {
         ShareSongSheet(onDismiss = { navController.popBackStack() })
