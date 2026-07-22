@@ -9,11 +9,14 @@ import com.example.mozic.core.domain.model.Playlist
 import com.example.mozic.core.domain.model.PlaylistCategory
 import com.example.mozic.core.domain.model.Song
 import com.example.mozic.core.domain.repository.PlaylistRepository
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 
 private const val PLAYLIST_SONGS_PAGE_SIZE = 50
 
@@ -22,8 +25,25 @@ private const val FAKE_PLAYLIST_SONGS_LOAD_DELAY_MS = 400L
 
 @Singleton
 class FakePlaylistRepository @Inject constructor() : PlaylistRepository {
+
+    private val allPlaylists = MutableStateFlow(SampleData.playlists)
+
     override fun playlists(category: PlaylistCategory): Flow<List<Playlist>> =
-        flowOf(SampleData.playlists.filter { it.category == category })
+        allPlaylists.map { list -> list.filter { it.category == category } }
+
+    override suspend fun createPlaylist(title: String): Playlist {
+        val playlist = Playlist(
+            id = "fake-playlist-${UUID.randomUUID()}",
+            title = title,
+            coverImageUrl = null,
+            ownerId = "fake-user",
+            isPublic = true,
+            category = PlaylistCategory.USER,
+            songCount = 0,
+        )
+        allPlaylists.update { it + playlist }
+        return playlist
+    }
 
     override fun playlistSongs(playlistId: String): Flow<PagingData<Song>> {
         val songCount = SampleData.playlists.find { it.id == playlistId }?.songCount ?: SampleData.songs.size

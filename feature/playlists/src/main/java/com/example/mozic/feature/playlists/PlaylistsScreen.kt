@@ -1,11 +1,16 @@
 package com.example.mozic.feature.playlists
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
@@ -13,28 +18,47 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.WifiOff
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.R as DesignSystemR
 import com.example.mozic.core.designsystem.theme.dimens
+import com.example.mozic.core.designsystem.theme.mozicColors
 import com.example.mozic.core.domain.model.Playlist
 import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.PlaylistCard
 import com.example.mozic.core.ui.component.PlaylistCardSkeleton
+import kotlinx.coroutines.launch
 
 // Matches SampleData's current 2-per-category count. A real backend's counts
 // will vary, but for the fakes this avoids the skeleton→content swap shrinking
@@ -47,17 +71,24 @@ private const val SKELETON_ITEMS_PER_SECTION = 2
 @Composable
 fun PlaylistsScreen(
     onNavigateToDetail: (Playlist) -> Unit,
+    onLoginRequiredForCreate: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlaylistsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val createPlaylistState by viewModel.createPlaylistState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     val gridState = rememberLazyGridState()
+    val playlistCreatedMessage = stringResource(DesignSystemR.string.playlists_create_success)
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 is PlaylistsEffect.NavigateToDetail -> onNavigateToDetail(effect.playlist)
+                PlaylistsEffect.LoginRequiredForCreate -> onLoginRequiredForCreate()
+                PlaylistsEffect.PlaylistCreated ->
+                    coroutineScope.launch { snackbarHostState.showSnackbar(playlistCreatedMessage) }
             }
         }
     }
@@ -65,6 +96,9 @@ fun PlaylistsScreen(
     Scaffold(
         modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        floatingActionButton = {
+            CreatePlaylistFab(onClick = { viewModel.onEvent(PlaylistsEvent.CreatePlaylistClick) })
+        },
     ) { innerPadding ->
         PlaylistsContent(
             uiState = uiState,
@@ -75,6 +109,103 @@ fun PlaylistsScreen(
                 .fillMaxSize(),
         )
     }
+
+    val visibleCreateState = createPlaylistState
+    if (visibleCreateState is CreatePlaylistUiState.Visible) {
+        CreatePlaylistDialog(
+            state = visibleCreateState,
+            onTitleChange = { viewModel.onEvent(PlaylistsEvent.CreatePlaylistTitleChange(it)) },
+            onConfirm = { viewModel.onEvent(PlaylistsEvent.CreatePlaylistConfirm) },
+            onDismiss = { viewModel.onEvent(PlaylistsEvent.CreatePlaylistDismiss) },
+        )
+    }
+}
+
+@Composable
+private fun CreatePlaylistFab(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+        ),
+        modifier = modifier.background(
+            brush = MaterialTheme.mozicColors.accentGradient,
+            shape = ButtonDefaults.shape,
+        ),
+    ) {
+        Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+        Spacer(Modifier.width(MaterialTheme.dimens.spaceXs))
+        Text(
+            text = stringResource(DesignSystemR.string.playlists_create),
+            fontWeight = FontWeight.ExtraBold,
+        )
+    }
+}
+
+@Composable
+private fun CreatePlaylistDialog(
+    state: CreatePlaylistUiState.Visible,
+    onTitleChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val canConfirm = state.title.isNotBlank() && !state.isSubmitting
+
+    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
+    AlertDialog(
+        onDismissRequest = { if (!state.isSubmitting) onDismiss() },
+        title = { Text(stringResource(DesignSystemR.string.playlists_create)) },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = state.title,
+                    onValueChange = onTitleChange,
+                    label = { Text(stringResource(DesignSystemR.string.playlists_create_name_label)) },
+                    singleLine = true,
+                    enabled = !state.isSubmitting,
+                    isError = state.showError,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                            if (canConfirm) onConfirm()
+                        },
+                    ),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                )
+                if (state.showError) {
+                    Text(
+                        text = stringResource(DesignSystemR.string.playlists_create_error),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(top = MaterialTheme.dimens.spaceXs),
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = onConfirm, enabled = canConfirm) {
+                if (state.isSubmitting) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(MaterialTheme.dimens.spaceMd),
+                        strokeWidth = MaterialTheme.dimens.spaceXxs / 2,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                } else {
+                    Text(stringResource(DesignSystemR.string.playlists_create_confirm))
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, enabled = !state.isSubmitting) {
+                Text(stringResource(DesignSystemR.string.playlists_create_cancel))
+            }
+        },
+    )
 }
 
 @Composable

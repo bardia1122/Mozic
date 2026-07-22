@@ -78,6 +78,13 @@
     <string name="playlists_shuffle">پخش تصادفی</string>
     <string name="playlist_detail_empty_title">هنوز آهنگی نیست</string>
     <string name="playlist_detail_empty_subtitle">آهنگ‌های اضافه‌شده به این پلی‌لیست اینجا نمایش داده می‌شوند</string>
+    <string name="playlists_create">ایجاد پلی‌لیست</string>
+    <string name="playlists_create_name_label">نام پلی‌لیست</string>
+    <string name="playlists_create_confirm">ایجاد</string>
+    <string name="playlists_create_cancel">لغو</string>
+    <string name="playlists_create_error">ایجاد پلی‌لیست ناموفق بود. دوباره امتحان کنید.</string>
+    <string name="playlists_create_success">پلی‌لیست ایجاد شد</string>
+    <string name="playlists_create_login_required">برای ایجاد پلی‌لیست وارد شوید</string>
 
     <!-- Library (liked / recently played) -->
     <string name="library_liked_title">آهنگ‌های پسندیده</string>

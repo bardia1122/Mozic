@@ -1,6 +1,7 @@
 package com.example.mozic.core.network
 
 import com.example.mozic.core.network.dto.PlaylistDto
+import com.example.mozic.core.network.dto.PlaylistInsertDto
 import com.example.mozic.core.network.dto.PlaylistSongCountRowDto
 import com.example.mozic.core.network.dto.PlaylistSongRowDto
 import com.example.mozic.core.network.dto.SearchCatalogRowDto
@@ -10,8 +11,14 @@ import com.example.mozic.core.network.paging.applyRange
 import com.example.mozic.core.network.paging.toRangePage
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -49,6 +56,16 @@ class SupabaseCatalogApi @Inject constructor(
             parameter("select", "*")
         }
         return response.body()
+    }
+
+    /** RLS scopes this to the caller's own JWT — `playlists_insert_own` (schema.sql). */
+    suspend fun createPlaylist(accessToken: String, playlist: PlaylistInsertDto) {
+        client.post(restUrl("playlists")) {
+            bearerAuth(accessToken)
+            header("Prefer", "return=minimal")
+            contentType(ContentType.Application.Json)
+            setBody(playlist)
+        }
     }
 
     suspend fun playlistSongs(playlistId: String, range: IntRange): RangePage<PlaylistSongRowDto> {

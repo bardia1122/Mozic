@@ -147,11 +147,17 @@ create index if not exists songs_artist_name_idx on public.songs (artist_name);
 create table if not exists public.playlists (
     id text primary key,
     title text not null,
-    cover_image_url text not null,
+    cover_image_url text,
     owner_id uuid references public.profiles (id) on delete cascade,
     is_public boolean not null default true,
     category text not null check (category in ('WORLD', 'LOCAL', 'USER'))
 );
+
+-- Pre-existing deployments created the column `not null` — `create table if
+-- not exists` above is a no-op against them, so drop the constraint
+-- explicitly. User-created playlists (the app's new "Create playlist" flow)
+-- have no cover to supply at creation time.
+alter table public.playlists alter column cover_image_url drop not null;
 
 alter table public.playlists enable row level security;
 
@@ -159,7 +165,14 @@ drop policy if exists "playlists_select_visible" on public.playlists;
 create policy "playlists_select_visible" on public.playlists
     for select using (is_public = true or owner_id = auth.uid());
 
+-- The app's "Create playlist" flow inserts as the signed-in user, always
+-- into the USER category — WORLD/LOCAL rows stay curator/service_role-only.
+drop policy if exists "playlists_insert_own" on public.playlists;
+create policy "playlists_insert_own" on public.playlists
+    for insert with check (owner_id = auth.uid() and category = 'USER');
+
 grant select on public.playlists to anon, authenticated, service_role;
+grant insert on public.playlists to authenticated;
 grant insert, update, delete on public.playlists to service_role;
 
 create index if not exists playlists_category_idx on public.playlists (category);

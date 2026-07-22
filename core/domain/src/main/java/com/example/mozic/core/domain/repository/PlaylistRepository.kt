@@ -10,4 +10,10 @@ interface PlaylistRepository {
     fun playlists(category: PlaylistCategory): Flow<List<Playlist>>
 
     fun playlistSongs(playlistId: String): Flow<PagingData<Song>>
+
+    /**
+     * Creates a public [PlaylistCategory.USER] playlist owned by the caller.
+     * Throws [com.example.mozic.core.domain.model.NotLoggedInException] if not logged in.
+     */
+    suspend fun createPlaylist(title: String): Playlist
 }

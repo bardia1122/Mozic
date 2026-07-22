@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 data class PlaylistDto(
     val id: String,
     val title: String,
-    @SerialName("cover_image_url") val coverImageUrl: String,
+    @SerialName("cover_image_url") val coverImageUrl: String? = null,
     @SerialName("owner_id") val ownerId: String? = null,
     @SerialName("is_public") val isPublic: Boolean,
     val category: String,
@@ -23,4 +23,29 @@ data class PlaylistDto(
 @Serializable
 data class PlaylistSongCountRowDto(
     @SerialName("playlist_id") val playlistId: String,
+)
+
+/**
+ * POST body for the "Create playlist" flow. The client generates [id] itself
+ * — the column has no server-side default — and [category] is always
+ * `"USER"`; `playlists_insert_own`'s RLS check (`backend/supabase/schema.sql`)
+ * rejects anything else. `cover_image_url` is omitted (nullable column, no
+ * cover at creation time).
+ *
+ * [isPublic]/[category] deliberately have no default value even though every
+ * caller passes the same constant: the shared `Json`'s `encodeDefaults` is
+ * unset (defaults to `false`), so a property left at its Kotlin default is
+ * silently dropped from the request body — harmless for `is_public` (the
+ * `playlists` table itself defaults it to `true`) but fatal for `category`,
+ * which has no DB-side default and is `not null`; PostgREST then rejects the
+ * insert with a null-constraint violation. Making both required forces
+ * kotlinx.serialization to always encode them regardless of that setting.
+ */
+@Serializable
+data class PlaylistInsertDto(
+    val id: String,
+    val title: String,
+    @SerialName("owner_id") val ownerId: String,
+    @SerialName("is_public") val isPublic: Boolean,
+    val category: String,
 )

@@ -29,6 +29,7 @@ import com.example.mozic.feature.social.navigation.socialScreens
 fun MozicNavHost(
     navController: NavHostController,
     onLoggedOut: () -> Unit,
+    onCreatePlaylistLoginRequired: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -47,7 +48,11 @@ fun MozicNavHost(
         )
         searchScreen(onShareClick = navController::navigateToShareSong)
         downloadsScreen(onShareClick = navController::navigateToShareSong)
-        playlistsScreen(navController, onShareClick = navController::navigateToShareSong)
+        playlistsScreen(
+            navController,
+            onShareClick = navController::navigateToShareSong,
+            onLoginRequiredForCreate = onCreatePlaylistLoginRequired,
+        )
         libraryScreen(navController, onShareClick = navController::navigateToShareSong)
         nowPlayingScreen(navController, onShareClick = navController::navigateToShareSong)
         profileScreen(onNavigateToSettings = navController::navigateToSettings)

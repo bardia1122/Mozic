@@ -90,6 +90,7 @@ fun MozicApp(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val loggedOutMessage = stringResource(DesignSystemR.string.settings_logged_out)
+    val createPlaylistLoginRequiredMessage = stringResource(DesignSystemR.string.playlists_create_login_required)
 
     // `openNowPlayingSignal` increments once per tap on the media notification (see
     // MainActivity) — keyed on its value, not Unit, so a second tap while already on Now
@@ -177,6 +178,14 @@ fun MozicApp(
                     navController = navController,
                     onLoggedOut = {
                         coroutineScope.launch { snackbarHostState.showSnackbar(loggedOutMessage) }
+                    },
+                    // Chat's login form doubles as the app's only sign-in screen (see
+                    // onAvatarClick above) — same reasoning applies here: this Scaffold's
+                    // SnackbarHost outlives the navigation away from Playlists, a snackbar
+                    // hosted on that screen itself wouldn't survive it.
+                    onCreatePlaylistLoginRequired = {
+                        coroutineScope.launch { snackbarHostState.showSnackbar(createPlaylistLoginRequiredMessage) }
+                        navController.navigateToConversationList()
                     },
                     modifier = Modifier
                         .padding(innerPadding)
