@@ -45,6 +45,15 @@ private const val POSITION_TICK_IDLE_MS = 1_000L
 private const val SLEEP_TIMER_TICK_MS = 1_000L
 
 /**
+ * How often [Media3PlayerController.persistState] actually writes to disk while a queue is
+ * loaded (I3, `doc/CLAUDE_PERSON_A.md` §5.7) — ticked from the same position loop that already
+ * runs every [POSITION_TICK_PLAYING_MS]/[POSITION_TICK_IDLE_MS], so this just throttles disk
+ * writes rather than adding a second timer. A kill between writes loses at most this much
+ * resume accuracy, which is a fine trade for not hitting DataStore several times a second.
+ */
+private const val PERSIST_INTERVAL_MS = 5_000L
+
+/**
  * Single-player fade-out/fade-in crossfade (`doc/CLAUDE_PERSON_A.md` §5.6) — the
  * cut-list-safe alternative to a true dual-player crossfade: the last/first
  * [CROSSFADE_DURATION_MS] of each track ramp the shared [MediaController]'s
@@ -72,6 +81,8 @@ class Media3PlayerController @Inject constructor(
     private val internalState = MutableStateFlow(PlayerState())
     override val state: StateFlow<PlayerState> = internalState.asStateFlow()
 
+    private val playbackStateStore = PlaybackStateStore(context)
+
     @Volatile
     private var queueSongsById: Map<String, Song> = emptyMap()
 
@@ -82,17 +93,15 @@ class Media3PlayerController @Inject constructor(
     private var sleepJob: Job? = null
     private var fadeInJob: Job? = null
 
-    private val controllerDeferred: Deferred<MediaController> = scope.async {
-        val token = SessionToken(context, ComponentName(context, PlaybackService::class.java))
-        MediaController.Builder(context, token).buildAsync().await()
-    }
+    /** Cancelled and replaced on every (re)connect so a stale controller never leaks a running loop. */
+    private var tickJob: Job? = null
+
+    private var lastPersistedAtMs = 0L
+
+    /** A `var`, not a `val`: [buildController] replaces this with a fresh [Deferred] on every reconnect. */
+    private var controllerDeferred: Deferred<MediaController> = buildController()
 
     init {
-        scope.launch {
-            val controller = controllerDeferred.await()
-            attachListener(controller)
-            tickPosition(controller)
-        }
         scope.launch {
             userPreferencesRepository.preferences
                 .map { it.crossfadeEnabled }
@@ -100,6 +109,99 @@ class Media3PlayerController @Inject constructor(
                 .collect { crossfadeEnabled = it }
         }
     }
+
+    /**
+     * [MediaController] talks to [PlaybackService]'s session across a binder connection that
+     * dies whenever the service does (e.g. `onTaskRemoved` stopping it while paused, or the
+     * whole process being killed). Without rebuilding on disconnect, every command sent through
+     * a now-dead [controllerDeferred] would silently no-op forever — the actual "no leaked
+     * players" edge case I3 targets isn't a literal ExoPlayer leak (the service already releases
+     * its own player/session in `onDestroy`), it's this controller-side reference outliving the
+     * connection it was built for.
+     */
+    private fun buildController(): Deferred<MediaController> = scope.async {
+        val token = SessionToken(context, ComponentName(context, PlaybackService::class.java))
+        val controller = MediaController.Builder(context, token)
+            .setListener(
+                object : MediaController.Listener {
+                    override fun onDisconnected(controller: MediaController) {
+                        controller.release()
+                        controllerDeferred = buildController()
+                    }
+                },
+            )
+            .buildAsync()
+            .await()
+        onControllerConnected(controller)
+        controller
+    }
+
+    private fun onControllerConnected(controller: MediaController) {
+        attachListener(controller)
+        scope.launch { seedControllerIfEmpty(controller) }
+        tickJob?.cancel()
+        tickJob = tickPosition(controller)
+    }
+
+    /**
+     * Reseeds a freshly (re)connected, empty [MediaController] with whatever queue we know
+     * about — the in-memory one if this process already had one loaded (a mid-session
+     * reconnect, e.g. after the service was stopped while paused), otherwise the one persisted
+     * to disk by a previous process (I3's process-death restore). Either way the player ends up
+     * `prepare()`d and paused at the right position, never auto-playing on its own.
+     */
+    private suspend fun seedControllerIfEmpty(controller: MediaController) {
+        if (controller.mediaItemCount > 0) return
+        val current = internalState.value
+        if (current.queue.isNotEmpty()) {
+            seedController(controller, current.queue, current.queueIndex, current.positionMs, current.speed)
+            return
+        }
+        val restored = loadRestoredQueue() ?: return
+        queueSongsById = restored.songs.associateBy { it.id }
+        internalState.update {
+            it.copy(
+                queue = restored.songs,
+                queueIndex = restored.index,
+                currentSong = restored.songs[restored.index],
+                positionMs = restored.positionMs,
+                speed = restored.speed,
+            )
+        }
+        seedController(controller, restored.songs, restored.index, restored.positionMs, restored.speed)
+    }
+
+    private suspend fun seedController(
+        controller: MediaController,
+        songs: List<Song>,
+        index: Int,
+        positionMs: Long,
+        speed: Float,
+    ) {
+        val mediaItems = songs.map { playbackSourceResolver.resolve(it) }
+        val startIndex = index.coerceIn(0, mediaItems.lastIndex)
+        controller.setMediaItems(mediaItems, startIndex, positionMs.coerceAtLeast(0L))
+        controller.playbackParameters = PlaybackParameters(speed)
+        controller.prepare()
+        controller.pause()
+    }
+
+    private suspend fun loadRestoredQueue(): RestoredQueue? {
+        val saved = runCatching { playbackStateStore.load() }.getOrNull() ?: return null
+        val resolved = saved.queueSongIds.mapNotNull { id -> songRepository.song(id).getOrNull() }
+        if (resolved.isEmpty()) {
+            playbackStateStore.clear()
+            return null
+        }
+        return RestoredQueue(
+            songs = resolved,
+            index = saved.queueIndex.coerceIn(0, resolved.lastIndex),
+            positionMs = saved.positionMs,
+            speed = saved.speed,
+        )
+    }
+
+    private data class RestoredQueue(val songs: List<Song>, val index: Int, val positionMs: Long, val speed: Float)
 
     override fun play(songId: String) {
         scope.launch {
@@ -137,6 +239,8 @@ class Media3PlayerController @Inject constructor(
         }
         queueSongsById = emptyMap()
         internalState.update { PlayerState() }
+        lastPersistedAtMs = 0L
+        scope.launch { playbackStateStore.clear() }
     }
 
     override fun next() = withController { it.seekToNextMediaItem() }
@@ -175,6 +279,7 @@ class Media3PlayerController @Inject constructor(
         controller.setMediaItems(mediaItems, startIndex, /* startPositionMs = */ 0L)
         controller.prepare()
         controller.play()
+        persistState(force = true)
     }
 
     private fun attachListener(controller: MediaController) {
@@ -203,14 +308,35 @@ class Media3PlayerController @Inject constructor(
         )
     }
 
-    private fun tickPosition(controller: MediaController) {
-        scope.launch {
-            while (isActive) {
-                internalState.update { it.copy(positionMs = controller.currentPosition.coerceAtLeast(0L)) }
-                applyCrossfadeOut(controller)
-                delay(if (controller.isPlaying) POSITION_TICK_PLAYING_MS else POSITION_TICK_IDLE_MS)
-            }
+    private fun tickPosition(controller: MediaController): Job = scope.launch {
+        while (isActive) {
+            internalState.update { it.copy(positionMs = controller.currentPosition.coerceAtLeast(0L)) }
+            applyCrossfadeOut(controller)
+            persistState()
+            delay(if (controller.isPlaying) POSITION_TICK_PLAYING_MS else POSITION_TICK_IDLE_MS)
         }
+    }
+
+    /**
+     * Throttled (see [PERSIST_INTERVAL_MS]) disk write of the current queue/position/speed, so a
+     * killed process can restore into roughly the right spot (I3). Ticked from [tickPosition],
+     * which already runs whenever a queue is loaded — including while paused, at the slower
+     * [POSITION_TICK_IDLE_MS] cadence — so pausing right before a swipe-kill still gets captured
+     * within a second, without a second timer.
+     */
+    private fun persistState(force: Boolean = false) {
+        val snapshot = internalState.value
+        if (snapshot.queue.isEmpty()) return
+        val now = System.currentTimeMillis()
+        if (!force && now - lastPersistedAtMs < PERSIST_INTERVAL_MS) return
+        lastPersistedAtMs = now
+        val toSave = PersistedPlaybackState(
+            queueSongIds = snapshot.queue.map { it.id },
+            queueIndex = snapshot.queueIndex,
+            positionMs = snapshot.positionMs,
+            speed = snapshot.speed,
+        )
+        scope.launch { playbackStateStore.save(toSave) }
     }
 
     /**
