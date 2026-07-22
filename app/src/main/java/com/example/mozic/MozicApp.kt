@@ -13,17 +13,23 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.mozic.core.designsystem.R as DesignSystemR
 import com.example.mozic.core.ui.animation.LocalMiniPlayerAnimatedVisibilityScope
 import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
 import com.example.mozic.feature.chat.navigation.ChatThreadRoute
@@ -38,6 +44,7 @@ import com.example.mozic.navigation.navigateToSettings
 import com.example.mozic.navigation.navigateToTopLevelDestination
 import com.example.mozic.ui.MozicBottomBar
 import com.example.mozic.ui.MozicTopBar
+import kotlinx.coroutines.launch
 
 /**
  * Duration for the chrome's own slide+fade, independent of whatever
@@ -77,6 +84,13 @@ fun MozicApp(
     val avatarUrl by appViewModel.avatarUrl.collectAsStateWithLifecycle()
     val isLoggedIn by appViewModel.isLoggedIn.collectAsStateWithLifecycle()
 
+    // Hoisted here, not in SettingsScreen itself, because logging out navigates away from
+    // Settings immediately (back to Home) — a Snackbar hosted on that screen would be torn
+    // down before it's ever seen. This Scaffold (and its SnackbarHost) outlives that navigation.
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val loggedOutMessage = stringResource(DesignSystemR.string.settings_logged_out)
+
     // `openNowPlayingSignal` increments once per tap on the media notification (see
     // MainActivity) — keyed on its value, not Unit, so a second tap while already on Now
     // Playing still re-fires the navigation call (harmless no-op via launchSingleTop upstream).
@@ -108,6 +122,7 @@ fun MozicApp(
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
             Scaffold(
                 modifier = modifier,
+                snackbarHost = { SnackbarHost(snackbarHostState) },
                 topBar = {
                     AnimatedVisibility(
                         visible = showChrome,
@@ -160,6 +175,9 @@ fun MozicApp(
             ) { innerPadding ->
                 MozicNavHost(
                     navController = navController,
+                    onLoggedOut = {
+                        coroutineScope.launch { snackbarHostState.showSnackbar(loggedOutMessage) }
+                    },
                     modifier = Modifier
                         .padding(innerPadding)
                         .consumeWindowInsets(innerPadding),

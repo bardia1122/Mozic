@@ -28,6 +28,7 @@ import com.example.mozic.feature.social.navigation.socialScreens
 @Composable
 fun MozicNavHost(
     navController: NavHostController,
+    onLoggedOut: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -50,7 +51,13 @@ fun MozicNavHost(
         libraryScreen(navController, onShareClick = navController::navigateToShareSong)
         nowPlayingScreen(navController, onShareClick = navController::navigateToShareSong)
         profileScreen(onNavigateToSettings = navController::navigateToSettings)
-        settingsScreen(onBackClick = { navController.popBackStack() })
+        settingsScreen(
+            onBackClick = { navController.popBackStack() },
+            onLoggedOut = {
+                navController.navigateToTopLevelDestination(TopLevelDestination.HOME)
+                onLoggedOut()
+            },
+        )
         chatScreens(navController, onNavigateToNowPlaying = navController::navigateToNowPlaying)
         socialScreens(
             navController = navController,
