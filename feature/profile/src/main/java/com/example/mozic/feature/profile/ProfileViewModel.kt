@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.mozic.core.domain.model.AuthState
 import com.example.mozic.core.domain.repository.AuthRepository
 import com.example.mozic.core.domain.repository.ProfileRepository
+import com.example.mozic.core.domain.repository.SocialRepository
 import com.example.mozic.core.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -21,6 +22,13 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
+/** [ProfileViewModel.profileStats]'s shape — all zero while logged out, same convention as [ProfileUiState.Content]. */
+private data class ProfileStats(val followerCount: Int, val followingCount: Int, val publicPlaylistCount: Int) {
+    companion object {
+        val EMPTY = ProfileStats(0, 0, 0)
+    }
+}
 
 /**
  * Fake 2-second "processing" step before the mock purchase resolves — a
@@ -43,6 +51,7 @@ class ProfileViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val authRepository: AuthRepository,
     private val profileRepository: ProfileRepository,
+    private val socialRepository: SocialRepository,
 ) : ViewModel() {
 
     private val isPurchasing = MutableStateFlow(false)
@@ -54,17 +63,35 @@ class ProfileViewModel @Inject constructor(
         if (auth is AuthState.LoggedIn) profileRepository.myProfile() else flowOf(null)
     }
 
+    private val profileStats = authRepository.authState.flatMapLatest { auth ->
+        if (auth is AuthState.LoggedIn) {
+            combine(
+                socialRepository.followerCountOf(auth.userId),
+                socialRepository.followingCountOf(auth.userId),
+                socialRepository.publicPlaylistsOf(auth.userId),
+            ) { followers, following, playlists ->
+                ProfileStats(followers, following, playlists.size)
+            }
+        } else {
+            flowOf(ProfileStats.EMPTY)
+        }
+    }
+
     val uiState: StateFlow<ProfileUiState> = combine(
         myProfile,
         userPreferencesRepository.preferences,
         isPurchasing,
-    ) { profile, prefs, purchasing ->
+        profileStats,
+    ) { profile, prefs, purchasing, stats ->
         ProfileUiState.Content(
             displayName = profile?.displayName,
             avatarUri = profile?.avatarUrl ?: prefs.avatarUri,
             isPremium = profile?.isPremium ?: prefs.isPremium,
             isLoggedIn = profile != null,
             isPurchasing = purchasing,
+            followerCount = stats.followerCount,
+            followingCount = stats.followingCount,
+            publicPlaylistCount = stats.publicPlaylistCount,
         ) as ProfileUiState
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProfileUiState.Loading)
 

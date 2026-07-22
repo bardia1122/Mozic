@@ -3,6 +3,7 @@ package com.example.mozic.core.data.di
 import com.example.mozic.core.data.repository.AuthRepositoryImpl
 import com.example.mozic.core.data.repository.DownloadRepositoryImpl
 import com.example.mozic.core.data.repository.LibraryRepositoryImpl
+import com.example.mozic.core.data.repository.OfflineAwareSongRepository
 import com.example.mozic.core.data.repository.RealChatRepository
 import com.example.mozic.core.data.repository.SearchRepositoryImpl
 import com.example.mozic.core.data.repository.UserPreferencesRepositoryImpl
@@ -19,7 +20,6 @@ import com.example.mozic.core.domain.repository.UserPreferencesRepository
 import com.example.mozic.core.network.repository.NetworkPlaylistRepository
 import com.example.mozic.core.network.repository.NetworkProfileRepository
 import com.example.mozic.core.network.repository.NetworkSocialRepository
-import com.example.mozic.core.network.repository.NetworkSongRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -35,6 +35,9 @@ import dagger.hilt.components.SingletonComponent
  * Auth) — `FakeChatRepository` is likewise left unbound, still used by tests.
  * `SocialRepository` moved here in C6 (real follow graph, `:core:network`'s
  * `NetworkSocialRepository`) — `FakeSocialRepository` likewise left unbound.
+ * `SongRepository` now binds to `OfflineAwareSongRepository` (fixes downloaded
+ * songs failing to play/list offline), which wraps `NetworkSongRepository` —
+ * see that class for why.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -52,7 +55,7 @@ interface DataModule {
     fun bindDownloadRepository(impl: DownloadRepositoryImpl): DownloadRepository
 
     @Binds
-    fun bindSongRepository(impl: NetworkSongRepository): SongRepository
+    fun bindSongRepository(impl: OfflineAwareSongRepository): SongRepository
 
     @Binds
     fun bindPlaylistRepository(impl: NetworkPlaylistRepository): PlaylistRepository

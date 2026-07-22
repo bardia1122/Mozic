@@ -43,6 +43,11 @@ class FakeSocialRepository @Inject constructor() : SocialRepository {
     override fun publicPlaylistsOf(userId: String): Flow<List<Playlist>> =
         flowOf(SampleData.playlists.filter { it.ownerId == userId && it.isPublic })
 
+    override fun followerCountOf(userId: String): Flow<Int> =
+        flowOf(SampleData.users.count { it.id != userId && it.isFollowed })
+
+    override fun followingCountOf(userId: String): Flow<Int> = followedIds.map { it.size }
+
     override fun userById(userId: String): Flow<User?> = followedIds.map { followed ->
         SampleData.users.find { it.id == userId }?.copy(isFollowed = userId in followed)
     }

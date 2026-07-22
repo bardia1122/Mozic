@@ -16,6 +16,12 @@ interface SocialRepository {
 
     fun publicPlaylistsOf(userId: String): Flow<List<Playlist>>
 
+    /** Total number of accounts following [userId] — distinct from [followedUserIds], which is scoped to the caller's own "who I follow" set. */
+    fun followerCountOf(userId: String): Flow<Int>
+
+    /** Total number of accounts [userId] follows. */
+    fun followingCountOf(userId: String): Flow<Int>
+
     /** C6 addition — a single user's profile (with a live [User.isFollowed]), for the profile screen. */
     fun userById(userId: String): Flow<User?>
 

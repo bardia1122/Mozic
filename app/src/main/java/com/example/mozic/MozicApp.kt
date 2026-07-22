@@ -23,11 +23,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.mozic.core.designsystem.R
+import com.example.mozic.core.designsystem.R as DesignSystemR
 import com.example.mozic.core.ui.animation.LocalMiniPlayerAnimatedVisibilityScope
 import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
 import com.example.mozic.feature.chat.navigation.ChatThreadRoute
@@ -35,7 +37,6 @@ import com.example.mozic.feature.chat.navigation.navigateToConversationList
 import com.example.mozic.feature.player.MiniPlayerBar
 import com.example.mozic.feature.player.navigation.NowPlayingRoute
 import com.example.mozic.feature.player.navigation.navigateToNowPlaying
-import com.example.mozic.feature.settings.navigation.SettingsRoute
 import com.example.mozic.feature.social.navigation.navigateToUserSearch
 import com.example.mozic.navigation.MozicNavHost
 import com.example.mozic.navigation.TopLevelDestination
@@ -77,9 +78,18 @@ fun MozicApp(
     miniPlayer: @Composable (onExpand: () -> Unit) -> Unit = { onExpand -> MiniPlayerBar(onExpand = onExpand) },
 ) {
     val navController = rememberNavController()
+    // Same activity-scoped `AppViewModel` instance `MainActivity` already holds for theme prefs —
+    // `hiltViewModel()` with no NavBackStackEntry resolves to the nearest ViewModelStoreOwner.
+    val appViewModel = hiltViewModel<AppViewModel>()
+    val avatarUrl by appViewModel.avatarUrl.collectAsStateWithLifecycle()
+    val isLoggedIn by appViewModel.isLoggedIn.collectAsStateWithLifecycle()
+
+    // Hoisted here, not in SettingsScreen itself, because logging out navigates away from
+    // Settings immediately (back to Home) — a Snackbar hosted on that screen would be torn
+    // down before it's ever seen. This Scaffold (and its SnackbarHost) outlives that navigation.
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    val comingSoonMessage = stringResource(R.string.placeholder_coming_soon)
+    val loggedOutMessage = stringResource(DesignSystemR.string.settings_logged_out)
 
     // `openNowPlayingSignal` increments once per tap on the media notification (see
     // MainActivity) — keyed on its value, not Unit, so a second tap while already on Now
@@ -91,15 +101,15 @@ fun MozicApp(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    // Deny-list, not allow-list: only these two are genuinely full-screen
+    // Deny-list, not allow-list: only these are genuinely full-screen
     // experiences with their own back affordance. Everything else — playlist
-    // detail, liked/recently-played, and any future drill-down screen — is
-    // just deeper content within a tab and should keep the bottom nav and
-    // mini player visible (previously this was an allow-list keyed on
-    // `TopLevelDestination`, which incorrectly hid the mini player on every
-    // non-tab screen, including playlist detail).
+    // detail, liked/recently-played, Settings, and any future drill-down
+    // screen — is just deeper content reached from a tab (or the top bar) and
+    // should keep the top bar, bottom nav, and mini player visible (previously
+    // this was an allow-list keyed on `TopLevelDestination`, which incorrectly
+    // hid the mini player on every non-tab screen, including playlist detail).
     val isFullScreenDestination = currentDestination?.hierarchy?.any {
-        it.hasRoute(NowPlayingRoute::class) || it.hasRoute(SettingsRoute::class) || it.hasRoute(ChatThreadRoute::class)
+        it.hasRoute(NowPlayingRoute::class) || it.hasRoute(ChatThreadRoute::class)
     } == true
 
     // `currentDestination` starts `null` on the very first composition (the
@@ -122,14 +132,19 @@ fun MozicApp(
                             slideOutVertically(tween(CHROME_TRANSITION_MS)) { fullHeight -> -fullHeight },
                     ) {
                         MozicTopBar(
+                            avatarUrl = avatarUrl,
                             onAvatarClick = {
-                                navController.navigateToTopLevelDestination(TopLevelDestination.PROFILE)
+                                if (isLoggedIn) {
+                                    navController.navigateToTopLevelDestination(TopLevelDestination.PROFILE)
+                                } else {
+                                    // No session yet: Profile works logged-out too, but the user asked to be
+                                    // routed straight to sign-in instead. Chat's login form doubles as the
+                                    // app's only sign-in/sign-up screen (see ConversationListScreen).
+                                    navController.navigateToConversationList()
+                                }
                             },
                             onSocialClick = navController::navigateToUserSearch,
                             onChatClick = navController::navigateToConversationList,
-                            onNotificationsClick = {
-                                coroutineScope.launch { snackbarHostState.showSnackbar(comingSoonMessage) }
-                            },
                             onSettingsClick = navController::navigateToSettings,
                         )
                     }
@@ -146,7 +161,10 @@ fun MozicApp(
                             Column {
                                 miniPlayer(navController::navigateToNowPlaying)
                                 MozicBottomBar(
-                                    destinations = TopLevelDestination.entries,
+                                    // Profile is reachable via the top bar's avatar instead (see
+                                    // MozicTopBar) — not a bottom-nav tab.
+                                    destinations = TopLevelDestination.entries
+                                        .filter { it != TopLevelDestination.PROFILE },
                                     currentDestination = currentDestination,
                                     onNavigateToDestination = navController::navigateToTopLevelDestination,
                                 )
@@ -157,6 +175,9 @@ fun MozicApp(
             ) { innerPadding ->
                 MozicNavHost(
                     navController = navController,
+                    onLoggedOut = {
+                        coroutineScope.launch { snackbarHostState.showSnackbar(loggedOutMessage) }
+                    },
                     modifier = Modifier
                         .padding(innerPadding)
                         .consumeWindowInsets(innerPadding),

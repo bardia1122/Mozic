@@ -30,3 +30,10 @@ internal suspend inline fun <reified T> HttpResponse.toRangePage(): RangePage<T>
     val total = headers[CONTENT_RANGE_HEADER]?.substringAfter('/')?.toIntOrNull()
     return RangePage(items, total)
 }
+
+/**
+ * The `Content-Range` total alone, for a caller that only wants a count (e.g.
+ * a follower/following count) and doesn't care about the row(s) [applyRange]
+ * still fetches to get it — PostgREST has no count-only response shape.
+ */
+internal fun HttpResponse.rangeTotal(): Int = headers[CONTENT_RANGE_HEADER]?.substringAfter('/')?.toIntOrNull() ?: 0

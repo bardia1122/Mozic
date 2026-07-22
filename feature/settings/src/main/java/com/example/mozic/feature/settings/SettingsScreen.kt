@@ -23,15 +23,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -50,24 +47,25 @@ import com.example.mozic.core.domain.model.UserPreferences
 @Composable
 fun SettingsScreen(
     onBackClick: () -> Unit,
+    onLoggedOut: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val loggedOutMessage = stringResource(R.string.settings_logged_out)
 
+    // The "Logged out" message itself is shown by the caller (MozicApp's own Snackbar,
+    // hoisted above this screen's navigation) since onLoggedOut() navigates away from
+    // Settings immediately — a Snackbar hosted on this screen wouldn't survive that.
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                SettingsEffect.LoggedOut -> snackbarHostState.showSnackbar(loggedOutMessage)
+                SettingsEffect.LoggedOut -> onLoggedOut()
             }
         }
     }
 
     Scaffold(
         modifier = modifier,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.settings_title)) },
@@ -92,7 +90,7 @@ fun SettingsScreen(
                     .fillMaxSize()
                     .padding(
                         horizontal = MaterialTheme.dimens.screenHorizontalPadding,
-                        vertical = MaterialTheme.dimens.spaceMd,
+                        vertical = MaterialTheme.dimens.spaceXs,
                     ),
             )
         }
@@ -107,7 +105,7 @@ private fun SettingsContent(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceLg),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceSm),
     ) {
         SettingsSection(title = stringResource(R.string.settings_theme)) {
             ThemeSetting.entries.forEach { theme ->
@@ -168,7 +166,7 @@ private fun SettingsSection(
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground,
         )
-        Spacer(Modifier.height(MaterialTheme.dimens.spaceXs))
+        Spacer(Modifier.height(MaterialTheme.dimens.spaceXxs))
         content()
     }
 }
@@ -183,8 +181,7 @@ private fun SettingsRadioRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = MaterialTheme.dimens.spaceXxs),
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RadioButton(selected = selected, onClick = onClick)
@@ -208,8 +205,7 @@ private fun SettingsSwitchRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) }
-            .padding(vertical = MaterialTheme.dimens.spaceXxs),
+            .clickable { onCheckedChange(!checked) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {

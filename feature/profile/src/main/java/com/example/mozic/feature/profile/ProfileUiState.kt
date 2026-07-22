@@ -16,6 +16,10 @@ sealed interface ProfileUiState {
         val isPremium: Boolean,
         val isLoggedIn: Boolean,
         val isPurchasing: Boolean,
+        /** Only meaningful while [isLoggedIn] — 0 otherwise, since there's no server identity to count against. */
+        val followerCount: Int = 0,
+        val followingCount: Int = 0,
+        val publicPlaylistCount: Int = 0,
     ) : ProfileUiState
 }
 

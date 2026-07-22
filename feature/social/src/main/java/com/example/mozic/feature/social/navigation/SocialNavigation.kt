@@ -11,7 +11,12 @@ import com.example.mozic.feature.social.FollowingListScreen
 import com.example.mozic.feature.social.UserProfileScreen
 import com.example.mozic.feature.social.UserSearchScreen
 
-/** Same plain-fade rationale as `ChatNavigation`'s own constant. */
+/**
+ * Same plain-fade rationale as `ChatNavigation`'s own constant — and, like
+ * that file's routes, self-contained on all four edges rather than leaning on
+ * the caller's own exitTransition, since `UserSearchRoute` is reachable from
+ * the persistent top bar's "find people" icon from any tab.
+ */
 private const val SOCIAL_NAV_TRANSITION_MS = 220
 
 /**
@@ -27,6 +32,8 @@ fun NavGraphBuilder.socialScreens(
 ) {
     composable<UserSearchRoute>(
         enterTransition = { fadeIn(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
+        exitTransition = { fadeOut(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
         popExitTransition = { fadeOut(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
     ) {
         UserSearchScreen(
@@ -37,6 +44,8 @@ fun NavGraphBuilder.socialScreens(
     }
     composable<UserProfileRoute>(
         enterTransition = { fadeIn(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
+        exitTransition = { fadeOut(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
         popExitTransition = { fadeOut(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
     ) {
         UserProfileScreen(
@@ -47,6 +56,8 @@ fun NavGraphBuilder.socialScreens(
     }
     composable<FollowingListRoute>(
         enterTransition = { fadeIn(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
+        exitTransition = { fadeOut(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
         popExitTransition = { fadeOut(animationSpec = tween(SOCIAL_NAV_TRANSITION_MS)) },
     ) {
         FollowingListScreen(
