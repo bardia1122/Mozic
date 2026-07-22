@@ -30,7 +30,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.domain.model.chat.ConnectionState
-import com.example.mozic.core.ui.component.CoverImage
+import com.example.mozic.core.ui.component.Avatar
 import com.example.mozic.feature.chat.component.ChatInputBar
 import com.example.mozic.feature.chat.component.MessagesList
 
@@ -93,7 +93,7 @@ private fun ChatThreadTitle(uiState: ChatThreadUiState, modifier: Modifier = Mod
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceXs),
     ) {
-        CoverImage(
+        Avatar(
             model = peer.avatarUrl,
             contentDescription = peer.displayName,
             modifier = Modifier

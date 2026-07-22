@@ -18,5 +18,8 @@ interface AuthRepository {
 
     suspend fun login(email: String, password: String): Result<Unit>
 
+    /** Creates a new account and logs it in immediately — "Confirm email" is off for this project. */
+    suspend fun signUp(email: String, password: String, displayName: String, username: String): Result<Unit>
+
     suspend fun logout()
 }

@@ -34,6 +34,8 @@ fun MediaListRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     imageShape: Shape = MaterialTheme.shapes.small,
+    /** True for a row of people (search results, the share-song friend picker) — see [Avatar]. */
+    isAvatar: Boolean = false,
     trailing: @Composable (() -> Unit)? = null,
 ) {
     Row(
@@ -47,23 +49,26 @@ fun MediaListRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceMd),
     ) {
-        Box(
-            modifier = Modifier
-                .size(MaterialTheme.dimens.listRowImageSize)
-                .clip(imageShape),
-        ) {
-            if (imageUrl != null) {
-                CoverImage(
-                    model = imageUrl,
-                    contentDescription = title,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .artworkPlaceholder(),
-                )
+        val imageModifier = Modifier
+            .size(MaterialTheme.dimens.listRowImageSize)
+            .clip(imageShape)
+        if (isAvatar) {
+            Avatar(model = imageUrl, contentDescription = title, modifier = imageModifier)
+        } else {
+            Box(modifier = imageModifier) {
+                if (imageUrl != null) {
+                    CoverImage(
+                        model = imageUrl,
+                        contentDescription = title,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .artworkPlaceholder(),
+                    )
+                }
             }
         }
         Column(modifier = Modifier.weight(1f)) {

@@ -10,10 +10,13 @@
 grant usage on schema public to anon, authenticated, service_role;
 
 -- ============================================================
--- profiles — the app's User model. auth.users (Supabase Auth)
--- owns email/password; this table owns everything the app's
--- User domain model needs (username, displayName, avatarUrl,
--- isPremium). One row per auth user, kept in sync by a trigger.
+-- profiles — the app's User model. auth.users (Supabase Auth) is
+-- still the source of truth for login (email/password) and is what
+-- actually rejects a duplicate-email signup; email is mirrored here
+-- too (kept in sync by the trigger below) so profiles carries its
+-- own independent unique constraint as a second guard, and so the
+-- app doesn't need a separate auth.users read just to know a user's
+-- email. One row per auth user.
 -- ============================================================
 create table if not exists public.profiles (
     id uuid primary key references auth.users (id) on delete cascade,
@@ -22,6 +25,14 @@ create table if not exists public.profiles (
     avatar_url text,
     is_premium boolean not null default false
 );
+
+-- Migration for profiles created before `email` existed here — safe to
+-- re-run: adds the column, backfills only rows still missing it from
+-- auth.users, then enforces not-null/unique once every row is filled in.
+alter table public.profiles add column if not exists email text;
+update public.profiles p set email = u.email from auth.users u where p.id = u.id and p.email is null;
+alter table public.profiles alter column email set not null;
+create unique index if not exists profiles_email_key on public.profiles (email);
 
 alter table public.profiles enable row level security;
 
@@ -46,13 +57,14 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-    insert into public.profiles (id, username, display_name, avatar_url, is_premium)
+    insert into public.profiles (id, username, display_name, avatar_url, is_premium, email)
     values (
         new.id,
         coalesce(new.raw_user_meta_data ->> 'username', split_part(new.email, '@', 1)),
         coalesce(new.raw_user_meta_data ->> 'display_name', split_part(new.email, '@', 1)),
         new.raw_user_meta_data ->> 'avatar_url',
-        coalesce((new.raw_user_meta_data ->> 'is_premium')::boolean, false)
+        coalesce((new.raw_user_meta_data ->> 'is_premium')::boolean, false),
+        new.email
     );
     return new;
 end;

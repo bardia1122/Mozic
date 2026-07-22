@@ -66,6 +66,19 @@ class AuthRepositoryImpl @Inject constructor(
         Result.Error(e)
     }
 
+    @Suppress("TooGenericExceptionCaught")
+    override suspend fun signUp(
+        email: String,
+        password: String,
+        displayName: String,
+        username: String,
+    ): Result<Unit> = try {
+        persist(api.signUp(email, password, displayName, username))
+        Result.Success(Unit)
+    } catch (e: Exception) {
+        Result.Error(e)
+    }
+
     override suspend fun logout() {
         dataStore.edit { it.clear() }
         _authState.value = AuthState.LoggedOut

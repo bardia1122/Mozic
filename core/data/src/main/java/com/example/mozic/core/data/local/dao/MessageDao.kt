@@ -51,4 +51,8 @@ interface MessageDao {
             "AND senderId = :myUserId AND sentAtEpochMs <= :upToMs AND status != 'READ'",
     )
     suspend fun markMyMessagesReadUpTo(conversationId: String, myUserId: String, upToMs: Long)
+
+    /** See [ConversationDao.clearAll] — same "cache belongs to whoever's logged in" reasoning. */
+    @Query("DELETE FROM messages")
+    suspend fun clearAll()
 }

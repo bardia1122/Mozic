@@ -19,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.LibraryMusic
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.PersonOff
 import androidx.compose.material.icons.filled.PersonRemove
@@ -53,7 +52,7 @@ import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.designsystem.theme.mozicColors
 import com.example.mozic.core.domain.model.Playlist
 import com.example.mozic.core.domain.model.User
-import com.example.mozic.core.ui.component.CoverImage
+import com.example.mozic.core.ui.component.Avatar
 import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.PlaylistCard
 
@@ -194,29 +193,11 @@ private fun ProfileHeader(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceXs),
     ) {
-        Box(
+        Avatar(
+            model = user.avatarUrl,
+            contentDescription = user.displayName,
             modifier = Modifier.size(MaterialTheme.dimens.avatarSize).clip(CircleShape),
-        ) {
-            if (user.avatarUrl != null) {
-                CoverImage(
-                    model = user.avatarUrl,
-                    contentDescription = user.displayName,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxSize().background(brush = MaterialTheme.mozicColors.accentGradient),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Person,
-                        contentDescription = user.displayName,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(MaterialTheme.dimens.spaceXl),
-                    )
-                }
-            }
-        }
+        )
 
         Text(text = user.displayName, style = MaterialTheme.typography.titleLarge)
         Text(
