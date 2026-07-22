@@ -15,9 +15,6 @@
     <string name="action_cancel">لغو</string>
     <string name="action_back">بازگشت</string>
 
-    <!-- Top bar -->
-    <string name="cd_notifications">اعلان‌ها</string>
-
     <!-- Settings -->
     <string name="settings_title">تنظیمات</string>
     <string name="settings_language">زبان</string>
@@ -110,10 +107,14 @@
     <string name="premium_upsell_cta">ارتقا</string>
     <string name="profile_avatar_update_failed">به‌روزرسانی تصویر نمایه ناموفق بود، دوباره تلاش کنید</string>
     <string name="profile_remove_avatar_cd">حذف تصویر</string>
+    <string name="profile_stat_followers">دنبال‌کننده</string>
+    <string name="profile_stat_following">دنبال‌شده</string>
+    <string name="profile_stat_public_playlists">پلی‌لیست</string>
 
     <!-- Chat -->
     <string name="cd_open_chat">چت</string>
     <string name="chat_title">چت‌ها</string>
+    <string name="chat_sign_in_title">ورود</string>
     <string name="chat_conversations_empty_title">هنوز گفتگویی نیست</string>
     <string name="chat_conversations_empty_subtitle">پیام افرادی که دنبال می‌کنید اینجا نمایش داده می‌شود</string>
     <string name="chat_message_preview_song">🎵 %s</string>

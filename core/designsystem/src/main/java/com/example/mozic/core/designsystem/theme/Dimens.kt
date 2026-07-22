@@ -37,6 +37,8 @@ data class Dimens(
     val heroCoverSize: Dp = 160.dp,
     /** Circular avatar on the Profile screen. */
     val avatarSize: Dp = 96.dp,
+    /** Circular avatar rendered in the top app bar's leading slot, in place of a generic icon. */
+    val topBarAvatarSize: Dp = 28.dp,
     /** Thin progress line along the mini player's top edge. */
     val miniPlayerProgressHeight: Dp = 2.dp,
     /** Large centered cover on the Now Playing screen. */

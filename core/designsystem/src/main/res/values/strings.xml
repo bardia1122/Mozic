@@ -20,9 +20,6 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_back">Back</string>
 
-    <!-- Top bar -->
-    <string name="cd_notifications">Notifications</string>
-
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_language">Language</string>
@@ -115,10 +112,14 @@
     <string name="premium_upsell_cta">Upgrade</string>
     <string name="profile_avatar_update_failed">Couldn\'t update your avatar, try again</string>
     <string name="profile_remove_avatar_cd">Remove photo</string>
+    <string name="profile_stat_followers">Followers</string>
+    <string name="profile_stat_following">Following</string>
+    <string name="profile_stat_public_playlists">Playlists</string>
 
     <!-- Chat -->
     <string name="cd_open_chat">Chat</string>
     <string name="chat_title">Chats</string>
+    <string name="chat_sign_in_title">Sign in</string>
     <string name="chat_conversations_empty_title">No conversations yet</string>
     <string name="chat_conversations_empty_subtitle">Messages with people you follow will show up</string>
     <string name="chat_message_preview_song">🎵 %s</string>

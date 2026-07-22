@@ -2,6 +2,7 @@ package com.example.mozic.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mozic.core.domain.repository.AuthRepository
 import com.example.mozic.core.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     private val _effects = Channel<SettingsEffect>(Channel.BUFFERED)
@@ -38,6 +40,7 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.setCrossfadeEnabled(event.enabled)
             }
             SettingsEvent.Logout -> viewModelScope.launch {
+                authRepository.logout()
                 _effects.send(SettingsEffect.LoggedOut)
             }
         }

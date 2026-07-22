@@ -132,6 +132,10 @@ class NetworkSocialRepository @Inject constructor(
         emit(dtos.map { it.toDomain(counts[it.id] ?: 0) })
     }
 
+    override fun followerCountOf(userId: String): Flow<Int> = flow { emit(socialApi.followerCount(userId)) }
+
+    override fun followingCountOf(userId: String): Flow<Int> = flow { emit(socialApi.followingCount(userId)) }
+
     private fun currentUserId(): String? = (authRepository.authState.value as? AuthState.LoggedIn)?.userId
 
     // Awaits past AuthState.Unknown (the transient value during cold-start

@@ -136,6 +136,14 @@ private fun ProfileContent(
             Text(text = state.displayName, style = MaterialTheme.typography.titleLarge)
         }
 
+        if (state.isLoggedIn) {
+            ProfileStatsRow(
+                followerCount = state.followerCount,
+                followingCount = state.followingCount,
+                publicPlaylistCount = state.publicPlaylistCount,
+            )
+        }
+
         PlanCard(
             isPremium = state.isPremium,
             isPurchasing = state.isPurchasing,
@@ -205,6 +213,31 @@ private fun AvatarPicker(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ProfileStatsRow(
+    followerCount: Int,
+    followingCount: Int,
+    publicPlaylistCount: Int,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceLg),
+    ) {
+        ProfileStatItem(count = followerCount, label = stringResource(R.string.profile_stat_followers))
+        ProfileStatItem(count = followingCount, label = stringResource(R.string.profile_stat_following))
+        ProfileStatItem(count = publicPlaylistCount, label = stringResource(R.string.profile_stat_public_playlists))
+    }
+}
+
+@Composable
+private fun ProfileStatItem(count: Int, label: String, modifier: Modifier = Modifier) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
+        Text(text = count.toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

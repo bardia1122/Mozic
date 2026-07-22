@@ -103,7 +103,14 @@ fun ConversationListScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.chat_title)) },
+                title = {
+                    val titleRes = if (uiState is ConversationListUiState.LoggedOut) {
+                        R.string.chat_sign_in_title
+                    } else {
+                        R.string.chat_title
+                    }
+                    Text(stringResource(titleRes))
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(

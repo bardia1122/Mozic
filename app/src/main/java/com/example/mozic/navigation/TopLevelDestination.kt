@@ -20,7 +20,13 @@ import com.example.mozic.feature.profile.navigation.ProfileRoute
 import com.example.mozic.feature.search.navigation.SearchRoute
 import kotlin.reflect.KClass
 
-/** The five bottom-nav tabs (`saveState`/`restoreState` on switch — see [navigateToTopLevelDestination]). */
+/**
+ * Top-level, save/restore-state destinations (`saveState`/`restoreState` on switch — see
+ * [navigateToTopLevelDestination]). [PROFILE] is deliberately **not** rendered as a bottom-nav
+ * tab (see `MozicApp`'s `MozicBottomBar` call) — it's reached via the top bar's avatar instead —
+ * but stays a real entry here since [navigateToTopLevelDestination]'s save/restore-state
+ * back-stack handling is exactly what that avatar tap should get too.
+ */
 enum class TopLevelDestination(
     val route: Any,
     val routeClass: KClass<*>,

@@ -7,6 +7,7 @@ import com.example.mozic.core.network.dto.ProfileRowDto
 import com.example.mozic.core.network.dto.ProfileUpdateDto
 import com.example.mozic.core.network.paging.RangePage
 import com.example.mozic.core.network.paging.applyRange
+import com.example.mozic.core.network.paging.rangeTotal
 import com.example.mozic.core.network.paging.toRangePage
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -95,6 +96,26 @@ class SupabaseSocialApi @Inject constructor(
         parameter("is_public", "eq.true")
         parameter("select", "*")
     }.body()
+
+    /** Count-only query (`Range: 0-0` + `Prefer: count=exact`) — no need to fetch every row just to size a list. */
+    suspend fun followerCount(userId: String): Int = client.get(restUrl("follows")) {
+        parameter("followee_id", "eq.$userId")
+        parameter("select", "follower_id")
+        applyRange(0..0)
+    }.rangeTotal()
+
+    suspend fun followingCount(userId: String): Int = client.get(restUrl("follows")) {
+        parameter("follower_id", "eq.$userId")
+        parameter("select", "followee_id")
+        applyRange(0..0)
+    }.rangeTotal()
+
+    suspend fun publicPlaylistCount(userId: String): Int = client.get(restUrl("playlists")) {
+        parameter("owner_id", "eq.$userId")
+        parameter("is_public", "eq.true")
+        parameter("select", "id")
+        applyRange(0..0)
+    }.rangeTotal()
 
     /**
      * Partial update of the caller's own `profiles` row — `profiles_update_own`'s
