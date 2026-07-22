@@ -18,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.Button
@@ -49,7 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.designsystem.theme.mozicColors
-import com.example.mozic.core.ui.component.CoverImage
+import com.example.mozic.core.ui.component.Avatar
 
 private const val AVATAR_BADGE_SIZE_DP = 28
 
@@ -162,34 +161,14 @@ private fun AvatarPicker(
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
-        Box(
+        Avatar(
+            model = avatarUri,
+            contentDescription = stringResource(R.string.profile_avatar_cd),
             modifier = Modifier
                 .size(MaterialTheme.dimens.avatarSize)
                 .clip(CircleShape)
                 .clickable(onClick = onClick),
-        ) {
-            if (avatarUri != null) {
-                CoverImage(
-                    model = avatarUri,
-                    contentDescription = stringResource(R.string.profile_avatar_cd),
-                    modifier = Modifier.fillMaxSize(),
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(brush = MaterialTheme.mozicColors.accentGradient),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Person,
-                        contentDescription = stringResource(R.string.profile_avatar_cd),
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(MaterialTheme.dimens.spaceXl),
-                    )
-                }
-            }
-        }
+        )
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)

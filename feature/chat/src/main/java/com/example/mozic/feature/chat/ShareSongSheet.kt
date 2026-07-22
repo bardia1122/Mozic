@@ -117,6 +117,7 @@ private fun ShareFriendRow(
         subtitle = "@${friend.username}",
         onClick = onClick,
         imageShape = CircleShape,
+        isAvatar = true,
         modifier = modifier,
         trailing = {
             if (isSending) {

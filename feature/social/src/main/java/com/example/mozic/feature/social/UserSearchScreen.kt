@@ -238,6 +238,7 @@ internal fun UserRow(
         subtitle = "@${user.username}",
         onClick = onClick,
         imageShape = CircleShape,
+        isAvatar = true,
         modifier = modifier,
         trailing = { FollowIconButton(isFollowed = isFollowed, onClick = onFollowToggle) },
     )

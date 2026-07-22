@@ -3,6 +3,9 @@ package com.example.mozic.core.network
 import com.example.mozic.core.network.dto.AuthTokenResponseDto
 import com.example.mozic.core.network.dto.LoginRequestDto
 import com.example.mozic.core.network.dto.RefreshRequestDto
+import com.example.mozic.core.network.dto.SignUpMetadataDto
+import com.example.mozic.core.network.dto.SignUpRequestDto
+import com.example.mozic.core.network.dto.SignUpResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.HttpRequestBuilder
@@ -15,6 +18,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val AUTH_TOKEN_PATH = "/auth/v1/token"
+private const val AUTH_SIGNUP_PATH = "/auth/v1/signup"
 
 /**
  * A resolved Supabase Auth session — [refreshToken] is a persistence-layer
@@ -38,6 +42,24 @@ class SupabaseAuthApi @Inject constructor(
 
     suspend fun refresh(refreshToken: String): AuthSession =
         tokenRequest("refresh_token") { setBody(RefreshRequestDto(refreshToken)) }
+
+    // "Confirm email" is off for this project (C5), so this always returns a
+    // session, same as login — the nullable DTO fields are only there to
+    // turn an unexpected sessionless response into a clear thrown failure.
+    suspend fun signUp(email: String, password: String, displayName: String, username: String): AuthSession {
+        val response: SignUpResponseDto = client.post("${BuildConfig.SUPABASE_URL}$AUTH_SIGNUP_PATH") {
+            contentType(ContentType.Application.Json)
+            setBody(SignUpRequestDto(email, password, SignUpMetadataDto(displayName, username)))
+        }.body()
+        val user = requireNotNull(response.user) { "signup did not return a session (check Confirm email is off)" }
+        val accessToken = requireNotNull(response.accessToken) { "signup response missing access_token" }
+        return AuthSession(
+            userId = user.id,
+            email = user.email,
+            accessToken = accessToken,
+            refreshToken = response.refreshToken.orEmpty(),
+        )
+    }
 
     private suspend fun tokenRequest(
         grantType: String,

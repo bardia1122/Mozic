@@ -144,8 +144,27 @@
     <string name="chat_login_password">رمز عبور</string>
     <string name="chat_login_submit">ورود</string>
     <string name="chat_login_error">ایمیل یا رمز عبور نامعتبر است</string>
-    <string name="chat_login_demo_hint">نمونه: alice@mozic.dev / password123</string>
+    <string name="chat_login_toggle_to_signup">حساب ندارید؟ ثبت‌نام کنید</string>
     <string name="chat_log_out">خروج</string>
+
+    <!-- Chat sign up -->
+    <string name="chat_signup_title">ساخت حساب کاربری</string>
+    <string name="chat_signup_subtitle">برای شروع گفتگو با یک ایمیل ثبت‌نام کنید</string>
+    <string name="chat_signup_display_name">نام نمایشی</string>
+    <string name="chat_signup_username">نام کاربری</string>
+    <string name="chat_signup_confirm_password">تکرار رمز عبور</string>
+    <string name="chat_signup_avatar_cd">افزودن عکس</string>
+    <string name="chat_signup_remove_avatar_cd">حذف عکس</string>
+    <string name="chat_signup_submit">ثبت‌نام</string>
+    <string name="chat_signup_error">ساخت حساب ممکن نشد. شاید این ایمیل یا نام کاربری قبلاً ثبت شده باشد.</string>
+    <string name="chat_signup_toggle_to_login">قبلاً حساب دارید؟ وارد شوید</string>
+
+    <!-- Chat login/sign-up client-side validation -->
+    <string name="chat_auth_error_missing_fields">همه فیلدها را پر کنید</string>
+    <string name="chat_auth_error_invalid_email">یک ایمیل معتبر وارد کنید</string>
+    <string name="chat_auth_error_weak_password">رمز عبور باید حداقل ۶ نویسه و شامل حرف و عدد باشد</string>
+    <string name="chat_auth_error_password_mismatch">رمزهای عبور با هم مطابقت ندارند</string>
+    <string name="chat_auth_error_invalid_username">نام کاربری باید ۳ تا ۲۰ نویسه باشد: حروف، اعداد یا _</string>
 
     <!-- Social (C6) -->
     <string name="cd_open_social">یافتن افراد</string>

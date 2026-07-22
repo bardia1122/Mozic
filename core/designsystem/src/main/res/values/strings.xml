@@ -120,7 +120,7 @@
     <string name="cd_open_chat">Chat</string>
     <string name="chat_title">Chats</string>
     <string name="chat_conversations_empty_title">No conversations yet</string>
-    <string name="chat_conversations_empty_subtitle">Messages with people you follow will show up here</string>
+    <string name="chat_conversations_empty_subtitle">Messages with people you follow will show up</string>
     <string name="chat_message_preview_song">🎵 %s</string>
     <string name="chat_unread_badge_overflow">9+</string>
     <string name="chat_time_now">Now</string>
@@ -149,8 +149,27 @@
     <string name="chat_login_password">Password</string>
     <string name="chat_login_submit">Log in</string>
     <string name="chat_login_error">Invalid email or password</string>
-    <string name="chat_login_demo_hint">Demo: alice@mozic.dev / password123</string>
+    <string name="chat_login_toggle_to_signup">Don\'t have an account? Sign up</string>
     <string name="chat_log_out">Log out</string>
+
+    <!-- Chat sign up -->
+    <string name="chat_signup_title">Create an account</string>
+    <string name="chat_signup_subtitle">Sign up with an email to start chatting</string>
+    <string name="chat_signup_display_name">Display name</string>
+    <string name="chat_signup_username">Username</string>
+    <string name="chat_signup_confirm_password">Confirm password</string>
+    <string name="chat_signup_avatar_cd">Add photo</string>
+    <string name="chat_signup_remove_avatar_cd">Remove photo</string>
+    <string name="chat_signup_submit">Sign up</string>
+    <string name="chat_signup_error">Couldn\'t create your account. The email or username may already be taken.</string>
+    <string name="chat_signup_toggle_to_login">Already have an account? Log in</string>
+
+    <!-- Chat login/sign-up client-side validation -->
+    <string name="chat_auth_error_missing_fields">Fill in all fields</string>
+    <string name="chat_auth_error_invalid_email">Enter a valid email address</string>
+    <string name="chat_auth_error_weak_password">Password must be at least 6 characters with a letter and a number</string>
+    <string name="chat_auth_error_password_mismatch">Passwords don\'t match</string>
+    <string name="chat_auth_error_invalid_username">Username must be 3–20 characters: letters, numbers, or _</string>
 
     <!-- Social (C6) -->
     <string name="cd_open_social">Find people</string>

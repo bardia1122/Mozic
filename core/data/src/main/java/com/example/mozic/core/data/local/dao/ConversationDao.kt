@@ -45,4 +45,14 @@ interface ConversationDao {
 
     @Query("UPDATE conversations SET forcedUnread = :forcedUnread WHERE id = :id")
     suspend fun setForcedUnread(id: String, forcedUnread: Boolean)
+
+    /**
+     * Rows here carry no owner-user column — every field is implicitly "from
+     * whoever's currently logged in"'s perspective, so this cache is only
+     * ever valid for one account at a time. [RealChatRepository] wipes it on
+     * every transition to logged-out so a different account logging in on
+     * the same device doesn't inherit the previous one's conversations.
+     */
+    @Query("DELETE FROM conversations")
+    suspend fun clearAll()
 }

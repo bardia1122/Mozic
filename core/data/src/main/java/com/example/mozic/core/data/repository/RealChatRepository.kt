@@ -107,6 +107,22 @@ class RealChatRepository @Inject constructor(
                 }
             }
         }
+        scope.launch {
+            // Room's conversations/messages tables have no owner-user column
+            // (see ConversationDao.clearAll's kdoc) — they're only ever valid
+            // for whoever's currently logged in, so a different account
+            // logging in on the same device must not inherit them.
+            authRepository.authState.collect { state ->
+                if (state is AuthState.LoggedOut) clearLocalChatCache()
+            }
+        }
+    }
+
+    private suspend fun clearLocalChatCache() {
+        conversationDao.clearAll()
+        messageDao.clearAll()
+        historyLoadedFor.clear()
+        typingState.value = emptyMap()
     }
 
     override fun conversations(): Flow<List<Conversation>> {

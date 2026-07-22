@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -38,11 +39,17 @@ fun MessagesList(
     modifier: Modifier = Modifier,
 ) {
     if (pagingItems.itemCount == 0) {
+        // EmptyState centers its content within whatever width its modifier
+        // gives it — the incoming `modifier` here is only `Modifier.weight(1f)`
+        // (height, from ChatThreadScreen's Column), so without an explicit
+        // fillMaxWidth() the Box shrinks to wrap its widest child (the
+        // subtitle line) instead of spanning the screen, leaving nothing to
+        // center within.
         EmptyState(
             icon = Icons.AutoMirrored.Filled.Chat,
             title = stringResource(R.string.chat_thread_empty),
             subtitle = stringResource(R.string.chat_thread_empty_subtitle),
-            modifier = modifier,
+            modifier = modifier.fillMaxWidth(),
         )
         return
     }
