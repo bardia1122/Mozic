@@ -1,7 +1,10 @@
 package com.example.mozic.feature.player
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,13 +21,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.domain.model.Playlist
-import com.example.mozic.core.ui.component.MediaListRow
+import com.example.mozic.core.ui.component.PlaylistCoverArt
 
 /**
  * Reached from Now Playing's overflow menu ("Add to playlist" — the design
@@ -106,6 +111,13 @@ private fun AddToPlaylistMessage(text: String, modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Same layout `MediaListRow` uses, but with [PlaylistCoverArt] as the leading
+ * thumbnail instead of `MediaListRow`'s own single-`imageUrl` slot — a
+ * user-created playlist never has a curated [Playlist.coverImageUrl], only
+ * its member songs' covers ([Playlist.coverImageUrls]), so `MediaListRow`
+ * alone always fell through to its generic "no image" placeholder here.
+ */
 @Composable
 private fun AddToPlaylistRow(
     playlist: Playlist,
@@ -113,19 +125,45 @@ private fun AddToPlaylistRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    MediaListRow(
-        imageUrl = playlist.coverImageUrl,
-        title = playlist.title,
-        subtitle = stringResource(R.string.home_playlist_song_count, playlist.songCount),
-        onClick = onClick,
-        modifier = modifier,
-        trailing = {
-            if (isAdding) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(MaterialTheme.dimens.spaceMd),
-                    strokeWidth = MaterialTheme.dimens.progressStrokeWidthThin,
-                )
-            }
-        },
-    )
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(
+                horizontal = MaterialTheme.dimens.screenHorizontalPadding,
+                vertical = MaterialTheme.dimens.spaceXs,
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceMd),
+    ) {
+        PlaylistCoverArt(
+            coverImageUrl = playlist.coverImageUrl,
+            coverImageUrls = playlist.coverImageUrls,
+            contentDescription = playlist.title,
+            modifier = Modifier
+                .size(MaterialTheme.dimens.listRowImageSize)
+                .clip(MaterialTheme.shapes.small),
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = playlist.title,
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = stringResource(R.string.home_playlist_song_count, playlist.songCount),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        if (isAdding) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(MaterialTheme.dimens.spaceMd),
+                strokeWidth = MaterialTheme.dimens.progressStrokeWidthThin,
+            )
+        }
+    }
 }

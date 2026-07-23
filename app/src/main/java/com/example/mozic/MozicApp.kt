@@ -36,6 +36,7 @@ import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
 import com.example.mozic.feature.chat.navigation.ChatThreadRoute
 import com.example.mozic.feature.chat.navigation.navigateToConversationList
 import com.example.mozic.feature.player.MiniPlayerBar
+import com.example.mozic.feature.player.navigation.AddToPlaylistRoute
 import com.example.mozic.feature.player.navigation.NowPlayingRoute
 import com.example.mozic.feature.player.navigation.navigateToNowPlaying
 import com.example.mozic.feature.social.navigation.navigateToUserSearch
@@ -114,8 +115,25 @@ fun MozicApp(
     // should keep the top bar, bottom nav, and mini player visible (previously
     // this was an allow-list keyed on `TopLevelDestination`, which incorrectly
     // hid the mini player on every non-tab screen, including playlist detail).
+    //
+    // AddToPlaylistRoute is a `ModalBottomSheet`, not full-screen itself, but
+    // it's only ever reached from NowPlayingRoute (Now Playing's overflow
+    // menu) and is a sibling of it in the nav graph, not nested under it —
+    // `hierarchy` alone wouldn't see NowPlayingRoute once it becomes the
+    // current destination, so without listing it here too the chrome would
+    // incorrectly slide back in behind the sheet, then hide again on the pop
+    // back to Now Playing (reported as "the main player goes down, then
+    // comes back up" when opening Add to playlist). `ShareSongRoute` isn't
+    // included here even though it has the same nav shape: unlike
+    // AddToPlaylistRoute, it's also reached from song rows on chrome-visible
+    // screens (Search/Library/Downloads/playlist detail), where the chrome
+    // correctly staying visible behind it is the *right* behavior — a static
+    // per-route list can't express "hide only if reached from Now Playing"
+    // without tracking the previous destination too.
     val isFullScreenDestination = currentDestination?.hierarchy?.any {
-        it.hasRoute(NowPlayingRoute::class) || it.hasRoute(ChatThreadRoute::class)
+        it.hasRoute(NowPlayingRoute::class) ||
+            it.hasRoute(ChatThreadRoute::class) ||
+            it.hasRoute(AddToPlaylistRoute::class)
     } == true
 
     // `currentDestination` starts `null` on the very first composition (the
