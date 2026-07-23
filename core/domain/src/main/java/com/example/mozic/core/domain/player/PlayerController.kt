@@ -35,4 +35,9 @@ interface PlayerController {
 
     /** `null` cancels any running timer. */
     fun setSleepTimer(duration: Duration?)
+
+    fun toggleShuffle()
+
+    /** Cycles [com.example.mozic.core.domain.model.RepeatMode.OFF] → `ALL` → `ONE` → `OFF`. */
+    fun cycleRepeatMode()
 }

@@ -113,6 +113,7 @@ POST /rest/v1/rpc/search_catalog                { q, result_type }  → cross-so
 GET  /rest/v1/playlists?category=eq.WORLD&select=…
 POST /rest/v1/playlists  { id, title, owner_id, category: "USER" }   (authenticated, RLS: owner_id = auth.uid())
 GET  /rest/v1/playlist_songs?playlist_id=eq.<id>&select=position,songs(*)&order=position
+POST /rest/v1/playlist_songs  { playlist_id, song_id, position }   (authenticated, RLS: caller owns the playlist)
 GET  /rest/v1/profiles?select=…                 GET  /rest/v1/profiles?id=eq.<id>&select=…
 POST /rest/v1/follows   { follower_id, followee_id }      DELETE with the same filter
 GET  /rest/v1/conversations?select=…            (RLS: only rows where you're user_a/user_b)

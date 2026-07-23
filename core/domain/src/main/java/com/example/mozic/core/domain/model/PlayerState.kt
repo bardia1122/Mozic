@@ -11,4 +11,6 @@ data class PlayerState(
     val queueIndex: Int = 0,
     val sleepTimerRemainingMs: Long? = null,
     val isBuffering: Boolean = false,
+    val shuffleEnabled: Boolean = false,
+    val repeatMode: RepeatMode = RepeatMode.OFF,
 )

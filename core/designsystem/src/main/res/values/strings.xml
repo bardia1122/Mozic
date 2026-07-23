@@ -53,6 +53,20 @@
     <string name="cd_playback_speed">Playback speed</string>
     <string name="player_sleep_timer_off">Off</string>
     <string name="player_sleep_timer_minutes">%d min</string>
+    <string name="player_now_playing_title">NOW PLAYING</string>
+    <string name="cd_overflow_menu">More options</string>
+    <string name="cd_shuffle_on">Shuffle on</string>
+    <string name="cd_shuffle_off">Shuffle off</string>
+    <string name="cd_repeat_off">Repeat off</string>
+    <string name="cd_repeat_all">Repeat all</string>
+    <string name="cd_repeat_one">Repeat one</string>
+    <string name="player_menu_add_to_playlist">Add to playlist</string>
+    <string name="player_menu_sleep_timer">Sleep timer</string>
+    <string name="player_menu_speed">Speed</string>
+    <string name="player_menu_share">Share</string>
+    <string name="player_add_to_playlist_login_required">Log in to add songs to a playlist</string>
+    <string name="player_add_to_playlist_empty_title">No playlists yet</string>
+    <string name="player_add_to_playlist_empty_subtitle">Create a playlist from the Playlists tab, then add songs to it from here</string>
 
     <!-- Home -->
     <string name="home_quick_action_liked">Liked</string>

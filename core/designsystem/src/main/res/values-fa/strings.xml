@@ -48,6 +48,20 @@
     <string name="cd_playback_speed">سرعت پخش</string>
     <string name="player_sleep_timer_off">خاموش</string>
     <string name="player_sleep_timer_minutes">%d دقیقه</string>
+    <string name="player_now_playing_title">درحال پخش</string>
+    <string name="cd_overflow_menu">گزینه‌های بیشتر</string>
+    <string name="cd_shuffle_on">پخش تصادفی روشن</string>
+    <string name="cd_shuffle_off">پخش تصادفی خاموش</string>
+    <string name="cd_repeat_off">تکرار خاموش</string>
+    <string name="cd_repeat_all">تکرار همه</string>
+    <string name="cd_repeat_one">تکرار یکی</string>
+    <string name="player_menu_add_to_playlist">افزودن به پلی‌لیست</string>
+    <string name="player_menu_sleep_timer">تایمر خواب</string>
+    <string name="player_menu_speed">سرعت</string>
+    <string name="player_menu_share">اشتراک‌گذاری</string>
+    <string name="player_add_to_playlist_login_required">برای افزودن آهنگ به پلی‌لیست وارد شوید</string>
+    <string name="player_add_to_playlist_empty_title">هنوز پلی‌لیستی نیست</string>
+    <string name="player_add_to_playlist_empty_subtitle">ابتدا از تب پلی‌لیست‌ها یک پلی‌لیست بسازید، سپس از اینجا آهنگ اضافه کنید</string>
 
     <!-- Home -->
     <string name="home_quick_action_liked">پسندیده‌ها</string>

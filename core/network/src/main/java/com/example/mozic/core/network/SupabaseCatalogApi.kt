@@ -3,6 +3,7 @@ package com.example.mozic.core.network
 import com.example.mozic.core.network.dto.PlaylistDto
 import com.example.mozic.core.network.dto.PlaylistInsertDto
 import com.example.mozic.core.network.dto.PlaylistSongCountRowDto
+import com.example.mozic.core.network.dto.PlaylistSongInsertDto
 import com.example.mozic.core.network.dto.PlaylistSongRowDto
 import com.example.mozic.core.network.dto.SearchCatalogRowDto
 import com.example.mozic.core.network.dto.SongDto
@@ -76,6 +77,21 @@ class SupabaseCatalogApi @Inject constructor(
             applyRange(range)
         }
         return response.toRangePage()
+    }
+
+    /**
+     * RLS scopes this to the playlist's own owner — `playlist_songs_insert_owner`
+     * (schema.sql). `resolution=merge-duplicates` makes re-adding an
+     * already-present song a safe no-op (keeps its original position) instead
+     * of a 409 on the composite primary key.
+     */
+    suspend fun addSongToPlaylist(accessToken: String, entry: PlaylistSongInsertDto) {
+        client.post(restUrl("playlist_songs")) {
+            bearerAuth(accessToken)
+            header("Prefer", "resolution=merge-duplicates,return=minimal")
+            contentType(ContentType.Application.Json)
+            setBody(entry)
+        }
     }
 
     /** One batched query instead of N+1 per-playlist count lookups. */

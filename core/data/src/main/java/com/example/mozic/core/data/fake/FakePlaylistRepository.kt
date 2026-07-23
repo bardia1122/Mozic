@@ -45,6 +45,12 @@ class FakePlaylistRepository @Inject constructor() : PlaylistRepository {
         return playlist
     }
 
+    override suspend fun addSongToPlaylist(playlistId: String, songId: String) {
+        allPlaylists.update { list ->
+            list.map { if (it.id == playlistId) it.copy(songCount = it.songCount + 1) else it }
+        }
+    }
+
     override fun playlistSongs(playlistId: String): Flow<PagingData<Song>> {
         val songCount = SampleData.playlists.find { it.id == playlistId }?.songCount ?: SampleData.songs.size
         // Only 10 sample songs exist but playlists claim up to 50 — cycle the

@@ -25,9 +25,12 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.RepeatOne
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,7 +42,6 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,18 +61,19 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.mozic.core.designsystem.R as DesignSystemR
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.designsystem.theme.mozicColors
 import com.example.mozic.core.domain.model.PlayerState
+import com.example.mozic.core.domain.model.RepeatMode
 import com.example.mozic.core.domain.model.Song
 import com.example.mozic.core.ui.animation.LocalSharedTransitionScope
 import com.example.mozic.core.ui.color.rememberDominantColor
 import com.example.mozic.core.ui.component.CoverImage
 import com.example.mozic.core.ui.component.DownloadIconButton
-import com.example.mozic.core.ui.component.ShareIconButton
 import java.util.Locale
 
 /** `tween(600)` per the palette-gradient spec — a song change should feel like a soft cross-fade. */
@@ -86,11 +89,15 @@ private const val PALETTE_BACKGROUND_BLEND = 0.3f
 /** One full rotation every 8s — a slow, ambient vinyl spin, not attention-grabbing. */
 private const val DISC_DEGREES_PER_SECOND = 360f / 8f
 
+/** Design handoff's "NOW PLAYING" label: 11px, letter-spacing 2px, uppercase. */
+private val NOW_PLAYING_TITLE_LETTER_SPACING = 2.sp
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun NowPlayingScreen(
     onBackClick: () -> Unit,
     onShareClick: (songId: String) -> Unit,
+    onAddToPlaylistClick: (songId: String) -> Unit,
     modifier: Modifier = Modifier,
     animatedVisibilityScope: AnimatedVisibilityScope? = null,
     viewModel: PlayerViewModel = hiltViewModel(),
@@ -109,6 +116,16 @@ fun NowPlayingScreen(
         }
     }
 
+    // Design handoff: Share/Sleep timer/Speed moved off the top bar into the
+    // three-dot overflow menu (`PlayerOverflowMenu`); tapping "Sleep timer"/
+    // "Speed" there closes the menu and opens one of these two dialogs
+    // instead of a nested dropdown — Compose has no first-class menu-in-menu,
+    // and this reuses the same AlertDialog pattern already established by
+    // `feature/playlists`' CreatePlaylistDialog.
+    var menuExpanded by remember { mutableStateOf(false) }
+    var showSleepTimerDialog by remember { mutableStateOf(false) }
+    var showSpeedDialog by remember { mutableStateOf(false) }
+
     val backgroundColor = MaterialTheme.colorScheme.background
     val dominantColor by rememberDominantColor(model = song?.coverImageUrl, fallback = backgroundColor)
     val animatedAccent by animateColorAsState(
@@ -126,8 +143,15 @@ fun NowPlayingScreen(
         containerColor = Color.Transparent,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(
-                title = {},
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(DesignSystemR.string.player_now_playing_title),
+                        style = MaterialTheme.typography.labelSmall,
+                        letterSpacing = NOW_PLAYING_TITLE_LETTER_SPACING,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -137,16 +161,18 @@ fun NowPlayingScreen(
                     }
                 },
                 actions = {
-                    if (song != null) {
-                        ShareIconButton(onClick = { onShareClick(song.id) })
-                    }
-                    SleepTimerButton(
-                        isActive = state.sleepTimerRemainingMs != null,
-                        onSetTimer = viewModel::setSleepTimer,
+                    PlayerOverflowMenu(
+                        expanded = menuExpanded,
+                        onExpandedChange = { menuExpanded = it },
+                        actions = PlayerOverflowMenuActions(
+                            onAddToPlaylistClick = { song?.let { onAddToPlaylistClick(it.id) } },
+                            onSleepTimerClick = { showSleepTimerDialog = true },
+                            onSpeedClick = { showSpeedDialog = true },
+                            onShareClick = { song?.let { onShareClick(it.id) } },
+                        ),
                     )
-                    PlaybackSpeedButton(speed = state.speed, onSetSpeed = viewModel::setSpeed)
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent),
             )
         },
     ) { innerPadding ->
@@ -171,10 +197,25 @@ fun NowPlayingScreen(
                     onDownloadClick = viewModel::requestDownload,
                     onRemoveDownloadClick = viewModel::removeDownload,
                     onUpgradeRequired = viewModel::requestUpgrade,
+                    onToggleShuffle = viewModel::toggleShuffle,
+                    onCycleRepeatMode = viewModel::cycleRepeatMode,
                 ),
                 modifier = contentModifier,
             )
         }
+    }
+
+    if (showSleepTimerDialog) {
+        SleepTimerDialog(
+            onSetTimer = viewModel::setSleepTimer,
+            onDismiss = { showSleepTimerDialog = false },
+        )
+    }
+    if (showSpeedDialog) {
+        PlaybackSpeedDialog(
+            onSetSpeed = viewModel::setSpeed,
+            onDismiss = { showSpeedDialog = false },
+        )
     }
 }
 
@@ -202,6 +243,8 @@ private data class NowPlayingActions(
     val onDownloadClick: () -> Unit,
     val onRemoveDownloadClick: () -> Unit,
     val onUpgradeRequired: () -> Unit,
+    val onToggleShuffle: () -> Unit,
+    val onCycleRepeatMode: () -> Unit,
 )
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -264,72 +307,129 @@ private fun NowPlayingContent(
 
         Spacer(Modifier.height(MaterialTheme.dimens.spaceLg))
 
-        val likeTint = if (extras.isLiked) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.onSurface
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(onClick = actions.onLikeClick) {
-                Icon(
-                    imageVector = if (extras.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = stringResource(
-                        if (extras.isLiked) DesignSystemR.string.cd_unlike else DesignSystemR.string.cd_like,
-                    ),
-                    tint = likeTint,
-                )
-            }
-            IconButton(onClick = actions.onPrevious) {
-                Icon(
-                    imageVector = Icons.Filled.SkipPrevious,
-                    contentDescription = stringResource(DesignSystemR.string.cd_previous),
-                    modifier = Modifier.size(MaterialTheme.dimens.spaceXl),
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .size(MaterialTheme.dimens.playerControlButtonSize)
-                    .clip(CircleShape)
-                    .background(brush = MaterialTheme.mozicColors.accentGradient)
-                    .clickable(onClick = actions.onPlayPauseClick),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (state.isBuffering) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
-                } else {
-                    Icon(
-                        imageVector = if (state.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                        contentDescription = stringResource(
-                            if (state.isPlaying) {
-                                DesignSystemR.string.action_pause
-                            } else {
-                                DesignSystemR.string.action_play
-                            },
-                        ),
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(MaterialTheme.dimens.spaceXl),
-                    )
-                }
-            }
-            IconButton(onClick = actions.onNext) {
-                Icon(
-                    imageVector = Icons.Filled.SkipNext,
-                    contentDescription = stringResource(DesignSystemR.string.cd_next),
-                    modifier = Modifier.size(MaterialTheme.dimens.spaceXl),
-                )
-            }
-            DownloadIconButton(
-                downloadState = extras.downloadState,
-                isPremium = extras.isPremium,
-                onDownloadClick = actions.onDownloadClick,
-                onRemoveClick = actions.onRemoveDownloadClick,
-                onUpgradeRequired = actions.onUpgradeRequired,
+        TransportRow(state = state, actions = actions, modifier = Modifier.fillMaxWidth())
+
+        Spacer(Modifier.height(MaterialTheme.dimens.spaceLg))
+
+        SecondaryRow(extras = extras, actions = actions, modifier = Modifier.fillMaxWidth())
+    }
+}
+
+/** Design handoff: Shuffle — Previous — Play/Pause — Next — Repeat, `space-between`. */
+@Composable
+private fun TransportRow(state: PlayerState, actions: NowPlayingActions, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        ShuffleButton(enabled = state.shuffleEnabled, onClick = actions.onToggleShuffle)
+        IconButton(onClick = actions.onPrevious) {
+            Icon(
+                imageVector = Icons.Filled.SkipPrevious,
+                contentDescription = stringResource(DesignSystemR.string.cd_previous),
+                modifier = Modifier.size(MaterialTheme.dimens.spaceXl),
             )
         }
+        Box(
+            modifier = Modifier
+                .size(MaterialTheme.dimens.playerControlButtonSize)
+                .clip(CircleShape)
+                .background(brush = MaterialTheme.mozicColors.accentGradient)
+                .clickable(onClick = actions.onPlayPauseClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (state.isBuffering) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+            } else {
+                Icon(
+                    imageVector = if (state.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                    contentDescription = stringResource(
+                        if (state.isPlaying) DesignSystemR.string.action_pause else DesignSystemR.string.action_play,
+                    ),
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(MaterialTheme.dimens.spaceXl),
+                )
+            }
+        }
+        IconButton(onClick = actions.onNext) {
+            Icon(
+                imageVector = Icons.Filled.SkipNext,
+                contentDescription = stringResource(DesignSystemR.string.cd_next),
+                modifier = Modifier.size(MaterialTheme.dimens.spaceXl),
+            )
+        }
+        RepeatButton(mode = state.repeatMode, onClick = actions.onCycleRepeatMode)
+    }
+}
+
+/** Toggle — tint switches muted/accent, same "active state" language as the design tokens. */
+@Composable
+private fun ShuffleButton(enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    IconButton(onClick = onClick, modifier = modifier) {
+        Icon(
+            imageVector = Icons.Filled.Shuffle,
+            contentDescription = stringResource(
+                if (enabled) DesignSystemR.string.cd_shuffle_on else DesignSystemR.string.cd_shuffle_off,
+            ),
+            tint = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.mozicColors.textTertiary,
+        )
+    }
+}
+
+/**
+ * Cycles off → all → one. The design's "one" state adds a small "1" badge to
+ * the same glyph; the app's own Material icon set already has a distinct
+ * [Icons.Filled.RepeatOne] glyph with that "1" baked in, so this swaps icons
+ * instead of hand-drawing an overlay badge — same information, one fewer
+ * custom-drawn element.
+ */
+@Composable
+private fun RepeatButton(mode: RepeatMode, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val icon = if (mode == RepeatMode.ONE) Icons.Filled.RepeatOne else Icons.Filled.Repeat
+    val contentDescriptionRes = when (mode) {
+        RepeatMode.OFF -> DesignSystemR.string.cd_repeat_off
+        RepeatMode.ALL -> DesignSystemR.string.cd_repeat_all
+        RepeatMode.ONE -> DesignSystemR.string.cd_repeat_one
+    }
+    val tint = if (mode == RepeatMode.OFF) MaterialTheme.mozicColors.textTertiary else MaterialTheme.colorScheme.primary
+    IconButton(onClick = onClick, modifier = modifier) {
+        Icon(
+            imageVector = icon,
+            contentDescription = stringResource(contentDescriptionRes),
+            tint = tint,
+        )
+    }
+}
+
+/** Design handoff: Like + Download moved off the transport row into their own centered row below it. */
+@Composable
+private fun SecondaryRow(extras: PlayerExtrasUiState, actions: NowPlayingActions, modifier: Modifier = Modifier) {
+    val likeTint = if (extras.isLiked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(
+            MaterialTheme.dimens.spaceXl + MaterialTheme.dimens.spaceLg,
+            Alignment.CenterHorizontally,
+        ),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = actions.onLikeClick) {
+            Icon(
+                imageVector = if (extras.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                contentDescription = stringResource(
+                    if (extras.isLiked) DesignSystemR.string.cd_unlike else DesignSystemR.string.cd_like,
+                ),
+                tint = likeTint,
+            )
+        }
+        DownloadIconButton(
+            downloadState = extras.downloadState,
+            isPremium = extras.isPremium,
+            onDownloadClick = actions.onDownloadClick,
+            onRemoveClick = actions.onRemoveDownloadClick,
+            onUpgradeRequired = actions.onUpgradeRequired,
+        )
     }
 }
 

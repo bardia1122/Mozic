@@ -1,5 +1,6 @@
 package com.example.mozic.core.network.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -10,4 +11,12 @@ import kotlinx.serialization.Serializable
 data class PlaylistSongRowDto(
     val position: Int,
     val songs: SongDto,
+)
+
+/** POST body for the Now Playing screen's "Add to playlist" flow — appended at [position]. */
+@Serializable
+data class PlaylistSongInsertDto(
+    @SerialName("playlist_id") val playlistId: String,
+    @SerialName("song_id") val songId: String,
+    val position: Int,
 )

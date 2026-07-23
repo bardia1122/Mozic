@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.example.mozic.feature.player.AddToPlaylistSheet
 import com.example.mozic.feature.player.NowPlayingScreen
 
 /**
@@ -26,11 +27,24 @@ fun NavGraphBuilder.nowPlayingScreen(navController: NavHostController, onShareCl
         NowPlayingScreen(
             onBackClick = { navController.popBackStack() },
             onShareClick = onShareClick,
+            onAddToPlaylistClick = navController::navigateToAddToPlaylist,
             animatedVisibilityScope = this,
         )
+    }
+    composable<AddToPlaylistRoute>(
+        enterTransition = { fadeIn(animationSpec = tween(NOW_PLAYING_NAV_TRANSITION_MS)) },
+        exitTransition = { fadeOut(animationSpec = tween(NOW_PLAYING_NAV_TRANSITION_MS)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(NOW_PLAYING_NAV_TRANSITION_MS)) },
+        popExitTransition = { fadeOut(animationSpec = tween(NOW_PLAYING_NAV_TRANSITION_MS)) },
+    ) {
+        AddToPlaylistSheet(onDismiss = { navController.popBackStack() })
     }
 }
 
 fun NavHostController.navigateToNowPlaying() {
     navigate(NowPlayingRoute)
+}
+
+fun NavHostController.navigateToAddToPlaylist(songId: String) {
+    navigate(AddToPlaylistRoute(songId))
 }

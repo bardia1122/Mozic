@@ -1,0 +1,125 @@
+package com.example.mozic.feature.player
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.mozic.core.designsystem.R
+import com.example.mozic.core.designsystem.theme.dimens
+import com.example.mozic.core.domain.model.Playlist
+import com.example.mozic.core.ui.component.MediaListRow
+
+/**
+ * Reached from Now Playing's overflow menu ("Add to playlist" — the design
+ * handoff's new menu item). Same shape as `ShareSongSheet`'s friend picker:
+ * a bottom sheet, its own route/`ViewModel`, dismissing on success.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddToPlaylistSheet(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: AddToPlaylistViewModel = hiltViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                AddToPlaylistEffect.Added -> onDismiss()
+            }
+        }
+    }
+
+    ModalBottomSheet(onDismissRequest = onDismiss, modifier = modifier) {
+        Column(modifier = Modifier.padding(bottom = MaterialTheme.dimens.spaceLg)) {
+            Text(
+                text = stringResource(R.string.player_menu_add_to_playlist),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(
+                    horizontal = MaterialTheme.dimens.screenHorizontalPadding,
+                    vertical = MaterialTheme.dimens.spaceSm,
+                ),
+            )
+            when (val state = uiState) {
+                AddToPlaylistUiState.Loading -> AddToPlaylistMessage(text = stringResource(R.string.state_loading))
+
+                AddToPlaylistUiState.LoggedOut -> AddToPlaylistMessage(
+                    text = stringResource(R.string.player_add_to_playlist_login_required),
+                )
+
+                is AddToPlaylistUiState.Content -> if (state.playlists.isEmpty()) {
+                    AddToPlaylistMessage(text = stringResource(R.string.player_add_to_playlist_empty_title))
+                } else {
+                    LazyColumn {
+                        items(state.playlists, key = Playlist::id) { playlist ->
+                            AddToPlaylistRow(
+                                playlist = playlist,
+                                isAdding = state.addingPlaylistId == playlist.id,
+                                onClick = { viewModel.onPlaylistClick(playlist.id) },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddToPlaylistMessage(text: String, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(MaterialTheme.dimens.screenHorizontalPadding)
+            .height(MaterialTheme.dimens.spaceXl),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun AddToPlaylistRow(
+    playlist: Playlist,
+    isAdding: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    MediaListRow(
+        imageUrl = playlist.coverImageUrl,
+        title = playlist.title,
+        subtitle = stringResource(R.string.home_playlist_song_count, playlist.songCount),
+        onClick = onClick,
+        modifier = modifier,
+        trailing = {
+            if (isAdding) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(MaterialTheme.dimens.spaceMd),
+                    strokeWidth = MaterialTheme.dimens.progressStrokeWidthThin,
+                )
+            }
+        },
+    )
+}

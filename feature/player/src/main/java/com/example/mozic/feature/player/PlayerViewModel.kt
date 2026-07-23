@@ -85,6 +85,10 @@ class PlayerViewModel @Inject constructor(
 
     fun setSleepTimer(duration: Duration?) = playerController.setSleepTimer(duration)
 
+    fun toggleShuffle() = playerController.toggleShuffle()
+
+    fun cycleRepeatMode() = playerController.cycleRepeatMode()
+
     fun toggleLike() {
         val songId = state.value.currentSong?.id ?: return
         viewModelScope.launch { libraryRepository.toggleLike(songId) }

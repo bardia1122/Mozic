@@ -3,6 +3,7 @@ package com.example.mozic.core.media
 import androidx.media3.common.C
 import androidx.media3.common.Player
 import com.example.mozic.core.domain.model.PlayerState
+import com.example.mozic.core.domain.model.RepeatMode
 import com.example.mozic.core.domain.model.Song
 
 /**
@@ -26,6 +27,14 @@ internal object PlayerStateMapper {
             speed = player.playbackParameters.speed,
             queueIndex = player.currentMediaItemIndex.coerceAtLeast(0),
             isBuffering = player.playbackState == Player.STATE_BUFFERING,
+            shuffleEnabled = player.shuffleModeEnabled,
+            repeatMode = player.repeatMode.toDomainRepeatMode(),
         )
+    }
+
+    private fun Int.toDomainRepeatMode(): RepeatMode = when (this) {
+        Player.REPEAT_MODE_ALL -> RepeatMode.ALL
+        Player.REPEAT_MODE_ONE -> RepeatMode.ONE
+        else -> RepeatMode.OFF
     }
 }

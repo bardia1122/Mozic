@@ -196,7 +196,21 @@ create policy "playlist_songs_select_visible" on public.playlist_songs
         )
     );
 
+-- The Now Playing screen's "Add to playlist" flow inserts as the playlist's
+-- own owner (never into someone else's playlist, since the client only ever
+-- lists the caller's own USER-category playlists to add into).
+drop policy if exists "playlist_songs_insert_owner" on public.playlist_songs;
+create policy "playlist_songs_insert_owner" on public.playlist_songs
+    for insert with check (
+        exists (
+            select 1 from public.playlists p
+            where p.id = playlist_songs.playlist_id
+              and p.owner_id = auth.uid()
+        )
+    );
+
 grant select on public.playlist_songs to anon, authenticated, service_role;
+grant insert on public.playlist_songs to authenticated;
 grant insert, update, delete on public.playlist_songs to service_role;
 
 create index if not exists playlist_songs_playlist_idx on public.playlist_songs (playlist_id, position);

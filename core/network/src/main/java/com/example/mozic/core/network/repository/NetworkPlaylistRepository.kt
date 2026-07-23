@@ -12,6 +12,7 @@ import com.example.mozic.core.domain.repository.AuthRepository
 import com.example.mozic.core.domain.repository.PlaylistRepository
 import com.example.mozic.core.network.SupabaseCatalogApi
 import com.example.mozic.core.network.dto.PlaylistInsertDto
+import com.example.mozic.core.network.dto.PlaylistSongInsertDto
 import com.example.mozic.core.network.mapper.playlistsWithCounts
 import com.example.mozic.core.network.paging.PlaylistSongsPagingSource
 import java.util.UUID
@@ -73,6 +74,15 @@ class NetworkPlaylistRepository @Inject constructor(
             isPublic = true,
             category = PlaylistCategory.USER,
             songCount = 0,
+        )
+    }
+
+    override suspend fun addSongToPlaylist(playlistId: String, songId: String) {
+        val auth = requireLoggedIn()
+        val position = api.playlistSongCounts(listOf(playlistId))[playlistId] ?: 0
+        api.addSongToPlaylist(
+            accessToken = auth.accessToken,
+            entry = PlaylistSongInsertDto(playlistId = playlistId, songId = songId, position = position),
         )
     }
 

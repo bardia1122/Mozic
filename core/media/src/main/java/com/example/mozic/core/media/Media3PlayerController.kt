@@ -251,6 +251,16 @@ class Media3PlayerController @Inject constructor(
 
     override fun setSpeed(speed: Float) = withController { it.playbackParameters = PlaybackParameters(speed) }
 
+    override fun toggleShuffle() = withController { it.shuffleModeEnabled = !it.shuffleModeEnabled }
+
+    override fun cycleRepeatMode() = withController { controller ->
+        controller.repeatMode = when (controller.repeatMode) {
+            Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
+            Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
+            else -> Player.REPEAT_MODE_OFF
+        }
+    }
+
     override fun setSleepTimer(duration: Duration?) {
         sleepJob?.cancel()
         if (duration == null) {

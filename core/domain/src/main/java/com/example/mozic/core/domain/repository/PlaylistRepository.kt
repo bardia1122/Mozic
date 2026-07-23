@@ -16,4 +16,12 @@ interface PlaylistRepository {
      * Throws [com.example.mozic.core.domain.model.NotLoggedInException] if not logged in.
      */
     suspend fun createPlaylist(title: String): Playlist
+
+    /**
+     * Appends [songId] to the end of [playlistId]. Throws
+     * [com.example.mozic.core.domain.model.NotLoggedInException] if not logged
+     * in; the backend additionally rejects it if the caller doesn't own the
+     * playlist.
+     */
+    suspend fun addSongToPlaylist(playlistId: String, songId: String)
 }
