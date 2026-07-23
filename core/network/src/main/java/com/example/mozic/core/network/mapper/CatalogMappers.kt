@@ -23,7 +23,7 @@ fun SongDto.toDomain(): Song = Song(
     durationMs = durationMs,
 )
 
-fun PlaylistDto.toDomain(songCount: Int): Playlist = Playlist(
+fun PlaylistDto.toDomain(songCount: Int, coverImageUrls: List<String> = emptyList()): Playlist = Playlist(
     id = id,
     title = title,
     coverImageUrl = coverImageUrl,
@@ -31,13 +31,25 @@ fun PlaylistDto.toDomain(songCount: Int): Playlist = Playlist(
     isPublic = isPublic,
     category = PlaylistCategory.valueOf(category),
     songCount = songCount,
+    coverImageUrls = coverImageUrls,
 )
 
-/** Shared by `NetworkSongRepository.homeContent()` and `NetworkPlaylistRepository.playlists()`. */
+/**
+ * Shared by `NetworkSongRepository.homeContent()` and
+ * `NetworkPlaylistRepository.playlists()` — both Home and the Playlists tab
+ * get the collage-cover data for free from this one shared helper.
+ * `coverImageUrls` is only ever looked at for a playlist whose own
+ * `coverImageUrl` is null (see that field's kdoc), so fetching it for every
+ * playlist here — including curated WORLD/LOCAL ones that already have a
+ * real cover and will just ignore it — is simpler than branching the query
+ * per playlist, at the cost of a batched query most rows won't use.
+ */
 suspend fun SupabaseCatalogApi.playlistsWithCounts(category: PlaylistCategory): List<Playlist> {
     val dtos = playlists(category.name)
-    val counts = playlistSongCounts(dtos.map { it.id })
-    return dtos.map { it.toDomain(counts[it.id] ?: 0) }
+    val ids = dtos.map { it.id }
+    val counts = playlistSongCounts(ids)
+    val coverUrls = playlistCoverImageUrls(ids)
+    return dtos.map { it.toDomain(counts[it.id] ?: 0, coverUrls[it.id] ?: emptyList()) }
 }
 
 /**

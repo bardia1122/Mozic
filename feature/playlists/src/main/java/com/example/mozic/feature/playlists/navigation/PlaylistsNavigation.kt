@@ -49,6 +49,7 @@ fun NavGraphBuilder.playlistsScreen(
                         title = playlist.title,
                         coverImageUrl = playlist.coverImageUrl,
                         songCount = playlist.songCount,
+                        coverImageUrls = playlist.coverImageUrls,
                     ),
                 )
             },

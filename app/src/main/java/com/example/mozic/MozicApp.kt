@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -91,6 +92,10 @@ fun MozicApp(
     val coroutineScope = rememberCoroutineScope()
     val loggedOutMessage = stringResource(DesignSystemR.string.settings_logged_out)
     val createPlaylistLoginRequiredMessage = stringResource(DesignSystemR.string.playlists_create_login_required)
+    // Not a plain stringResource() val like the two above — the message needs a per-call
+    // playlist title, resolved when onSongAddedToPlaylist actually fires, not at composition
+    // time — so this keeps the Context around instead and formats on demand.
+    val context = LocalContext.current
 
     // `openNowPlayingSignal` increments once per tap on the media notification (see
     // MainActivity) — keyed on its value, not Unit, so a second tap while already on Now
@@ -186,6 +191,13 @@ fun MozicApp(
                     onCreatePlaylistLoginRequired = {
                         coroutineScope.launch { snackbarHostState.showSnackbar(createPlaylistLoginRequiredMessage) }
                         navController.navigateToConversationList()
+                    },
+                    onSongAddedToPlaylist = { playlistTitle ->
+                        val message = context.getString(
+                            DesignSystemR.string.player_add_to_playlist_added,
+                            playlistTitle,
+                        )
+                        coroutineScope.launch { snackbarHostState.showSnackbar(message) }
                     },
                     modifier = Modifier
                         .padding(innerPadding)

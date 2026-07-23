@@ -30,6 +30,7 @@ fun MozicNavHost(
     navController: NavHostController,
     onLoggedOut: () -> Unit,
     onCreatePlaylistLoginRequired: () -> Unit,
+    onSongAddedToPlaylist: (playlistTitle: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -54,7 +55,11 @@ fun MozicNavHost(
             onLoginRequiredForCreate = onCreatePlaylistLoginRequired,
         )
         libraryScreen(navController, onShareClick = navController::navigateToShareSong)
-        nowPlayingScreen(navController, onShareClick = navController::navigateToShareSong)
+        nowPlayingScreen(
+            navController,
+            onShareClick = navController::navigateToShareSong,
+            onSongAddedToPlaylist = onSongAddedToPlaylist,
+        )
         profileScreen(onNavigateToSettings = navController::navigateToSettings)
         settingsScreen(
             onBackClick = { navController.popBackStack() },
@@ -73,6 +78,7 @@ fun MozicNavHost(
                         title = playlist.title,
                         coverImageUrl = playlist.coverImageUrl,
                         songCount = playlist.songCount,
+                        coverImageUrls = playlist.coverImageUrls,
                     ),
                 )
             },

@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,11 +23,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.example.mozic.core.designsystem.R
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.domain.model.Playlist
-import com.example.mozic.core.ui.modifier.artworkPlaceholder
 
 /**
- * Playlist cover + title, used on Home and the Playlists grid. Falls back to
- * the shared [artworkPlaceholder] stripe texture when there's no cover image.
+ * Playlist cover + title, used on Home and the Playlists grid. The cover
+ * itself is [PlaylistCoverArt] — a curated cover, a collage built from
+ * member songs, or a static "empty" default, depending on what [playlist]
+ * has.
  */
 @Composable
 fun PlaylistCard(
@@ -47,23 +47,14 @@ fun PlaylistCard(
             .clickable(interactionSource = interactionSource, indication = null, onClick = onClick),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceXs),
     ) {
-        val cover = playlist.coverImageUrl
-        if (cover != null) {
-            CoverImage(
-                model = cover,
-                contentDescription = playlist.title,
-                modifier = Modifier
-                    .size(MaterialTheme.dimens.cardImageSize)
-                    .clip(MaterialTheme.shapes.medium),
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .size(MaterialTheme.dimens.cardImageSize)
-                    .clip(MaterialTheme.shapes.medium)
-                    .artworkPlaceholder(),
-            )
-        }
+        PlaylistCoverArt(
+            coverImageUrl = playlist.coverImageUrl,
+            coverImageUrls = playlist.coverImageUrls,
+            contentDescription = playlist.title,
+            modifier = Modifier
+                .size(MaterialTheme.dimens.cardImageSize)
+                .clip(MaterialTheme.shapes.medium),
+        )
         Text(
             text = playlist.title,
             style = MaterialTheme.typography.titleSmall,

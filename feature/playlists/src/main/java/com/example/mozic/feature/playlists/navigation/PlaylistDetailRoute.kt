@@ -13,4 +13,5 @@ data class PlaylistDetailRoute(
     val title: String,
     val coverImageUrl: String?,
     val songCount: Int,
+    val coverImageUrls: List<String> = emptyList(),
 )

@@ -11,5 +11,5 @@ sealed interface AddToPlaylistUiState {
 }
 
 sealed interface AddToPlaylistEffect {
-    data object Added : AddToPlaylistEffect
+    data class Added(val playlistTitle: String) : AddToPlaylistEffect
 }

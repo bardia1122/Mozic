@@ -84,6 +84,9 @@ class NetworkPlaylistRepository @Inject constructor(
             accessToken = auth.accessToken,
             entry = PlaylistSongInsertDto(playlistId = playlistId, songId = songId, position = position),
         )
+        // So the grid's collage cover (built from the first 4 songs) picks up this add
+        // immediately, same reasoning as createPlaylist's own bump above.
+        refreshTrigger.update { it + 1 }
     }
 
     // Same "await past Unknown" reasoning as NetworkSocialRepository.requireLoggedIn.

@@ -29,12 +29,18 @@ import com.example.mozic.core.ui.component.MediaListRow
 /**
  * Reached from Now Playing's overflow menu ("Add to playlist" — the design
  * handoff's new menu item). Same shape as `ShareSongSheet`'s friend picker:
- * a bottom sheet, its own route/`ViewModel`, dismissing on success.
+ * a bottom sheet, its own route/`ViewModel`. [onSongAdded] — not [onDismiss]
+ * — fires on success, so the caller (which owns the app-level snackbar that
+ * outlives this sheet's own dismissal) can both close the sheet and show the
+ * "Added to playlist X" toast; a snackbar hosted on this sheet itself
+ * wouldn't survive its own dismiss, same reasoning as `MozicApp`'s
+ * logged-out/create-playlist-login-required toasts.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddToPlaylistSheet(
     onDismiss: () -> Unit,
+    onSongAdded: (playlistTitle: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AddToPlaylistViewModel = hiltViewModel(),
 ) {
@@ -43,7 +49,7 @@ fun AddToPlaylistSheet(
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                AddToPlaylistEffect.Added -> onDismiss()
+                is AddToPlaylistEffect.Added -> onSongAdded(effect.playlistTitle)
             }
         }
     }

@@ -27,6 +27,7 @@ class PlaylistDetailViewModel @Inject constructor(
     val title: String = route.title
     val coverImageUrl: String? = route.coverImageUrl
     val songCount: Int = route.songCount
+    val coverImageUrls: List<String> = route.coverImageUrls
 
     val songs: Flow<PagingData<Song>> = playlistRepository.playlistSongs(route.playlistId).cachedIn(viewModelScope)
 

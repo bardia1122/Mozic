@@ -60,6 +60,7 @@
     <string name="player_menu_speed">سرعت</string>
     <string name="player_menu_share">اشتراک‌گذاری</string>
     <string name="player_add_to_playlist_login_required">برای افزودن آهنگ به پلی‌لیست وارد شوید</string>
+    <string name="player_add_to_playlist_added">به پلی‌لیست %1$s اضافه شد</string>
     <string name="player_add_to_playlist_empty_title">هنوز پلی‌لیستی نیست</string>
     <string name="player_add_to_playlist_empty_subtitle">ابتدا از تب پلی‌لیست‌ها یک پلی‌لیست بسازید، سپس از اینجا آهنگ اضافه کنید</string>
 

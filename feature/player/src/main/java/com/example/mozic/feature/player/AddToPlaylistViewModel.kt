@@ -57,11 +57,13 @@ class AddToPlaylistViewModel @Inject constructor(
 
     fun onPlaylistClick(playlistId: String) {
         if (addingPlaylistId.value != null) return
+        val content = uiState.value as? AddToPlaylistUiState.Content ?: return
+        val playlistTitle = content.playlists.find { it.id == playlistId }?.title ?: return
         addingPlaylistId.value = playlistId
         viewModelScope.launch {
             playlistRepository.addSongToPlaylist(playlistId, songId)
             addingPlaylistId.value = null
-            _effects.send(AddToPlaylistEffect.Added)
+            _effects.send(AddToPlaylistEffect.Added(playlistTitle))
         }
     }
 }

@@ -44,12 +44,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.mozic.core.designsystem.R as DesignSystemR
 import com.example.mozic.core.designsystem.theme.dimens
 import com.example.mozic.core.designsystem.theme.mozicColors
-import com.example.mozic.core.ui.component.CoverImage
 import com.example.mozic.core.ui.component.EmptyState
 import com.example.mozic.core.ui.component.MediaListRow
 import com.example.mozic.core.ui.component.MediaListRowSkeleton
+import com.example.mozic.core.ui.component.PlaylistCoverArt
 import com.example.mozic.core.ui.component.ShareIconButton
-import com.example.mozic.core.ui.modifier.artworkPlaceholder
 
 private const val SKELETON_ROW_COUNT = 6
 
@@ -98,6 +97,7 @@ fun PlaylistDetailScreen(
                 PlaylistDetailHeader(
                     title = viewModel.title,
                     coverImageUrl = viewModel.coverImageUrl,
+                    coverImageUrls = viewModel.coverImageUrls,
                     songCount = viewModel.songCount,
                     playAllEnabled = queueIds.isNotEmpty(),
                     onPlayAll = { shuffle -> viewModel.onEvent(PlaylistDetailEvent.PlayAll(queueIds, shuffle)) },
@@ -153,6 +153,7 @@ fun PlaylistDetailScreen(
 private fun PlaylistDetailHeader(
     title: String,
     coverImageUrl: String?,
+    coverImageUrls: List<String>,
     songCount: Int,
     playAllEnabled: Boolean,
     onPlayAll: (shuffle: Boolean) -> Unit,
@@ -163,22 +164,14 @@ private fun PlaylistDetailHeader(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.spaceMd),
     ) {
-        if (coverImageUrl != null) {
-            CoverImage(
-                model = coverImageUrl,
-                contentDescription = title,
-                modifier = Modifier
-                    .size(MaterialTheme.dimens.heroCoverSize)
-                    .clip(MaterialTheme.shapes.large),
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .size(MaterialTheme.dimens.heroCoverSize)
-                    .clip(MaterialTheme.shapes.large)
-                    .artworkPlaceholder(),
-            )
-        }
+        PlaylistCoverArt(
+            coverImageUrl = coverImageUrl,
+            coverImageUrls = coverImageUrls,
+            contentDescription = title,
+            modifier = Modifier
+                .size(MaterialTheme.dimens.heroCoverSize)
+                .clip(MaterialTheme.shapes.large),
+        )
 
         Text(
             text = title,

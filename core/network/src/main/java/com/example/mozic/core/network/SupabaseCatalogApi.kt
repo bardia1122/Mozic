@@ -3,6 +3,7 @@ package com.example.mozic.core.network
 import com.example.mozic.core.network.dto.PlaylistDto
 import com.example.mozic.core.network.dto.PlaylistInsertDto
 import com.example.mozic.core.network.dto.PlaylistSongCountRowDto
+import com.example.mozic.core.network.dto.PlaylistSongCoverRowDto
 import com.example.mozic.core.network.dto.PlaylistSongInsertDto
 import com.example.mozic.core.network.dto.PlaylistSongRowDto
 import com.example.mozic.core.network.dto.SearchCatalogRowDto
@@ -24,6 +25,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val REST_PATH = "/rest/v1/"
+
+/** Matches the 2x2-grid cap the collage cover UI renders (`core/domain/model/Playlist.kt`). */
+private const val MAX_COVER_COLLAGE_SONGS = 4
 
 /**
  * Thin wrapper over PostgREST's raw HTTP surface (`backend/supabase/schema.sql`
@@ -103,6 +107,25 @@ class SupabaseCatalogApi @Inject constructor(
         }
         val rows: List<PlaylistSongCountRowDto> = response.body()
         return rows.groupingBy { it.playlistId }.eachCount()
+    }
+
+    /**
+     * Batched, like [playlistSongCounts] — one query for every playlist id
+     * instead of N+1. Returns up to the first [MAX_COVER_COLLAGE_SONGS]
+     * (by position) song cover URLs per playlist, nulls filtered out.
+     */
+    suspend fun playlistCoverImageUrls(playlistIds: List<String>): Map<String, List<String>> {
+        if (playlistIds.isEmpty()) return emptyMap()
+        val response = client.get(restUrl("playlist_songs")) {
+            parameter("playlist_id", "in.(${playlistIds.joinToString(",")})")
+            parameter("select", "playlist_id,position,songs(cover_image_url)")
+        }
+        val rows: List<PlaylistSongCoverRowDto> = response.body()
+        return rows.groupBy { it.playlistId }.mapValues { (_, playlistRows) ->
+            playlistRows.sortedBy { it.position }
+                .mapNotNull { it.songs.coverImageUrl }
+                .take(MAX_COVER_COLLAGE_SONGS)
+        }
     }
 
     /**

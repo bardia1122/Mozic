@@ -65,6 +65,7 @@
     <string name="player_menu_speed">Speed</string>
     <string name="player_menu_share">Share</string>
     <string name="player_add_to_playlist_login_required">Log in to add songs to a playlist</string>
+    <string name="player_add_to_playlist_added">Added to playlist %1$s</string>
     <string name="player_add_to_playlist_empty_title">No playlists yet</string>
     <string name="player_add_to_playlist_empty_subtitle">Create a playlist from the Playlists tab, then add songs to it from here</string>
 

@@ -25,6 +25,20 @@ data class PlaylistSongCountRowDto(
     @SerialName("playlist_id") val playlistId: String,
 )
 
+/** One row of `select=playlist_id,position,songs(cover_image_url)` — see `playlistCoverImageUrls`. */
+@Serializable
+data class PlaylistSongCoverRowDto(
+    @SerialName("playlist_id") val playlistId: String,
+    val position: Int,
+    val songs: SongCoverDto,
+)
+
+/** Minimal embed — only the one column the collage cover actually needs, not a full [SongDto]. */
+@Serializable
+data class SongCoverDto(
+    @SerialName("cover_image_url") val coverImageUrl: String? = null,
+)
+
 /**
  * POST body for the "Create playlist" flow. The client generates [id] itself
  * — the column has no server-side default — and [category] is always
